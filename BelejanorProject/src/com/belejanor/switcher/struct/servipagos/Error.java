@@ -1,0 +1,47 @@
+package com.belejanor.switcher.struct.servipagos;
+
+import java.io.Serializable;
+import javax.xml.bind.annotation.XmlAccessType;
+import javax.xml.bind.annotation.XmlAccessorType;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlType;
+
+@SuppressWarnings("serial")
+@XmlAccessorType(XmlAccessType.FIELD)
+@XmlType(name = "Error", propOrder = {
+    "code",
+    "description"
+}, namespace = "http://servipagos.implementations.middleware.fitbank.com/fault")
+@XmlRootElement(name = "Error", namespace = "http://servipagos.implementations.middleware.fitbank.com/fault")
+public class Error extends Throwable implements Serializable{
+
+    @XmlElement(name = "Code", required = true)
+    protected String code;
+    @XmlElement(name = "Description", required = true)
+    protected String description;
+    
+    public Error() {
+    	
+    }
+    
+    public Error(String code, String desError){	
+    	
+    	this.code = code;
+    	this.description = desError;
+    }
+    
+	public String getCode() {
+		return code;
+	}
+	public void setCode(String code) {
+		this.code = code;
+	}
+	public String getDescription() {
+		return description;
+	}
+	public void setDescription(String description) {
+		this.description = description;
+	}
+    
+}

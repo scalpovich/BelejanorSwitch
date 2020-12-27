@@ -1,0 +1,945 @@
+package com.fitbank.middleware.authorizations;
+
+import java.util.Arrays;
+import java.util.List;
+import com.fitbank.middleware.bimo.pacs.camt_998_211.Document;
+import com.fitbank.middleware.bimo.pacs.camt_998_372.ListOfPayments;
+import com.fitbank.middleware.bimo.processor.ClientProcessorBimo;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeLog;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.parser.BimoParser;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.Ref;
+import com.fitbank.middleware.utils.StringUtils;
+import com.fitbank.middleware.validatefinantial.ValidateWalletBimo;
+
+public class BanredIsAut implements ITranBIMOAut{
+
+	private Logger log;
+	
+	public BanredIsAut() {
+		log = new Logger();
+	}
+	
+	@Override
+	public wIso8583 EnrolamientoBimoAut(wIso8583 iso) {
+		
+		Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseEnrollAutBimo(iso);
+			if(parser.getCodError().equals("000")){
+
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, Document.class, true);
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.211", 
+						com.fitbank.middleware.bimo.pacs.camt_998_211.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_212.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_212.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_212.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_212.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getAcctEnroll().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getAcctEnroll().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+					
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_212.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor() 
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@EnrolamientoBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+
+	@Override
+	public wIso8583 AdminBimoAut(wIso8583 iso) {
+		com.fitbank.middleware.bimo.pacs.camt_998_311.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseAdminWalletAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_311.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.311", 
+						com.fitbank.middleware.bimo.pacs.camt_998_311.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_312.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_312.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_312.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_312.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getBlckUser().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getBlckUser().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_312.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor() 
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+	
+				}
+			}else{
+				
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@AdminFinancialBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+
+	@Override
+	public wIso8583 ConsultaMovilCtaBimoAut(wIso8583 iso) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public wIso8583 VerificarUsuarioBimoAut(wIso8583 iso) {
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_421.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseValidaUsuarioAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						    com.fitbank.middleware.bimo.pacs.camt_998_421.Document.class, true);
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.421", 
+						com.fitbank.middleware.bimo.pacs.camt_998_421.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_422.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_422.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_422.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_422.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getValField().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getValField().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_422.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor()  
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+		
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@VerificarUsuarioBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+
+	@Override
+	public wIso8583 RegenerarPasswordBimoAut(wIso8583 iso) {
+		com.fitbank.middleware.bimo.pacs.camt_998_471.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseReestablecePinAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_471.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.471", 
+						com.fitbank.middleware.bimo.pacs.camt_998_471.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_472.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_472.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_472.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_472.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getRegeneratePIN().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getRegeneratePIN().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_472.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor() 
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@RegenerarPasswordBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+
+	@Override
+	public wIso8583 AdminFinancialBimoAut(wIso8583 iso) {
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_321.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseTransferenciaBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_321.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.321", 
+						com.fitbank.middleware.bimo.pacs.camt_998_321.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_322.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_322.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_322.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_322.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getCdtTrfTxInf().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getCdtTrfTxInf().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_322.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor()  
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@AdminFinancialBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+
+	@Override
+	public wIso8583 SolicitudCobroBimoAut(wIso8583 iso) {
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_381.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseSolicitudCobroAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_381.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.381", 
+						com.fitbank.middleware.bimo.pacs.camt_998_381.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_382.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_382.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_382.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_382.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getCollectRq().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getCollectRq().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_382.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor() 
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@SolicitudCobroBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+
+	@Override
+	public wIso8583 RechazoSolicitudCobro(wIso8583 iso) {
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_431.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseRechazarSolicituAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_431.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.431", 
+						com.fitbank.middleware.bimo.pacs.camt_998_431.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_432.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_432.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_432.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_432.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getCollectRjct().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getCollectRjct().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_432.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor() 
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@RechazoSolicitudCobro ", 
+					     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+
+	@Override
+	public wIso8583 VerificarTelefonoCtaBimoAut(wIso8583 iso) {
+		com.fitbank.middleware.bimo.pacs.camt_998_441.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseValidaTelefonoCtaAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_441.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.441", 
+						com.fitbank.middleware.bimo.pacs.camt_998_441.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_442.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_442.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_442.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_442.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getQryPhonebyAcc().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getQryPhonebyAcc().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_442.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor()  
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@VerificarTelefonoCtaBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+	@Override
+	public wIso8583 ListarPagosCobrosBimoAut(wIso8583 iso) {
+		com.fitbank.middleware.bimo.pacs.camt_998_371.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parseListarPagosCobrosAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_371.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.371", 
+						com.fitbank.middleware.bimo.pacs.camt_998_371.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_372.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				StringBuilder paymentsBuild = new StringBuilder();
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_372.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_372.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_372.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getQryPendPayments().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getQryPendPayments().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_372.Document.class, true);
+						
+						if(iso.getISO_039_ResponseCode().equals("000")){
+						
+							 List<ListOfPayments> list = document.getPrtryMsg().getQryPendPayments().getPayments();
+							 for (ListOfPayments lpys : list) {
+								
+								paymentsBuild.append(lpys.getEndToEnd() + "|" + lpys.getDate() + "|" + 
+								                    lpys.getPhoneOrig() + "|" + 
+													lpys.getNameOrig() + "|" + lpys.getPhoneDst() + "|" +
+										            lpys.getNameDst() + "|" + lpys.getAmount().getCcy() + "|" +
+													lpys.getAmount().getValue() + "|" + lpys.getReference() + "|" +
+										            Arrays.asList(lpys.getAccountDst().split("\\|")).get(3)); 
+								paymentsBuild.append("^");
+							 }
+							 iso.setISO_115_ExtendedData(StringUtils.trimEnd(paymentsBuild.toString(),"^"));
+						}
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor()  
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@ListarPagosCobrosBimoAut ", 
+					     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+	@Override
+	public wIso8583 ValidacionOTP(wIso8583 iso) {
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_461.Document documentReq = null;
+		ClientProcessorBimo procesessorBimo = null; 
+		Object objRes = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			BimoParser parser = new BimoParser();
+			documentReq = parser.parsevalidarOTPAutBimo(iso);
+			
+			if(parser.getCodError().equals("000")){
+				
+				log.WriteOptimizeLog(documentReq, TypeLog.brdAut, 
+						com.fitbank.middleware.bimo.pacs.camt_998_461.Document.class, true);
+				
+				procesessorBimo = new ClientProcessorBimo();
+				Ref<wIso8583> isoRef = new Ref<wIso8583>(iso);
+				objRes = procesessorBimo.getResponseDataClientRest("camt.998.461", 
+						com.fitbank.middleware.bimo.pacs.camt_998_461.Document.class, 
+						com.fitbank.middleware.bimo.pacs.camt_998_462.Document.class,documentReq, isoRef);
+				iso = isoRef.get();
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					
+					if(objRes instanceof com.fitbank.middleware.bimo.genericerror.Document){
+						
+						com.fitbank.middleware.bimo.genericerror.Document genericError = 
+								(com.fitbank.middleware.bimo.genericerror.Document)objRes;
+						iso.setISO_039_ResponseCode(genericError.getTrx().getStsRsnInf().getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(genericError.getTrx().getStsRsnInf().getRsn().getAddtlInf().get(0));
+						
+						
+						log.WriteOptimizeLog(genericError, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.genericerror.Document.class, true);
+						
+					}else if (objRes instanceof com.fitbank.middleware.bimo.pacs.camt_998_462.Document) {
+						
+						com.fitbank.middleware.bimo.pacs.camt_998_462.Document document =
+								 (com.fitbank.middleware.bimo.pacs.camt_998_462.Document)objRes;
+						iso.setISO_039_ResponseCode(document.getPrtryMsg().getValidateOTP().getStsRsnInf()
+								   .getRsn().getCode());
+						iso.setISO_039p_ResponseDetail(document.getPrtryMsg().getValidateOTP().getStsRsnInf()
+								.getRsn().getAddtlInf().get(0));
+						
+						//Recuperacion del CELULAR Y CUENTA A DEBITAR
+						if(iso.getISO_039_ResponseCode().equals("000")){
+							
+							//Cuenta
+							iso.setISO_102_AccountID_1(Arrays.asList(document.getPrtryMsg().getValidateOTP().getAccountId().split("\\|")).get(3));
+							//Celular (Propio o Tercero)
+							iso.setISO_124_ExtendedData(document.getHeader().getOrigId().getOtherId());
+							
+						}
+						
+						log.WriteOptimizeLog(document, TypeLog.brdAut, 
+								com.fitbank.middleware.bimo.pacs.camt_998_462.Document.class, true);
+					}
+				}else{
+					
+					log.WriteOptimizeLog("Error Servicio BIMO Secuencial: " + iso.getSecuencialCommandExecutor() 
+					+ " -- " + iso.getISO_039p_ResponseDetail() , TypeLog.brdAut, 
+					String.class, false);
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(parser.getCodError());
+				iso.setISO_039p_ResponseDetail(parser.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::@ValidacionOTP ", 
+					     TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+	
+	/*------METODOS LLAMADOS DINAMICAMENTE----*/
+	public wIso8583 VerificarUsuarioBimoAutExe(wIso8583 iso){
+		
+		iso = VerificarUsuarioBimoAut(iso);
+		if(iso.getISO_039_ResponseCode().equals("500"))//Codigo Habilitante 050 (NO TIENE CUENTA BIMO)
+			iso.setISO_039_ResponseCode("000");
+		else if (iso.getISO_039_ResponseCode().equals("000")) {
+			iso.setISO_039_ResponseCode("100");
+			iso.setISO_039p_ResponseDetail("USAURIO YA TIENE UNA CUENTA BIMO");
+		}
+		return iso;
+	}
+	
+	public wIso8583 VerificarTelefonoCtaBimoAutExe(wIso8583 iso){
+		iso = VerificarTelefonoCtaBimoAut(iso);
+		if(iso.getISO_039_ResponseCode().equals("500"))//Codigo Habilitante 050 (NO TIENE CUENTA BIMO)
+			iso.setISO_039_ResponseCode("000");
+		else if (iso.getISO_039_ResponseCode().equals("000")) {
+			iso.setISO_039_ResponseCode("100");
+			iso.setISO_039p_ResponseDetail("USAURIO YA TIENE UNA CUENTA BIMO");
+		}
+		return iso;
+	}
+	
+	public wIso8583 isActiveCtaBimoNoFinantialAutExe(wIso8583 iso){
+		
+		wIso8583 isoClone = null;
+		try {
+			
+			isoClone = iso.cloneWiso(iso);
+			isoClone.setISO_BitMap("camt.998.211.A");
+			ValidateWalletBimo val = new ValidateWalletBimo();
+			isoClone = val.validateBimoWallet(isoClone);
+			if(isoClone.getISO_039_ResponseCode().equals("100")){
+				
+				int index = 0;
+				index = isoClone.getISO_039p_ResponseDetail().indexOf("ACTIVO");
+				if(index > 0){
+					
+					iso.setISO_039_ResponseCode("000");
+					iso.setISO_039p_ResponseDetail("CUENTA BIMO ACTIVA");
+					
+				}else{
+					
+					iso.setISO_039_ResponseCode("100");
+					iso.setISO_039p_ResponseDetail("LA CUENTA SE ENCUENTRA INACTIVA");
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode("308");
+				iso.setISO_039p_ResponseDetail("DATOS INCONSISTENTES, O ESTADO DE LA "
+						+ "BILLETERA NO ES ACTIVO");
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::isActiveCtaBimoNoFinantialAutExe ", 
+				     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+	public wIso8583 isActiveCtaBimoFinantialAutExe(wIso8583 iso){
+		try {
+			
+			ValidateWalletBimo val = new ValidateWalletBimo();
+			iso = val.validateBimoWallet(iso);
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::isActiveCtaBimoFinantialAutExe ", 
+				     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+	public wIso8583 ValidacionOTPExe(wIso8583 iso) {
+		try {
+			
+			
+			wIso8583 isoClone = iso.cloneWiso(iso);
+			isoClone.setISO_041_CardAcceptorID("RATM");
+			isoClone.setISO_023_CardSeq(iso.getISO_002_PAN());
+			isoClone.setISO_120_ExtendedData("USD");
+
+			isoClone = ValidacionOTP(isoClone);
+			
+			if(isoClone.getISO_039_ResponseCode().equals("000")){
+				
+				iso.setISO_102_AccountID_1(isoClone.getISO_102_AccountID_1());
+			}
+			
+			iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+			iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+			iso.setWsTempAut(isoClone.getWsTempAut());
+			iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::ValidacionOTPExe ", 
+				     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+	public wIso8583 ValidacionBimoWalletInternExe(wIso8583 iso) {
+		try {
+			
+			log = new Logger();
+			log.WriteLogMonitor("DATOS ISO044 " +  iso.getISO_044_AddRespData(), TypeMonitor.monitor, null);
+			
+			String [] dataInfoClient = iso.getISO_044_AddRespData().split("\\|");
+			
+			if(dataInfoClient.length > 1){
+				String movilNro = Arrays.asList(iso.getISO_044_AddRespData().split("\\|")).get(2); 
+				wIso8583 isoClone = iso.cloneWiso(iso);
+				isoClone.setISO_023_CardSeq(movilNro);
+	
+				isoClone = VerificarTelefonoCtaBimoAut(isoClone);
+				
+				switch (isoClone.getISO_039_ResponseCode()) {
+				case  "000":
+					dataInfoClient[6] = "1";
+					break;
+				case "501":
+					dataInfoClient[6] = "0";
+				case "500":
+					dataInfoClient[6] = "-1";
+				default:
+					break;
+				}
+				log.WriteLogMonitor("RESPUESTA BANRED" +  isoClone.getISO_039_ResponseCode(), TypeMonitor.monitor, null);
+				
+				String acum044 = StringUtils.Empty();
+				for (int i = 0; i < dataInfoClient.length; i++) 	
+					acum044 = dataInfoClient[i] + "|";
+				
+				log.WriteLogMonitor("VARIABLE acum " +  acum044, TypeMonitor.monitor, null);
+				iso.setISO_044_AddRespData(StringUtils.trimEnd(acum044, "|"));
+				
+				log.WriteLogMonitor("iso 44 otra vez " +  iso.getISO_044_AddRespData(), TypeMonitor.monitor, null);
+				
+				iso.setWsTempAut(isoClone.getWsTempAut());
+				iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log.WriteLogMonitor("Error modulo BanredIsAut::ValidacionOTPExe ", 
+				     TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+}

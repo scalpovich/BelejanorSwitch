@@ -1,0 +1,75 @@
+<xs:schema xmlns:tns="http://implementations.belejanor.switcher.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://implementations.belejanor.switcher.com/" version="1.0">
+
+  <xs:element name="iso8583" type="tns:iso8583"/>
+
+  <xs:element name="processtransaction" type="tns:processtransaction"/>
+
+  <xs:element name="processtransactionResponse" type="tns:processtransactionResponse"/>
+
+  <xs:complexType name="processtransaction">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Iso8583" type="tns:iso8583"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="iso8583">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ISO_000_Message_Type" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_002_PAN" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_003_ProcessingCode" type="xs:string"/>
+      <xs:element name="ISO_004_AmountTransaction" type="xs:double"/>
+      <xs:element name="ISO_006_BillAmount" type="xs:double"/>
+      <xs:element minOccurs="0" name="ISO_007_TransDatetime" type="xs:dateTime"/>
+      <xs:element name="ISO_008_BillFeeAmount" type="xs:double"/>
+      <xs:element minOccurs="0" name="ISO_011_SysAuditNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_012_LocalDatetime" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="ISO_013_LocalDate" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="ISO_015_SettlementDatel" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="ISO_018_MerchantType" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_019_AcqCountryCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_022_PosEntryMode" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_023_CardSeq" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_024_NetworkId" type="xs:string"/>
+      <xs:element name="ISO_028_TranFeeAmount" type="xs:double"/>
+      <xs:element name="ISO_029_SettlementFee" type="xs:double"/>
+      <xs:element name="ISO_030_ProcFee" type="xs:double"/>
+      <xs:element minOccurs="0" name="ISO_032_ACQInsID" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_033_FWDInsID" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_034_PANExt" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_035_Track2" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_036_Track3" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_037_RetrievalReferenceNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_038_AutorizationNumber" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_039_ResponseCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_039p_ResponseDetail" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_041_CardAcceptorID" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_042_Card_Acc_ID_Code" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_043_CardAcceptorLoc" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_044_AddRespData" type="xs:string"/>
+      <xs:element name="ISO_049_TranCurrCode" type="xs:double"/>
+      <xs:element name="ISO_051_CardCurrCode" type="xs:double"/>
+      <xs:element minOccurs="0" name="ISO_052_PinBlock" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_054_AditionalAmounts" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_055_EMV" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_090_OriginalData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_102_AccountID_1" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_103_AccountID_2" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_104_TranDescription" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_114_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_115_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_120_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_121_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_122_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_123_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_124_ExtendedData" type="xs:string"/>
+      <xs:element minOccurs="0" name="ISO_BitMap" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="processtransactionResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="processtransactionReturn" type="tns:iso8583"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

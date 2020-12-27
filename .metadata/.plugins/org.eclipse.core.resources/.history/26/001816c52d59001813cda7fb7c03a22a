@@ -1,0 +1,45 @@
+package com.fitbank.middleware.acquirers;
+
+import com.fitbank.middleware.authorizations.FitIsAut;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+
+public class SocialBankingIsAcq {
+
+	private Logger log;
+	
+	public SocialBankingIsAcq(){
+		this.log = new Logger();
+	}
+	
+	public wIso8583 getCtasFitForIdentification(wIso8583 iso){
+		
+		FitIsAut fitCore = new FitIsAut();
+		wIso8583 isoClon = iso.cloneWiso(iso);
+				
+		try {
+			
+			isoClon.setISO_035_Track2("TCUENTASPERSONA");
+			isoClon.setISO_115_ExtendedData("CCUENTA,NOMBRECUENTA");
+			isoClon = fitCore.QueryIterableGenericWithTable(isoClon);
+			
+			if(isoClon.getISO_039_ResponseCode().equals("000")){
+				
+				iso.setISO_114_ExtendedData(isoClon.getISO_114_ExtendedData());
+			}
+				
+			iso.setISO_039_ResponseCode(isoClon.getISO_039_ResponseCode());
+			iso.setISO_039p_ResponseDetail(isoClon.getISO_039p_ResponseDetail());
+			iso.setWsIso_LogStatus(isoClon.getWsIso_LogStatus());
+		
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SocialBankingIsAcq::getCtasFitForIdentification ", 
+					TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+}

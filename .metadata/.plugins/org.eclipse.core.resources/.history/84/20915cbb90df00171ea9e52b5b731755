@@ -1,0 +1,90 @@
+package com.fitbank.middleware.fit1struct;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import com.fitbank.middleware.utils.SerializationObject;
+
+public class Tester {
+
+	public static void main(String[] args) {
+		
+		
+		DetailFit1 msg = new DetailFit1();
+		
+		Cabecera cab = new Cabecera();
+		cab.setUser("8100");
+		cab.setPassword("C4F422D5BBA3FCD59D28A1E6A939C0C8");
+		cab.setSessionId("0f0df57f711f4b70b8c906961eadeac6");
+		cab.setTipoTrx("MAN");
+		cab.setFechaTrx("2017-12-12 08:51:14");
+		cab.setIpAutporizada("172.17.1.137");
+		cab.setSubsistema("04");
+		cab.setTransaccion("0684");
+		cab.setVersion("01");
+		cab.setMessageId("20171212124131_258754");
+		cab.setIdioma("ES");
+		cab.setTerminal("TER_MID");
+		cab.setCanal("PC");
+		cab.setCodCompania("2");
+		cab.setCodSucursal("1");
+		cab.setCodOficina("1");
+		cab.setFechaContable("2016-10-14");
+		cab.setNivelSeguridad("10");
+		cab.setRol("1");
+		cab.setCaducarTrx("0");
+		cab.setEsHistorico("0");
+		cab.setEsPDF("0");
+		cab.setTodoAnterior("0");
+		cab.setCompaniaID("2");
+		cab.setNumero("60397");
+		cab.setCampoSEC("4");
+		cab.setCampoTDC("1");
+		cab.setCampoESP("1");
+		cab.setCampoLEG("30000");
+		
+		msg.setCabecera(cab);
+		
+		
+		Detalle det = new Detalle();
+		
+		Bloques blq1 = new Bloques();
+		blq1.setNumeroBloque("0");
+		blq1.setNumeroPagina("1");
+		blq1.setNumeroRegistros("1");
+		
+		Criterios cri1Bloq1 = new Criterios();
+		cri1Bloq1.setCodigo("518005");
+		cri1Bloq1.setValor("106846");
+		
+		
+		List<Campos> listCampos = new ArrayList<>();
+		listCampos.add(new Campos("CEDULA", null, "1804073268", "1", "false"));
+		listCampos.add(new Campos("NOMLEGAL", null, "QUINATOA RIVERA TATIANA DEL PILAR", "1", "false"));
+		listCampos.add(new Campos("NOMLEGAL", null, "QUINATOA RIVERA TATIANA DEL PILAR", "1", "false"));
+	
+		
+		blq1.setCampos(listCampos);
+		
+		List<Criterios> listCriterios = new ArrayList<>();
+		listCriterios.add(cri1Bloq1);
+		listCriterios.add(new Criterios("192030", null, null, null));
+		
+		blq1.setCriterios(listCriterios);
+		
+		
+		List<Bloques> listBlq = new ArrayList<>();
+		listBlq.add(blq1);
+		
+		det.setBloques(listBlq);
+		
+		msg.setCabecera(cab);
+		msg.setDetalle(det);
+		
+		String trama = SerializationObject.ObjectToString(msg);
+		
+		
+
+	}
+
+}

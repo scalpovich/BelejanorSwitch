@@ -1,0 +1,10 @@
+package com.belejanor.switcher.scheduler;
+
+import io.netty.util.Timeout;
+import io.netty.util.TimerTask;
+
+public class TaskBatchExcuteChrono extends TimerTask{
+
+	
+	
+}

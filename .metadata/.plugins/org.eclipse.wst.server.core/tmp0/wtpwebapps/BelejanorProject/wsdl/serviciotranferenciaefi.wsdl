@@ -1,0 +1,261 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="ServicioTranferenciaEfiService" targetNamespace="http://implementations.belejanor.switcher.com" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://implementations.belejanor.switcher.com" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <xs:schema targetNamespace="http://implementations.belejanor.switcher.com" version="1.0" xmlns:ns1="http://electroniccash.belejanor.switcher.com" xmlns:tns="http://implementations.belejanor.switcher.com" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="http://electroniccash.belejanor.switcher.com"/>
+
+  <xs:element name="DTORequestCredit" type="tns:DTORequestCredit"/>
+
+  <xs:element name="credit" type="tns:credit"/>
+
+  <xs:element name="creditResponse" type="tns:creditResponse"/>
+
+  <xs:element name="debit" type="tns:debit"/>
+
+  <xs:element name="debitResponse" type="tns:debitResponse"/>
+
+  <xs:element name="dtoResponseCredit" type="tns:dtoResponseCredit"/>
+
+  <xs:element name="dtoResponseDebit" type="tns:dtoResponseDebit"/>
+
+  <xs:element name="dtoResponseIsValidAccount" type="tns:dtoResponseIsValidAccount"/>
+
+  <xs:element name="dtoResponseRevert" type="tns:dtoResponseRevert"/>
+
+  <xs:element name="isValidAccount" type="tns:isValidAccount"/>
+
+  <xs:element name="isValidAccountResponse" type="tns:isValidAccountResponse"/>
+
+  <xs:element name="revert" type="tns:revert"/>
+
+  <xs:element name="revertResponse" type="tns:revertResponse"/>
+
+  <xs:complexType name="credit">
+    <xs:sequence>
+      <xs:element minOccurs="0" ref="tns:DTORequestCredit"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DTORequestCredit">
+    <xs:complexContent>
+      <xs:extension base="ns1:DTORequestDebit">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="creditResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DTOResponseCredit" type="tns:dtoResponseCredit"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtoResponseCredit">
+    <xs:complexContent>
+      <xs:extension base="tns:dtoResponseDebit">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="dtoResponseDebit">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="errorCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="externalTransactionId" type="xs:string"/>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+      <xs:element minOccurs="0" name="operationResult" type="xs:string"/>
+      <xs:element name="transactionSequenceId" type="xs:long"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="debit">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="DTORequestDebit" type="ns1:DTORequestDebit"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="debitResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DTOResponseDebit" type="tns:dtoResponseDebit"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="isValidAccount">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="DTORequestIsValidAccount" type="ns1:DTORequestIsValidAccount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="isValidAccountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DTOResponseIsValidAccount" type="tns:dtoResponseIsValidAccount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtoResponseIsValidAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="errorCode" type="xs:string"/>
+      <xs:element minOccurs="0" name="message" type="xs:string"/>
+      <xs:element minOccurs="0" name="operationResult" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="revert">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="DTORequestRevert" type="ns1:DTORequestRevert"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="revertResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DTOResponseRevert" type="tns:dtoResponseRevert"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="dtoResponseRevert">
+    <xs:complexContent>
+      <xs:extension base="tns:dtoResponseDebit">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://electroniccash.belejanor.switcher.com" version="1.0" xmlns:elec="http://electroniccash.belejanor.switcher.com" xmlns:tns="http://electroniccash.belejanor.switcher.com" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="DTORequestDebit" type="tns:DTORequestDebit"/>
+
+  <xs:element name="DTORequestIsValidAccount" type="tns:DTORequestIsValidAccount"/>
+
+  <xs:element name="DTORequestRevert" type="tns:DTORequestRevert"/>
+
+  <xs:complexType name="DTORequestDebit">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="accountId" type="xs:string"/>
+      <xs:element minOccurs="0" name="accountType" type="xs:string"/>
+      <xs:element name="amount" type="xs:double"/>
+      <xs:element minOccurs="0" name="extraInfo" type="xs:string"/>
+      <xs:element minOccurs="0" name="msisdnSource" type="xs:string"/>
+      <xs:element name="transactionSequenceId" type="xs:long"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DTORequestIsValidAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="accountId" type="xs:string"/>
+      <xs:element minOccurs="0" name="accountType" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DTORequestRevert">
+    <xs:sequence>
+      <xs:element name="transactionSequenceId" type="xs:long"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="credit">
+    <wsdl:part name="parameters" element="tns:credit">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="debit">
+    <wsdl:part name="parameters" element="tns:debit">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="isValidAccount">
+    <wsdl:part name="parameters" element="tns:isValidAccount">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="revertResponse">
+    <wsdl:part name="parameters" element="tns:revertResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="debitResponse">
+    <wsdl:part name="parameters" element="tns:debitResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="isValidAccountResponse">
+    <wsdl:part name="parameters" element="tns:isValidAccountResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="revert">
+    <wsdl:part name="parameters" element="tns:revert">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="creditResponse">
+    <wsdl:part name="parameters" element="tns:creditResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ServicioTranferenciaEfi">
+    <wsdl:operation name="credit">
+      <wsdl:input name="credit" message="tns:credit">
+    </wsdl:input>
+      <wsdl:output name="creditResponse" message="tns:creditResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="debit">
+      <wsdl:input name="debit" message="tns:debit">
+    </wsdl:input>
+      <wsdl:output name="debitResponse" message="tns:debitResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="isValidAccount">
+      <wsdl:input name="isValidAccount" message="tns:isValidAccount">
+    </wsdl:input>
+      <wsdl:output name="isValidAccountResponse" message="tns:isValidAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="revert">
+      <wsdl:input name="revert" message="tns:revert">
+    </wsdl:input>
+      <wsdl:output name="revertResponse" message="tns:revertResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ServicioTranferenciaEfiServiceSoapBinding" type="tns:ServicioTranferenciaEfi">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="credit">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="credit">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="creditResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="debit">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="debit">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="debitResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="isValidAccount">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="isValidAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="isValidAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="revert">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="revert">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="revertResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ServicioTranferenciaEfiService">
+    <wsdl:port name="ServicioTranferenciaEfiPort" binding="tns:ServicioTranferenciaEfiServiceSoapBinding">
+      <soap:address location="http://localhost:8181/FitSwitchProject/services"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

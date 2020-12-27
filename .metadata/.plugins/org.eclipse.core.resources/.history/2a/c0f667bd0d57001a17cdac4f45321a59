@@ -1,0 +1,5 @@
+package com.belejanor.switcher.scheduler;
+
+public class TaskBatchExcuteChrono {
+
+}

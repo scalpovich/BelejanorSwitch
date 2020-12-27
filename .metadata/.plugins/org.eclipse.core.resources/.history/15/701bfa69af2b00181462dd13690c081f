@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:cxf="http://cxf.apache.org/core" xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans                     
+	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd                     
+	http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd                     
+	http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd"
+	>
+
+	<bean id="BasicAuthAuthorizationInterceptorBCE" class="com.company.auth.authorizer.basicauth.BasicAuthAuthorizationInterceptor">
+     <property name="users">
+        <map>
+          <entry key="synapseadmin" value="welcome1"/>
+        </map>
+      </property>
+    </bean> 
+ 
+	<jaxws:endpoint xmlns:tns="http://implementations.middleware.fitbank.com/"
+		id="processtransactioniso" implementor="com.fitbank.middleware.implementations.ProcessTransactionIso"
+		wsdlLocation="wsdl/processtransactioniso.wsdl" endpointName="tns:ProcessTransactionIsoPort"
+		serviceName="tns:ProcessTransactionIsoService" address="/ProcessTransactionIsoPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	    <!--  <jaxws:inInterceptors>
+	    	<bean class="com.fitbank.middleware.cscoreswitch.BasicAuthAuthorizationInterceptor" />
+	    </jaxws:inInterceptors>-->
+	</jaxws:endpoint>
+
+	<jaxws:endpoint xmlns:tns="http://implementations.middleware.fitbank.com/"
+		id="autorizationtransactions" implementor="com.fitbank.middleware.implementations.AutorizationTransactions"
+		wsdlLocation="wsdl/autorizationtransactions.wsdl" endpointName="tns:AutorizationTransactionsPort"
+		serviceName="tns:AutorizationTransactionsService" address="/AutorizationTransactionsPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/srr/VentanillaCompartidaSRRWS"
+		id="ventanillacompartidasrrws" implementor="com.fitbank.middleware.ventanillaimp.VentanillaCompartidaSRRWS"
+		wsdlLocation="wsdl/ventanillacompartidasrrws.wsdl" endpointName="tns:VentanillaCompartidaSRRWSPort"
+		serviceName="tns:VentanillaCompartidaSRRWSService" address="/VentanillaCompartidaSRRWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.fitbank.middleware.ventanillaimp.CustomSoap11FaultOutInterceptor" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/srr/TransferenciaElectronicaSRRWS"
+		id="transferenciaelectronicasrrws"
+		implementor="com.fitbank.middleware.transferenciasimp.TransferenciaElectronicaSRRWS"
+		wsdlLocation="wsdl/transferenciaelectronicasrrws.wsdl" endpointName="tns:TransferenciaElectronicaSRRWSPort"
+		serviceName="tns:TransferenciaElectronicaSRRWSService" address="/TransferenciaElectronicaSRRWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.fitbank.middleware.ventanillaimp.CustomSoap11FaultOutInterceptor" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+
+	<jaxws:endpoint xmlns:tns="http://www.bce.fin.ec/wsdl/snp/ReversoTecnicoSNPWS"
+		id="reversotecnicosnpws" implementor="com.fitbank.middleware.reversotecnicoimp.ReversoTecnicoSNPWS"
+		wsdlLocation="wsdl/reversotecnicosnpws.wsdl" endpointName="tns:ReversoTecnicoSNPWSPort"
+		serviceName="tns:ReversoTecnicoSNPWSService" address="/ReversoTecnicoSNPWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.fitbank.middleware.ventanillaimp.CustomSoap11FaultOutInterceptor" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint xmlns:tns="http://implementations.middleware.fitbank.com"
+		id="serviciotranferenciaefi" implementor="com.fitbank.middleware.implementations.ServicioTranferenciaEfi"
+		wsdlLocation="wsdl/serviciotranferenciaefi.wsdl" endpointName="tns:ServicioTranferenciaEfiPort"
+		serviceName="tns:ServicioTranferenciaEfiService" address="/ServicioTranferenciaEfiPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+	
+	<jaxws:endpoint xmlns:tns="http://www.bce.fin.ec/snp/spi/SolicitudPagoInterbancarioSNPWS" 
+	id="solicitudpagointerbancariosnpws" 
+	implementor="com.fitbank.middleware.transferenciasspiimp.SolicitudPagoInterbancarioSNPWS" 
+	wsdlLocation="wsdl/solicitudpagointerbancariosnpws.wsdl" endpointName="tns:SolicitudPagoInterbancarioSNPWSPort" 
+	serviceName="tns:SolicitudPagoInterbancarioSNPWSService" address="/SolicitudPagoInterbancarioSNPWSPort">
+	<jaxws:features>
+		<bean class="org.apache.cxf.feature.LoggingFeature" />
+	</jaxws:features>
+    </jaxws:endpoint>
+        
+	<bean
+		class="com.fitbank.middleware.bimo.implementations.ServiceFitBankSwitcher"
+		id="ServiceFitBankRest" />
+	<jaxrs:server address="/BimoRestServices" id="base">
+		<jaxrs:serviceBeans>
+			<ref bean="ServiceFitBankRest" />
+		</jaxrs:serviceBeans>
+	</jaxrs:server>
+</beans>

@@ -1,0 +1,95 @@
+package com.fitbank.middleware.banred.pagodirecto.struct;
+
+import com.fitbank.middleware.parser.PagoDirectoParser;
+import com.fitbank.middleware.utils.SerializationObject;
+
+public class ZTester {
+
+	public static void main(String[] args) {
+	
+	   String proc = "318890";
+	   System.out.println(proc.substring(4,5));
+		
+	   /*TrxConsultaPagoDirectoRequest trxConsultaRq = TestRequestConsulta();
+	   System.out.println(trxConsultaRq.getMessage_sequence_number_9004());
+	   PagoDirectoParser parser = new PagoDirectoParser();
+	   byte[] tramaBytesConsultaIn = parser.TrxConsultaPagoDirectoRequestToByte(trxConsultaRq); 
+	   System.out.println(new String(tramaBytesConsultaIn));
+	   
+	   SerializationObject serial = new SerializationObject();
+	   @SuppressWarnings("static-access")
+	   String xml = serial.ObjectToString(trxConsultaRq,TrxConsultaPagoDirectoRequest.class);
+	   System.out.println(xml);*/
+		
+	}
+	
+	
+	public static TrxConsultaPagoDirectoRequest TestRequestConsulta() {
+		
+		TrxConsultaPagoDirectoRequest trx = new TrxConsultaPagoDirectoRequest();
+		
+		trx.setMessage_type_code_X002(TypeMessageCode.TR);
+		trx.setMessage_fi_number_9004("1234");
+		trx.setMessage_sequence_number_9004("9012");
+		trx.setMessage_terminal_number_9005("98762");
+		trx.setSession_sequence_number_9006("000001");
+		trx.setTransaction_code_S9004(TypeTransactionCode.CONSULTA_PAGO_DIRECTO);
+		
+		XactSourceInformation xact = new XactSourceInformation();
+		xact.setSource_date_9006("190227");
+		xact.setSource_time_9006("082359");
+		xact.setSource_aba_number_9010("0000067890"); //aba asignado por la institucion
+		xact.setSource_branch_number_9004("0000"); //se puede omitir
+		xact.setSource_business_date_9006("190227");
+		xact.setTrf_terminal_type_9001("1"); //1 es Ventanilla
+		xact.setTrf_source_name_X031("ORELLANA LOPEZ JUAN CARLOS");
+		
+		
+		DetailTransaction detail = new DetailTransaction();
+		detail.setForce_post_indicator_X001("0"); //Siempre
+		detail.setReversal_indicator_X001("0"); //0 no es reverso, 1 si lo es
+		detail.setTrans_acct_nbr_9018("459040004"); //Cta RECEPTORA OJO
+		detail.setTransaction_amount_S9_018("00000000000000000+"); //Se puede omitir
+		
+		
+		TargetInstitutionGroup target = new TargetInstitutionGroup();
+		target.setAuth_fi_nbr_9004("7777"); //codigo de la institucion duenia de la cuenta
+		target.setHost_business_date_9006("190227"); //fecha contable del host receptor
+		
+		StandInGroup stand = new StandInGroup();
+		stand.setStandin_auth_type_X001("0"); //0 siempre 0 en consultas OJO se puede omitir
+		stand.setStandin_auth_metod_X001("4"); //Preguntar 1 primaria o 4 en el host ????????????????
+		stand.setStandin_result_code_9004("0000"); //Preguntar si es asi se piuede omitir???????????
+		
+		CardRelatedGroup card = new CardRelatedGroup();
+		card.setPin_verify_flag_X001("0"); //Enviar 0 no valida PIN
+		card.setTrack_II_valid_flag_X001("0"); //Enviar 0 no hay data
+		card.setRed_target_phone_9010("0000000000"); //se puede omitir (celular de la persona)
+		card.setRed_appl_type_source_9001("5"); //Tipo de cuenta del ordenante (debito) siempre 5 en Coopes
+		card.setRed_flg_red_pd_X002("PD"); //Valor fijo PD
+		card.setRed_filler_X_003("   "); // 3 espacios en blanco siempre, es decir se puede omitir
+		card.setTrack_2_data_X040("4938490000000000==000000000000000000000?"); //BIN + 0000000000==000000000000000000000?
+		card.setCard_appl_code_X002("02");  //02 Tarjeta de Credito, 05 cuenta de ahorros //OJO ordenante
+		
+		UserRequestDefinedData user = new UserRequestDefinedData();
+		user.setReqpdr_target_name_X035("LESCANO VILLAFUERTE JANETH PAULINA"); //Nombre del receptor
+		user.setReqpdr_observations_X010("POR PAGO DE TARJETA");
+		user.setReqpdr_source_id_X013("1714891064"); //Numero de cedula de la persona ORDENANTE
+		user.setReqpdr_city_X010("          "); //La ciudad pero se manda 10 espacios en blaco, se puede omitir.
+		user.setReqpdr_reference_X020("67272799900000000000"); //Enviar siempre 20 carazcteres
+		user.setReqpdr_target_id_X013("1717678922"); //cedula o ruc del RECEPTOR
+		user.setFiller_X006("      ");//filler 6 espacios en blanco u omitir
+		
+		
+		
+		StandardRequestFieldsConsulta stndRq = new StandardRequestFieldsConsulta(xact, detail, target, stand, card);
+		
+		trx.setStandard_request_fields(stndRq);
+		trx.setUser_request_defined_data(user);
+		
+		
+		
+		
+		return trx;
+	}
+}

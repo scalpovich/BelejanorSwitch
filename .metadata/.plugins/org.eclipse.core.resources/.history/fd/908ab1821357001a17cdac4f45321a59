@@ -1,0 +1,23 @@
+package com.belejanor.switcher.scheduler;
+
+import com.belejanor.switcher.logger.Logger;
+import com.belejanor.switcher.logger.LoggerConfig.TypeMonitor;
+
+public class InitSchedule {
+
+	Logger log;
+	public InitSchedule() {
+		
+		log = new Logger();
+	}
+	
+	public void chargeTask() {
+		try {
+			
+			
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo InitSchedule::chargeTask", TypeMonitor.error, e);
+		}
+	}
+}

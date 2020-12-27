@@ -1,0 +1,1302 @@
+package com.fitbank.middleware.acquirers;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import javax.xml.datatype.XMLGregorianCalendar;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.AccountIdentification4Choice;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.AccountOrBusinessError2Choice;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.AccountOrOperationalError2Choice;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.AcctRp;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.ActiveOrHistoricCurrencyAndAmount;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.BalanceType8Choice;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.CashAccount23;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.CashBalance5;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.CreditDebitCode;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.GenericAccountIdentification1;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.PrtryData;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.StatusCode;
+import com.fitbank.middleware.bimo.pacs.camt_998_202.SystemBalanceType1Code;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.AcctEnroll;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.BranchAndFinancialInstitutionIdentification5;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.GroupHeader;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.MjeData;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.OrigIdData;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.OriginalGroupInformation;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.Priority;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.ProprietaryMessageV02;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.Reason;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.RoRCod;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.ServiceData;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.SettlementInstruction4;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.SettlementMethod1Code;
+import com.fitbank.middleware.bimo.pacs.camt_998_212.StatusReasonInformation;
+import com.fitbank.middleware.bimo.pacs.camt_998_222.AcctUnEnroll;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.ContentsV03;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.Document;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.FIToFIPaymentStatusReportV08;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.OriginalGroupInformation3;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.PaymentTransaction80;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.StatusReason6Choice;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.StatusReasonInformation9;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.SupplementaryData1;
+import com.fitbank.middleware.bimo.pacs.pacs_002_022.SupplementaryDataEnvelope1;
+import com.fitbank.middleware.cscoreswitch.Iso8583;
+import com.fitbank.middleware.cscoreswitch.csProcess;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeLog;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.Config;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.utils.FormatUtils;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.Ref;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class BanredIsAcq{
+
+	private String Ip;
+	private Logger log;
+	private String codError;
+	private String desError;
+	
+	public BanredIsAcq() {
+		
+		log = new Logger();
+		codError = "000";
+		desError = StringUtils.Empty();
+	}
+	
+	public String getCodError() {
+		return codError;
+	}
+
+	public void setCodError(String codError) {
+		this.codError = codError;
+	}
+
+	public String getDesError() {
+		return desError;
+	}
+
+	public void setDesError(String desError) {
+		this.desError = desError;
+	}
+	
+	public String getIp() {
+		return Ip;
+	}
+
+	public void setIp(String ip) {
+		Ip = ip;
+	}
+
+	public com.fitbank.middleware.bimo.pacs.camt_998_212.Document processEnrollPerson(
+			com.fitbank.middleware.bimo.pacs.camt_998_211.Document document){
+		
+		Iso8583 iso = null;
+		com.fitbank.middleware.bimo.pacs.camt_998_212.Document documentResponse = null;
+		try {
+			
+			documentResponse = new com.fitbank.middleware.bimo.pacs.camt_998_212.Document();
+			iso = new Iso8583(document);
+			if(iso.getISO_039_ResponseCode().equals("004")){
+				 
+				 Ref<Iso8583> ref = new Ref<Iso8583>(iso);
+				 changesEnroll(ref);
+				 iso = ref.get();
+				 if(iso.getISO_039_ResponseCode().equals("004")){
+					 
+					 csProcess processor = new csProcess();
+					 iso = processor.ProcessTransactionMain(iso, this.Ip);
+					 if(!iso.getISO_039_ResponseCode().equals("078"))
+						 documentResponse = ResponseEnroll(document, iso);
+					 else{
+						 
+						 this.codError = "100";
+						 this.desError = "MSGID YA UTILIZADO EN ESTE DIA";
+					 }
+						 
+				 }else{
+					 
+					 this.codError = iso.getISO_039_ResponseCode();
+						this.desError = iso.getISO_039p_ResponseDetail();
+				 }
+				 
+			}else{
+				
+				this.codError = iso.getISO_039_ResponseCode();
+				this.desError = iso.getISO_039p_ResponseDetail();
+			}
+			
+		} catch (Exception e) {
+			
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::processEnrollPerson ", TypeMonitor.error, e);
+		}
+		if(documentResponse != null){
+			log.WriteOptimizeLog(documentResponse, TypeLog.brdAcq, 
+				 com.fitbank.middleware.bimo.pacs.camt_998_212.Document.class, true);
+		}
+		return documentResponse;
+	}
+
+
+	public com.fitbank.middleware.bimo.pacs.camt_998_222.Document processDesenrollPerson
+	        (com.fitbank.middleware.bimo.pacs.camt_998_221.Document document){
+		
+		Iso8583 iso = null;
+		com.fitbank.middleware.bimo.pacs.camt_998_222.Document documentResponse = null;
+		try {
+			
+			iso = new Iso8583(document);
+			if(iso.getISO_039_ResponseCode().equals("004")){
+				 
+				 csProcess processor = new csProcess();
+				 iso = processor.ProcessTransactionMain(iso, this.Ip);
+				 if(!iso.getISO_039_ResponseCode().equals("078"))
+				 	documentResponse = ResponseDesEnroll(document, iso);
+				 else{
+					 
+					 this.codError = "100";
+					 this.desError = "MSGID YA UTILIZADO EN ESTE DIA";
+				 }
+			}else{
+				
+				this.codError = iso.getISO_039_ResponseCode();
+				this.desError = iso.getISO_039p_ResponseDetail();
+			}
+			
+		} catch (Exception e) {
+			
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::processDesenrollPerson ", TypeMonitor.error, e);
+		}
+		if(documentResponse != null){
+			log.WriteOptimizeLog(documentResponse, TypeLog.brdAcq, 
+					 com.fitbank.middleware.bimo.pacs.camt_998_222.Document.class, true);
+		}
+		return documentResponse;
+	}
+	
+	public com.fitbank.middleware.bimo.pacs.camt_998_202.Document processQueryBalance
+    						(com.fitbank.middleware.bimo.pacs.camt_998_201.Document document){
+
+		Iso8583 iso = null;
+		com.fitbank.middleware.bimo.pacs.camt_998_202.Document documentResponse = null;
+		try {
+			
+			iso = new Iso8583(document);
+			if(iso.getISO_039_ResponseCode().equals("004")){
+				 
+				 csProcess processor = new csProcess();
+				 iso = processor.ProcessTransactionMain(iso, this.Ip);
+				 if(!iso.getISO_039_ResponseCode().equals("078"))
+				 	documentResponse = ResponseQueryBalance(document, iso);
+				 else{
+					 
+					 this.codError = "100";
+					 this.desError = "MSGID YA UTILIZADO EN ESTE DIA";
+				 }
+					
+			}else{
+				
+				this.codError = iso.getISO_039_ResponseCode();
+				this.desError = iso.getISO_039p_ResponseDetail();
+			}
+			
+		} catch (Exception e) {
+			
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::processQueryBalance ", TypeMonitor.error, e);
+		}
+		if(documentResponse != null){
+			log.WriteOptimizeLog(documentResponse, TypeLog.brdAcq, 
+					 com.fitbank.middleware.bimo.pacs.camt_998_202.Document.class, true);
+		}
+		return documentResponse;
+	}
+	
+	public com.fitbank.middleware.bimo.pacs.pacs_002_022.Document processCredit
+									(com.fitbank.middleware.bimo.pacs.pacs_008_021.Document document){
+
+		Iso8583 iso = null;
+		com.fitbank.middleware.bimo.pacs.pacs_002_022.Document documentResponse = null;
+		try {
+		
+			iso = new Iso8583(document);
+			if(iso.getISO_039_ResponseCode().equals("004")){
+			
+				csProcess processor = new csProcess();
+				iso = processor.ProcessTransactionMain(iso, this.Ip);
+				if(!iso.getISO_039_ResponseCode().equals("078"))
+					documentResponse = ResponseCredit(document, iso);
+				else{
+				
+					this.codError = "100";
+					this.desError = "MSGID YA UTILIZADO EN ESTE DIA";
+				}
+			}else{
+			
+				this.codError = iso.getISO_039_ResponseCode();
+				this.desError = iso.getISO_039p_ResponseDetail();
+			}
+			
+			} catch (Exception e) {
+				
+				this.codError = "070";
+				this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false);
+				log.WriteLogMonitor("Error modulo BanredIsAcq::processQueryBalance ", TypeMonitor.error, e);
+			}
+			if(documentResponse != null){
+				
+				log.WriteOptimizeLog(documentResponse, TypeLog.brdAcq, 
+				com.fitbank.middleware.bimo.pacs.pacs_002_022.Document.class, true);
+			}
+		
+		return documentResponse;
+    }
+	
+	public com.fitbank.middleware.bimo.pacs.pacs_002_042.Document processReverCredit
+						(com.fitbank.middleware.bimo.pacs.pacs_007_041.Document document){
+		
+		Iso8583 iso = null;
+		com.fitbank.middleware.bimo.pacs.pacs_002_042.Document documentResponse = null;
+		try {
+		
+			iso = new Iso8583(document);
+			if(iso.getISO_039_ResponseCode().equals("004")){
+			
+				csProcess processor = new csProcess();
+				iso = processor.ProcessTransactionMain(iso, this.Ip);
+				if(!iso.getISO_039_ResponseCode().equals("078"))
+					documentResponse = ResponseReverCredit(document, iso);
+				else{
+				
+					this.codError = "100";
+					this.desError = "MSGID YA UTILIZADO EN ESTE DIA";
+				}
+			}else{
+			
+				this.codError = iso.getISO_039_ResponseCode();
+				this.desError = iso.getISO_039p_ResponseDetail();
+			}
+			
+			} catch (Exception e) {
+				
+				this.codError = "070";
+				this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false);
+				log.WriteLogMonitor("Error modulo BanredIsAcq::processReverCredit ", TypeMonitor.error, e);
+			}
+			if(documentResponse != null){
+				
+				log.WriteOptimizeLog(documentResponse, TypeLog.brdAcq, 
+				com.fitbank.middleware.bimo.pacs.pacs_002_042.Document.class, true);
+			}
+		
+		return documentResponse;
+	}
+	
+	
+	/*ZONA RESPUESTAS*/
+	private com.fitbank.middleware.bimo.pacs.camt_998_212.Document ResponseEnroll
+	                            (com.fitbank.middleware.bimo.pacs.camt_998_211.Document document, 
+	                             Iso8583 iso){
+		com.fitbank.middleware.bimo.pacs.camt_998_212.Document docResponse = null;
+		String IdMessage = MemoryGlobal.IdBIMOEfi + FormatUtils.DateToString(new Date(), "yyyyMMddHHmmss");
+		XMLGregorianCalendar date = FormatUtils.DateToXMLGregorian(new Date());
+		try {
+			
+			docResponse = new com.fitbank.middleware.bimo.pacs.camt_998_212.Document();
+			com.fitbank.middleware.bimo.pacs.camt_998_212.HeaderData hd = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_212.HeaderData();
+			ProprietaryMessageV02 propMsg = new ProprietaryMessageV02();
+			AcctEnroll accEnroll = new AcctEnroll();
+			/*Header Data*/
+			OrigIdData orgHd = new OrigIdData();
+			orgHd.setChannel(document.getHeader().getOrigId().getChannel());
+			orgHd.setApp(document.getHeader().getOrigId().getApp());
+			ServiceData servOrgHd = new ServiceData();
+			servOrgHd.setIdServ("Enrollment RS");
+			servOrgHd.setVersServ(document.getHeader().getOrigId().getService().getVersServ());
+			orgHd.setService(servOrgHd);
+			orgHd.setOtherId(document.getHeader().getOrigId().getOtherId());
+			hd.setSender(document.getHeader().getReceiver()); //Al reves ahora el que recibe es el que envia y viceversa
+			hd.setReceiver(document.getHeader().getSender()); 
+			MjeData  mjdata = new MjeData();
+			mjdata.setType("camt.998.212");
+			mjdata.setRoR(RoRCod.RESP);
+			mjdata.setIdMge(IdMessage);
+			mjdata.setOpeDate(date);
+			hd.setMge(mjdata);
+			hd.setOrigId(orgHd);
+			hd.setPssblDplct(document.getHeader().isPssblDplct());
+			Priority prty = null;
+			switch (document.getHeader().getPrty()) {
+			case URGT:
+				prty = Priority.URGT;
+				break;
+			case HIGH:
+				prty = Priority.HIGH;
+				break;
+			case NORM:
+				prty = Priority.NORM;
+				break;
+			case LOWW:
+				prty = Priority.LOWW;
+				break;
+			default:
+				break;
+			}
+			hd.setPrty(prty);
+			GroupHeader grHd = new GroupHeader();
+			grHd.setMsgId(IdMessage);
+			grHd.setCreDtTm(date);
+			grHd.setNbOfTxs(document.getPrtryMsg().getGrpHdr().getNbOfTxs());
+			SettlementMethod1Code sttMeth = null;
+			switch (document.getPrtryMsg().getGrpHdr().getSttInf().getSttlmMtd()) {
+			case INDA:
+				sttMeth = SettlementMethod1Code.INDA;
+				break;
+			case INGA:
+				sttMeth = SettlementMethod1Code.INGA;
+				break;
+			case CLRG:
+				sttMeth = SettlementMethod1Code.CLRG;
+				break;
+			case COVE:
+				sttMeth = SettlementMethod1Code.COVE;
+				break;
+			default:
+				break;
+			}
+			SettlementInstruction4 sttIns4 = new SettlementInstruction4();
+			sttIns4.setSttlmMtd(sttMeth);
+			grHd.setSttInf(sttIns4);
+			
+			BranchAndFinancialInstitutionIdentification5 eff = new BranchAndFinancialInstitutionIdentification5();
+			com.fitbank.middleware.bimo.pacs.camt_998_212.ZFinancialInstitutionIdentification efi = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_212.ZFinancialInstitutionIdentification();
+			com.fitbank.middleware.bimo.pacs.camt_998_212.ZGenericFinancialIdentification zgen = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_212.ZGenericFinancialIdentification();
+			zgen.setId(MemoryGlobal.IdBIMOEfi);
+			efi.setOthr(zgen);
+			eff.setFinInstnId(efi);
+			
+			
+			BranchAndFinancialInstitutionIdentification5 eff2 = new BranchAndFinancialInstitutionIdentification5();
+			com.fitbank.middleware.bimo.pacs.camt_998_212.ZFinancialInstitutionIdentification efi2 = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_212.ZFinancialInstitutionIdentification();
+			com.fitbank.middleware.bimo.pacs.camt_998_212.ZGenericFinancialIdentification zgen2 = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_212.ZGenericFinancialIdentification();
+			zgen2.setId(MemoryGlobal.IdBIMOBanred);
+			efi2.setOthr(zgen2);
+			eff2.setFinInstnId(efi2);
+			grHd.setInstdAgt(eff);
+			grHd.setInstgAgt(eff2);			
+			propMsg.setGrpHdr(grHd);
+			
+			OriginalGroupInformation orgId = new OriginalGroupInformation();
+			orgId.setOrgnlMsgId(document.getPrtryMsg().getGrpHdr().getMsgId());
+			orgId.setOrgnlCreDtTm(document.getPrtryMsg().getGrpHdr().getCreDtTm());
+			orgId.setOrgnlMsgNmId("camt.998.211");
+			
+			accEnroll.setOrgnlGrpInf(orgId);
+			
+			if(iso.getISO_039_ResponseCode().equals("000")){
+				accEnroll.setTxSts(com.fitbank.middleware.bimo.pacs.camt_998_212.StatusCode.OK);
+				accEnroll.setAccountId(iso.getISO_124_ExtendedData());
+			}
+			else{
+				accEnroll.setTxSts(com.fitbank.middleware.bimo.pacs.camt_998_212.StatusCode.ERR);
+				accEnroll.setAccountId(document.getPrtryMsg().getAcctEnroll().getAcctInfo());
+			}
+			com.fitbank.middleware.bimo.pacs.camt_998_212.StatusReasonInformation stsInfo = new
+					StatusReasonInformation();
+			com.fitbank.middleware.bimo.pacs.camt_998_212.Reason rsn = new Reason();
+			rsn.setCode(codeHomolog(iso));
+			List<String> lstatusDetail =  new ArrayList<>();
+			lstatusDetail.add(iso.getISO_039p_ResponseDetail()
+					.replace("<**>", StringUtils.Empty())
+					.replace("<*>", StringUtils.Empty()));
+			rsn.setAddtlInf(lstatusDetail);
+			stsInfo.setRsn(rsn);
+			
+			accEnroll.setStsRsnInf(stsInfo);
+			
+			propMsg.setGrpHdr(grHd);
+			propMsg.setAcctEnroll(accEnroll);
+			
+			docResponse.setHeader(hd);
+			docResponse.setPrtryMsg(propMsg);
+			
+		} catch (Exception e) {
+			
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESO", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::ResponseEnroll ", TypeMonitor.error, e);
+		}
+		
+		return docResponse;
+	}
+	
+	private com.fitbank.middleware.bimo.pacs.camt_998_222.Document ResponseDesEnroll
+					(com.fitbank.middleware.bimo.pacs.camt_998_221.Document document, Iso8583 iso){
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_222.Document docResponse = null;
+		String IdMessage = MemoryGlobal.IdBIMOEfi + FormatUtils.DateToString(new Date(), "yyyyMMddHHmmss");
+		XMLGregorianCalendar date = FormatUtils.DateToXMLGregorian(new Date());
+		try {
+		
+		docResponse = new com.fitbank.middleware.bimo.pacs.camt_998_222.Document();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.HeaderData hd = new 
+		com.fitbank.middleware.bimo.pacs.camt_998_222.HeaderData();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.ProprietaryMessageV02 propMsg = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.ProprietaryMessageV02();
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_222.AcctUnEnroll accEnroll = new AcctUnEnroll();
+		/*Header Data*/
+		com.fitbank.middleware.bimo.pacs.camt_998_222.OrigIdData orgHd = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.OrigIdData();
+		orgHd.setChannel(document.getHeader().getOrigId().getChannel());
+		orgHd.setApp(document.getHeader().getOrigId().getApp());
+		com.fitbank.middleware.bimo.pacs.camt_998_222.ServiceData servOrgHd = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.ServiceData();
+		servOrgHd.setIdServ("UnEnrollment RS");
+		servOrgHd.setVersServ(document.getHeader().getOrigId().getService().getVersServ());
+		orgHd.setService(servOrgHd);
+		orgHd.setOtherId(document.getHeader().getOrigId().getOtherId());
+		hd.setSender(document.getHeader().getReceiver()); //Al reves ahora el que recibe es el que envia y viceversa
+		hd.setReceiver(document.getHeader().getSender()); 
+		com.fitbank.middleware.bimo.pacs.camt_998_222.MjeData  mjdata = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.MjeData();
+		mjdata.setType("camt.998.222");
+		mjdata.setRoR(com.fitbank.middleware.bimo.pacs.camt_998_222.RoRCod.RESP);
+		mjdata.setIdMge(IdMessage);
+		mjdata.setOpeDate(date);
+		hd.setMge(mjdata);
+		hd.setOrigId(orgHd);
+		hd.setPssblDplct(document.getHeader().isPssblDplct());
+		com.fitbank.middleware.bimo.pacs.camt_998_222.Priority prty = null;
+		switch (document.getHeader().getPrty()) {
+		case URGT:
+			prty = com.fitbank.middleware.bimo.pacs.camt_998_222.Priority.URGT;
+		break;
+		case HIGH:
+			prty = com.fitbank.middleware.bimo.pacs.camt_998_222.Priority.HIGH;
+		break;
+		case NORM:
+			prty = com.fitbank.middleware.bimo.pacs.camt_998_222.Priority.NORM;
+		break;
+			case LOWW:
+		prty = com.fitbank.middleware.bimo.pacs.camt_998_222.Priority.LOWW;
+			break;
+		default:
+			break;
+		}
+		hd.setPrty(prty);
+		com.fitbank.middleware.bimo.pacs.camt_998_222.GroupHeader grHd = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_222.GroupHeader();
+		grHd.setMsgId(IdMessage);
+		grHd.setCreDtTm(date);
+		grHd.setNbOfTxs(document.getPrtryMsg().getGrpHdr().getNbOfTxs());
+		com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementMethod1Code sttMeth = null;
+		
+		switch (document.getPrtryMsg().getGrpHdr().getSttInf().getSttlmMtd()) {
+		case INDA:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementMethod1Code.INDA;
+		break;
+		case INGA:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementMethod1Code.INGA;
+		break;
+		case CLRG:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementMethod1Code.CLRG;
+		break;
+		case COVE:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementMethod1Code.COVE;
+		break;
+		
+		default:
+		break;
+		}
+		com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementInstruction4 sttIns4 = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_222.SettlementInstruction4();
+		sttIns4.setSttlmMtd(sttMeth);
+		grHd.setSttInf(sttIns4);
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_222.BranchAndFinancialInstitutionIdentification5 eff = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_222.BranchAndFinancialInstitutionIdentification5();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.ZFinancialInstitutionIdentification efi = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.ZFinancialInstitutionIdentification();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.ZGenericFinancialIdentification zgen = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.ZGenericFinancialIdentification();
+		zgen.setId(MemoryGlobal.IdBIMOEfi);
+		efi.setOthr(zgen);
+		eff.setFinInstnId(efi);
+		
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_222.BranchAndFinancialInstitutionIdentification5 eff2 = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_222.BranchAndFinancialInstitutionIdentification5();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.ZFinancialInstitutionIdentification efi2 = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.ZFinancialInstitutionIdentification();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.ZGenericFinancialIdentification zgen2 = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.ZGenericFinancialIdentification();
+		zgen2.setId(MemoryGlobal.IdBIMOBanred);
+		efi2.setOthr(zgen2);
+		eff2.setFinInstnId(efi2);
+		
+		
+		grHd.setInstdAgt(eff);
+		grHd.setInstgAgt(eff2);			
+		propMsg.setGrpHdr(grHd);
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_222.OriginalGroupInformation orgId = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_222.OriginalGroupInformation();
+		orgId.setOrgnlMsgId(document.getPrtryMsg().getGrpHdr().getMsgId());
+		orgId.setOrgnlCreDtTm(document.getPrtryMsg().getGrpHdr().getCreDtTm());
+		orgId.setOrgnlMsgNmId("camt.998.221");
+		
+		accEnroll.setOrgnlGrpInf(orgId);
+		
+		if(iso.getISO_039_ResponseCode().equals("000"))
+			
+			accEnroll.setTxSts(com.fitbank.middleware.bimo.pacs.camt_998_222.StatusCode.OK);
+		else
+			accEnroll.setTxSts(com.fitbank.middleware.bimo.pacs.camt_998_222.StatusCode.ERR);
+			
+		com.fitbank.middleware.bimo.pacs.camt_998_222.StatusReasonInformation stsInfo = new
+				com.fitbank.middleware.bimo.pacs.camt_998_222.StatusReasonInformation();
+		com.fitbank.middleware.bimo.pacs.camt_998_222.Reason rsn = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_222.Reason();
+		rsn.setCode(codeHomolog(iso));
+		List<String> lstatusDetail =  new ArrayList<>();
+		lstatusDetail.add(iso.getISO_039p_ResponseDetail()
+				.replace("<**>", StringUtils.Empty())
+				.replace("<*>", StringUtils.Empty()));
+		rsn.setAddtlInf(lstatusDetail);
+		stsInfo.setRsn(rsn);
+		
+		accEnroll.setStsRsnInf(stsInfo);
+		
+		propMsg.setGrpHdr(grHd);
+		propMsg.setAcctUnEnroll(accEnroll);
+		
+		docResponse.setHeader(hd);
+		docResponse.setPrtryMsg(propMsg);
+		
+		} catch (Exception e) {
+		
+		this.codError = "070";
+		this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESO", e, false);
+		log.WriteLogMonitor("Error modulo BanredIsAcq::ResponseEnroll ", TypeMonitor.error, e);
+		}
+		
+		return docResponse;
+	}
+	
+	private com.fitbank.middleware.bimo.pacs.camt_998_202.Document ResponseQueryBalance
+			(com.fitbank.middleware.bimo.pacs.camt_998_201.Document document, Iso8583 iso){
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_202.Document docResponse = null;
+		String IdMessage = MemoryGlobal.IdBIMOEfi + FormatUtils.DateToString(new Date(), "yyyyMMddHHmmss");
+		XMLGregorianCalendar date = FormatUtils.DateToXMLGregorian(new Date());
+		try {
+		
+		docResponse = new com.fitbank.middleware.bimo.pacs.camt_998_202.Document();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.HeaderData hd = new 
+		com.fitbank.middleware.bimo.pacs.camt_998_202.HeaderData();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.ProprietaryMessageV02 propMsg = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.ProprietaryMessageV02();
+		
+		/*Header Data*/
+		com.fitbank.middleware.bimo.pacs.camt_998_202.OrigIdData orgHd = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.OrigIdData();
+		orgHd.setChannel(document.getHeader().getOrigId().getChannel());
+		orgHd.setApp(document.getHeader().getOrigId().getApp());
+		com.fitbank.middleware.bimo.pacs.camt_998_202.ServiceData servOrgHd = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.ServiceData();
+		servOrgHd.setIdServ("Consulta Saldo RS");
+		servOrgHd.setVersServ(document.getHeader().getOrigId().getService().getVersServ());
+		orgHd.setService(servOrgHd);
+		orgHd.setOtherId(document.getHeader().getOrigId().getOtherId());
+		hd.setSender(document.getHeader().getReceiver()); //Al reves ahora el que recibe es el que envia y viceversa
+		hd.setReceiver(document.getHeader().getSender()); 
+		com.fitbank.middleware.bimo.pacs.camt_998_202.MjeData  mjdata = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.MjeData();
+		mjdata.setType("camt.998.202");
+		mjdata.setRoR(com.fitbank.middleware.bimo.pacs.camt_998_202.RoRCod.RESP);
+		mjdata.setIdMge(IdMessage);
+		mjdata.setOpeDate(date);
+		hd.setMge(mjdata);
+		hd.setOrigId(orgHd);
+		hd.setPssblDplct(document.getHeader().isPssblDplct());
+		com.fitbank.middleware.bimo.pacs.camt_998_202.Priority prty = null;
+		switch (document.getHeader().getPrty()) {
+		case URGT:
+			prty = com.fitbank.middleware.bimo.pacs.camt_998_202.Priority.URGT;
+		break;
+		case HIGH:
+			prty = com.fitbank.middleware.bimo.pacs.camt_998_202.Priority.HIGH;
+		break;
+		case NORM:
+			prty = com.fitbank.middleware.bimo.pacs.camt_998_202.Priority.NORM;
+		break;
+			case LOWW:
+		prty = com.fitbank.middleware.bimo.pacs.camt_998_202.Priority.LOWW;
+			break;
+		default:
+			break;
+		}
+		hd.setPrty(prty);
+		com.fitbank.middleware.bimo.pacs.camt_998_202.GroupHeader grHd = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_202.GroupHeader();
+		grHd.setMsgId(IdMessage);
+		grHd.setCreDtTm(date);
+		grHd.setNbOfTxs(document.getPrtryMsg().getGrpHdr().getNbOfTxs());
+		com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementMethod1Code sttMeth = null;
+		
+		switch (document.getPrtryMsg().getGrpHdr().getSttInf().getSttlmMtd()) {
+		case INDA:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementMethod1Code.INDA;
+		break;
+		case INGA:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementMethod1Code.INGA;
+		break;
+		case CLRG:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementMethod1Code.CLRG;
+		break;
+		case COVE:
+			sttMeth = com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementMethod1Code.COVE;
+		break;
+		
+		default:
+		break;
+		}
+		
+		PrtryData prtData = new PrtryData();
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementInstruction4 sttIns4 = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_202.SettlementInstruction4();
+		sttIns4.setSttlmMtd(sttMeth);
+		grHd.setSttInf(sttIns4);
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_202.BranchAndFinancialInstitutionIdentification5 eff = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_202.BranchAndFinancialInstitutionIdentification5();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.ZFinancialInstitutionIdentification efi = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.ZFinancialInstitutionIdentification();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.ZGenericFinancialIdentification zgen = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.ZGenericFinancialIdentification();
+		zgen.setId(MemoryGlobal.IdBIMOEfi);
+		efi.setOthr(zgen);
+		eff.setFinInstnId(efi);
+		
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_202.BranchAndFinancialInstitutionIdentification5 eff2 = 
+				new com.fitbank.middleware.bimo.pacs.camt_998_202.BranchAndFinancialInstitutionIdentification5();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.ZFinancialInstitutionIdentification efi2 = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.ZFinancialInstitutionIdentification();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.ZGenericFinancialIdentification zgen2 = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.ZGenericFinancialIdentification();
+		zgen2.setId(MemoryGlobal.IdBIMOBanred);
+		efi2.setOthr(zgen2);
+		eff2.setFinInstnId(efi2);
+		
+		
+		grHd.setInstdAgt(eff);
+		grHd.setInstgAgt(eff2);			
+		propMsg.setGrpHdr(grHd);
+		
+		com.fitbank.middleware.bimo.pacs.camt_998_202.OriginalGroupInformation orgId = new 
+					com.fitbank.middleware.bimo.pacs.camt_998_202.OriginalGroupInformation();
+		orgId.setOrgnlMsgId(document.getPrtryMsg().getGrpHdr().getMsgId());
+		orgId.setOrgnlCreDtTm(document.getPrtryMsg().getGrpHdr().getCreDtTm());
+		orgId.setOrgnlMsgNmId("camt.998.201");
+		
+		
+		if(iso.getISO_039_ResponseCode().equals("000"))
+			prtData.setTxSts(StatusCode.OK);
+		else
+			prtData.setTxSts(StatusCode.ERR);
+		
+	
+		com.fitbank.middleware.bimo.pacs.camt_998_202.StatusReasonInformation stsInfo = new
+				com.fitbank.middleware.bimo.pacs.camt_998_202.StatusReasonInformation();
+		com.fitbank.middleware.bimo.pacs.camt_998_202.Reason rsn = new 
+				com.fitbank.middleware.bimo.pacs.camt_998_202.Reason();
+		rsn.setCode(codeHomolog(iso));
+		List<String> lstatusDetail =  new ArrayList<>();
+		lstatusDetail.add(iso.getISO_039p_ResponseDetail()
+				.replace("<**>", StringUtils.Empty())
+				.replace("<*>", StringUtils.Empty()));
+		rsn.setAddtlInf(lstatusDetail);
+		stsInfo.setRsn(rsn);
+		
+		AccountOrOperationalError2Choice accerr = new AccountOrOperationalError2Choice();
+		AcctRp accrp = new AcctRp();
+		AccountIdentification4Choice accId = new AccountIdentification4Choice();
+		GenericAccountIdentification1 gnAcc = new GenericAccountIdentification1();
+		AccountOrBusinessError2Choice accErrBuss = new AccountOrBusinessError2Choice();
+		List<CashAccount23> lstCash = new ArrayList<>();
+		CashAccount23 cashAcc = new CashAccount23();
+		CashBalance5 cashBalance = new CashBalance5();
+		
+		
+		gnAcc.setId(iso.getISO_124_ExtendedData()); //AccountInfoOriginal
+		accId.setOthr(gnAcc);
+		accrp.setAcctId(accId);
+		
+		if(!StringUtils.IsNullOrEmpty(iso.getISO_044_AddRespData()))
+			cashAcc.setNm(Arrays.asList(iso.getISO_044_AddRespData().split("\\|")).get(3)); //Obtengo el nombre
+		else
+			cashAcc.setNm("BENEFICIARIO - " + iso.getISO_023_CardSeq());
+		if(iso.getISO_003_ProcessingCode().equals("311000"))
+			cashAcc.setPrDescr("AHORROS");
+		else
+			cashAcc.setPrDescr("CORRIENTE");
+		
+		ActiveOrHistoricCurrencyAndAmount amm = new ActiveOrHistoricCurrencyAndAmount();
+		amm.setCcy("USD");
+		double saldo = Double.parseDouble(iso.getISO_054_AditionalAmounts());
+		amm.setValue(BigDecimal.valueOf(saldo));
+		cashBalance.setAmt(amm);
+		if(iso.getISO_104_TranDescription().equals("C"))
+			cashBalance.setCdtDbtInd(CreditDebitCode.CRDT);
+		else
+			cashBalance.setCdtDbtInd(CreditDebitCode.DBIT);
+		BalanceType8Choice balance8 = new BalanceType8Choice();
+		balance8.setCd(SystemBalanceType1Code.SALDO);
+		cashBalance.setTp(balance8);
+		cashAcc.setMulBal(cashBalance);
+		
+		lstCash.add(cashAcc);
+		
+		accErrBuss.setPhone(iso.getISO_023_CardSeq());
+		accErrBuss.setAcct(lstCash);
+		accrp.setAcctOrErr(accErrBuss);
+		accrp.setAcctId(accId);
+		accerr.setAcctRpt(accrp);
+		
+		
+		prtData.setOrgnlGrpInf(orgId);
+		prtData.setStsRsnInf(stsInfo);
+		prtData.setRptOrErr(accerr);
+		
+		propMsg.setGrpHdr(grHd);
+		propMsg.setPrtryData(prtData);
+		
+		docResponse.setHeader(hd);
+		docResponse.setPrtryMsg(propMsg);
+		
+		} catch (Exception e) {
+		
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESO", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::ResponseEnroll ", TypeMonitor.error, e);
+		}
+		
+		return docResponse;
+	}
+	
+	private com.fitbank.middleware.bimo.pacs.pacs_002_022.Document ResponseCredit
+    					(com.fitbank.middleware.bimo.pacs.pacs_008_021.Document document, Iso8583 iso){
+
+		com.fitbank.middleware.bimo.pacs.pacs_002_022.Document docresponse = null;
+		
+		try {
+
+			String IdMessage = MemoryGlobal.IdBIMOEfi + FormatUtils.DateToString(new Date(), "yyyyMMddHHmmss");
+			XMLGregorianCalendar date = FormatUtils.DateToXMLGregorian(new Date());
+			
+			docresponse = new Document();
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.HeaderData hd = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_022.HeaderData();
+			
+			/*Header Data*/
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.OrigIdData orgHd = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_022.OrigIdData();
+			orgHd.setChannel(document.getHeader().getOrigId().getChannel());
+			orgHd.setApp(document.getHeader().getOrigId().getApp());
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.ServiceData servOrgHd = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_022.ServiceData();
+			servOrgHd.setIdServ("Credito RS");
+			servOrgHd.setVersServ(document.getHeader().getOrigId().getService().getVersServ());
+			orgHd.setService(servOrgHd);
+			orgHd.setOtherId(document.getHeader().getOrigId().getOtherId());
+			hd.setSender(document.getHeader().getReceiver()); //Al reves ahora el que recibe es el que envia y viceversa
+			hd.setReceiver(document.getHeader().getSender()); 
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.MjeData  mjdata = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_022.MjeData();
+			mjdata.setType("pacs.002.022");
+			mjdata.setRoR(com.fitbank.middleware.bimo.pacs.pacs_002_022.RoRCod.RESP);
+			mjdata.setIdMge(IdMessage);
+			mjdata.setOpeDate(date);
+			hd.setMge(mjdata);
+			hd.setOrigId(orgHd);
+			hd.setPssblDplct(document.getHeader().isPssblDplct());
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.Priority prty = null;
+			switch (document.getHeader().getPrty()) {
+			case URGT:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_022.Priority.URGT;
+			break;
+			case HIGH:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_022.Priority.HIGH;
+			break;
+			case NORM:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_022.Priority.NORM;
+			break;
+			case LOWW:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_022.Priority.LOWW;
+			break;
+				default:
+				break;
+		    }
+			hd.setPrty(prty);
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.GroupHeader grHd = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_022.GroupHeader();
+			grHd.setMsgId(IdMessage);
+			grHd.setCreDtTm(date);
+			grHd.setNbOfTxs(document.getFIToFICstmrCdtTrf().getGrpHdr().getNbOfTxs());
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementMethod1Code sttMeth = null;
+			
+			switch (document.getFIToFICstmrCdtTrf().getGrpHdr().getSttInf().getSttlmMtd()) {
+			case INDA:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementMethod1Code.INDA;
+			break;
+			case INGA:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementMethod1Code.INGA;
+			break;
+			case CLRG:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementMethod1Code.CLRG;
+			break;
+			case COVE:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementMethod1Code.COVE;
+			break;
+			
+			default:
+			break;
+			}
+			
+			/*FIToFICstmrCdtTrf*/
+			FIToFIPaymentStatusReportV08 prtData = new FIToFIPaymentStatusReportV08();
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementInstruction4 sttIns4 = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_022.SettlementInstruction4();
+			sttIns4.setSttlmMtd(sttMeth);
+			grHd.setSttInf(sttIns4);
+			
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.BranchAndFinancialInstitutionIdentification5 eff = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_022.BranchAndFinancialInstitutionIdentification5();
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.FinancialInstitutionIdentification8 efi = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_022.FinancialInstitutionIdentification8();
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.GenericFinancialIdentification1 zgen = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_022.GenericFinancialIdentification1();
+			zgen.setId(MemoryGlobal.IdBIMOEfi);
+			efi.setOthr(zgen);
+			eff.setFinInstnId(efi);
+			
+			
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.BranchAndFinancialInstitutionIdentification5 eff2 = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_022.BranchAndFinancialInstitutionIdentification5();
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.FinancialInstitutionIdentification8 efi2 = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_022.FinancialInstitutionIdentification8();
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.GenericFinancialIdentification1 zgen2 = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_022.GenericFinancialIdentification1();
+			zgen2.setId(document.getFIToFICstmrCdtTrf().getGrpHdr().getInstgAgt()
+					                    .getFinInstnId().getOthr().getId()); //ojo EFI Acq
+			efi2.setOthr(zgen2);
+			eff2.setFinInstnId(efi2);
+			
+			
+			grHd.setInstdAgt(eff);
+			grHd.setInstgAgt(eff2);			
+			prtData.setGrpHdr(grHd);
+			
+			//TxInfAndSts
+			com.fitbank.middleware.bimo.pacs.pacs_002_022.PaymentTransaction80 txInfoSt = new PaymentTransaction80();
+			OriginalGroupInformation3 original = new OriginalGroupInformation3();
+			original.setOrgnlMsgId(document.getFIToFICstmrCdtTrf().getGrpHdr().getMsgId());
+			original.setOrgnlMsgNmId("pacs.008.021");
+			original.setOrgnlCreDtTm(document.getFIToFICstmrCdtTrf().getGrpHdr().getCreDtTm());
+			txInfoSt.setOrgnlGrpInf(original);
+			
+			txInfoSt.setOrgnlEndToEndId(document.getFIToFICstmrCdtTrf().getCdtTrfTxInf().get(0)
+																	.getPmtId().getEndToEndId());
+			
+			txInfoSt.setOrgnlTxId(document.getFIToFICstmrCdtTrf().getCdtTrfTxInf().get(0)
+																	.getPmtId().getTxId());
+		
+			if(iso.getISO_039_ResponseCode().equals("000"))
+				txInfoSt.setTxSts(com.fitbank.middleware.bimo.pacs.pacs_002_022.StatusTypeCode.OK);
+			else
+				txInfoSt.setTxSts(com.fitbank.middleware.bimo.pacs.pacs_002_022.StatusTypeCode.ERR);
+			
+			StatusReasonInformation9 statusInfo = new StatusReasonInformation9();
+			StatusReason6Choice rzon = new StatusReason6Choice();
+			rzon.setPrtry(codeHomolog(iso));
+			statusInfo.setRsn(rzon);
+			statusInfo.setAddtlInf(iso.getISO_039p_ResponseDetail()
+					.replace("<**>", StringUtils.Empty())
+					.replace("<*>", StringUtils.Empty()));
+
+			txInfoSt.setStsRsnInf(statusInfo);
+			
+			txInfoSt.setAccptncDtTm(date);
+			if(iso.getISO_039_ResponseCode().equals("000")){
+				
+				txInfoSt.setAcctSvcrRef(iso.getISO_044_AddRespData());
+				SupplementaryData1 supp = new SupplementaryData1();
+				SupplementaryDataEnvelope1 spenv = new SupplementaryDataEnvelope1();
+				ContentsV03 contents = new ContentsV03();
+				contents.setConfCode(iso.getISO_044_AddRespData());
+				spenv.setCnts(contents);
+				supp.setEnvlp(spenv);
+				txInfoSt.setSplmtryData(supp);
+			}
+			
+			prtData.setTxInfAndSts(txInfoSt);
+			docresponse.setFIToFIPmtStsRpt(prtData);
+			docresponse.setHeader(hd);
+			
+		} catch (Exception e) {
+		
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESO", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::ResponseEnroll ", TypeMonitor.error, e);
+		}
+		return docresponse;
+	}
+	
+	private com.fitbank.middleware.bimo.pacs.pacs_002_042.Document ResponseReverCredit
+			(com.fitbank.middleware.bimo.pacs.pacs_007_041.Document document, Iso8583 iso){
+		
+        com.fitbank.middleware.bimo.pacs.pacs_002_042.Document docresponse = null;
+		
+		try {
+
+			String IdMessage = MemoryGlobal.IdBIMOEfi + FormatUtils.DateToString(new Date(), "yyyyMMddHHmmss");
+			XMLGregorianCalendar date = FormatUtils.DateToXMLGregorian(new Date());
+			
+			docresponse = new com.fitbank.middleware.bimo.pacs.pacs_002_042.Document();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.HeaderData hd = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_042.HeaderData();
+			
+			/*Header Data*/
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.OrigIdData orgHd = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_042.OrigIdData();
+			orgHd.setChannel(document.getHeader().getOrigId().getChannel());
+			orgHd.setApp(document.getHeader().getOrigId().getApp());
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.ServiceData servOrgHd = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_042.ServiceData();
+			servOrgHd.setIdServ("Reverso Credito RS");
+			servOrgHd.setVersServ(document.getHeader().getOrigId().getService().getVersServ());
+			orgHd.setService(servOrgHd);
+			orgHd.setOtherId(document.getHeader().getOrigId().getOtherId());
+			hd.setSender(document.getHeader().getReceiver()); //Al reves ahora el que recibe es el que envia y viceversa
+			hd.setReceiver(document.getHeader().getSender()); 
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.MjeData  mjdata = new 
+				com.fitbank.middleware.bimo.pacs.pacs_002_042.MjeData();
+			mjdata.setType("pacs.002.042");
+			mjdata.setRoR(com.fitbank.middleware.bimo.pacs.pacs_002_042.RoRCod.RESP);
+			mjdata.setIdMge(IdMessage);
+			mjdata.setOpeDate(date);
+			hd.setMge(mjdata);
+			hd.setOrigId(orgHd);
+			hd.setPssblDplct(document.getHeader().isPssblDplct());
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.Priority prty = null;
+			switch (document.getHeader().getPrty()) {
+			case URGT:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_042.Priority.URGT;
+			break;
+			case HIGH:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_042.Priority.HIGH;
+			break;
+			case NORM:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_042.Priority.NORM;
+			break;
+			case LOWW:
+				prty = com.fitbank.middleware.bimo.pacs.pacs_002_042.Priority.LOWW;
+			break;
+				default:
+				break;
+		    }
+			hd.setPrty(prty);
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.GroupHeader grHd = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.GroupHeader();
+			grHd.setMsgId(IdMessage);
+			grHd.setCreDtTm(date);
+			grHd.setNbOfTxs(document.getFIToFIPmtRvsl().getGrpHdr().getNbOfTxs());
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementMethod1Code sttMeth = null;
+			
+			switch (document.getFIToFIPmtRvsl().getGrpHdr().getSttInf().getSttlmMtd()) {
+			case INDA:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementMethod1Code.INDA;
+			break;
+			case INGA:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementMethod1Code.INGA;
+			break;
+			case CLRG:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementMethod1Code.CLRG;
+			break;
+			case COVE:
+				sttMeth = com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementMethod1Code.COVE;
+			break;
+			
+			default:
+			break;
+			}
+			
+			/*FIToFICstmrCdtTrf*/
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.FIToFIPaymentStatusReportV08 prtData = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.FIToFIPaymentStatusReportV08();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementInstruction4 sttIns4 = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.SettlementInstruction4();
+			sttIns4.setSttlmMtd(sttMeth);
+			grHd.setSttInf(sttIns4);
+			
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.BranchAndFinancialInstitutionIdentification5 eff = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.BranchAndFinancialInstitutionIdentification5();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.FinancialInstitutionIdentification8 efi = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_042.FinancialInstitutionIdentification8();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.GenericFinancialIdentification1 zgen = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_042.GenericFinancialIdentification1();
+			zgen.setId(MemoryGlobal.IdBIMOEfi);
+			efi.setOthr(zgen);
+			eff.setFinInstnId(efi);
+			
+			
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.BranchAndFinancialInstitutionIdentification5 eff2 = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.BranchAndFinancialInstitutionIdentification5();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.FinancialInstitutionIdentification8 efi2 = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_042.FinancialInstitutionIdentification8();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.GenericFinancialIdentification1 zgen2 = new 
+					com.fitbank.middleware.bimo.pacs.pacs_002_042.GenericFinancialIdentification1();
+			zgen2.setId(MemoryGlobal.IdBIMOBanred); //ojo BCE Acq !!!!
+			efi2.setOthr(zgen2);
+			eff2.setFinInstnId(efi2);
+			
+			
+			grHd.setInstdAgt(eff);
+			grHd.setInstgAgt(eff2);			
+			prtData.setGrpHdr(grHd);
+			
+			//TxInfAndSts
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.PaymentTransaction80 txInfoSt = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.PaymentTransaction80();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.OriginalGroupInformation3 original = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.OriginalGroupInformation3();
+			original.setOrgnlMsgId(document.getFIToFIPmtRvsl().getGrpHdr().getMsgId());
+			original.setOrgnlMsgNmId("pacs.008.021");
+			original.setOrgnlCreDtTm(document.getFIToFIPmtRvsl().getGrpHdr().getCreDtTm());
+			txInfoSt.setOrgnlGrpInf(original);
+			
+			txInfoSt.setOrgnlEndToEndId(document.getFIToFIPmtRvsl().getTxInf()
+																	.getOrgnlEndToEndId());
+			
+			txInfoSt.setOrgnlTxId(document.getFIToFIPmtRvsl().getTxInf()
+																	.getOrgnlTxId());
+		
+			if(iso.getISO_039_ResponseCode().equals("000"))
+				txInfoSt.setTxSts(com.fitbank.middleware.bimo.pacs.pacs_002_042.StatusTypeCode.OK);
+			else
+				txInfoSt.setTxSts(com.fitbank.middleware.bimo.pacs.pacs_002_042.StatusTypeCode.ERR);
+			
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.StatusReasonInformation9 statusInfo = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.StatusReasonInformation9();
+			com.fitbank.middleware.bimo.pacs.pacs_002_042.StatusReason6Choice rzon = 
+					new com.fitbank.middleware.bimo.pacs.pacs_002_042.StatusReason6Choice();
+			rzon.setPrtry(codeHomolog(iso));
+			statusInfo.setRsn(rzon);
+			statusInfo.setAddtlInf(iso.getISO_039p_ResponseDetail()
+					.replace("<**>", StringUtils.Empty())
+					.replace("<*>", StringUtils.Empty()));
+
+			txInfoSt.setStsRsnInf(statusInfo);
+			
+			txInfoSt.setAccptncDtTm(date);
+			if(iso.getISO_039_ResponseCode().equals("000")){
+				
+				txInfoSt.setAcctSvcrRef(iso.getISO_044_AddRespData());
+				txInfoSt.setAccptncDtTm(date);
+			}
+			
+			prtData.setTxInfAndSts(txInfoSt);
+			docresponse.setFIToFIPmtStsRpt(prtData);
+			docresponse.setHeader(hd);
+			
+		} catch (Exception e) {
+		
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESO", e, false);
+			log.WriteLogMonitor("Error modulo BanredIsAcq::ResponseEnroll ", TypeMonitor.error, e);
+		}
+		return docresponse;
+	}
+	
+	private String codeHomolog(Iso8583 iso){
+		String data = null;
+		try {
+			
+			switch (iso.getISO_039_ResponseCode()) {
+			case "000":
+				if(iso.getISO_000_Message_Type().startsWith("14"))
+					data = "010";
+				break;
+			case "905":
+				data = "100";
+				break;
+			case "078":
+				data = "054";
+			case "904":
+				data = "602";
+			case "120":
+				data = "060";
+				break;
+			case "214":
+				data = "056";
+				break;
+			case "123":
+				data = "061";
+				break;
+			case "909":
+			case "908":
+				data = "070";
+				break;
+			default:
+				data = iso.getISO_039_ResponseCode();
+				break;
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo BanredIsAcq::codeHomolog ", TypeMonitor.error, e);
+		}
+		return data;
+	}
+	
+	private void changesEnroll(Ref<Iso8583> isoRef){
+		
+		double versionFit = 0;
+		Iso8583 iso = isoRef.get();
+		try {
+			Config cnf = new Config();
+			cnf = cnf.getConfigSystem("FIT_VERSION");
+			if(cnf != null){
+				
+				versionFit = Double.parseDouble(cnf.getCfg_Valor());
+				//Nacionalidad
+				iso.setISO_019_AcqCountryCode(iso.getISO_019_AcqCountryCode().substring(0,2));
+				//Tipo Documento persona
+				iso.setISO_022_PosEntryMode(iso.getISO_022_PosEntryMode().equalsIgnoreCase("CC") ? "CED":"PASS");
+				//Tipo Persona
+				iso.setISO_115_ExtendedData(iso.getISO_115_ExtendedData().equalsIgnoreCase("PN") ? "NAT":"JUR");
+				//Genero
+				if(Arrays.asList(iso.getISO_123_ExtendedData().split("\\|")).get(1).equalsIgnoreCase("HOMBRE"))
+					iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|HOMBRE|","|M|"));
+				else if(Arrays.asList(iso.getISO_123_ExtendedData().split("\\|")).get(1).equalsIgnoreCase("MUJER"))
+					iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|MUJER|", "|F|"));
+				
+				//Estado Civil
+				if(versionFit >= 2){
+					
+					switch (Arrays.asList(iso.getISO_123_ExtendedData().split("\\|")).get(3)) {
+					case "SOLTERA":
+					case "SOLTERO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|SOLTERO|", "|2|")
+								.replace("|SOLTERA|", "|2|"));
+						break;
+					case "CASADA":
+					case "CASADO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|CASADO|", "|1|")
+								  .replace("|CASADA|", "|1|"));
+						break;
+					case "DIVORCIADA":
+					case "DIVORCIADO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|DIVORCIADO|", "|4|")
+								 .replace("|DIVORCIADA|", "|4|"));
+						break;
+					case "VIUDA":
+					case "VIUDO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|VIUDO|", "|3|")
+							     .replace("|VIUDA|", "|3|"));
+						break;
+					case "EN UNION DE HECHO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|EN UNION DE HECHO|", "|5|"));
+						break;
+					case "NO REGISTRA":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|NO REGISTRA|", "|2|"));
+						break;
+					default:
+						break;
+					}
+					
+				}else{
+					
+					switch (Arrays.asList(iso.getISO_123_ExtendedData().split("\\|")).get(3)) {
+					case "SOLTERA":
+					case "SOLTERO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|SOLTERO|", "|1|")
+								.replace("|SOLTERA|", "|1|"));
+						break;
+					case "CASADA":
+					case "CASADO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|CASADO|", "|2|")
+								.replace("|CASADA|", "|2|"));
+						break;
+					case "DIVORCIADA":
+					case "DIVORCIADO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|DIVORCIADO|", "|3|")
+								.replace("|DIVORCIADA|", "|3|"));
+						break;
+					case "VIUDA":
+					case "VIUDO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|VIUDO|", "|4|")
+								.replace("|VIUDA|", "|4|"));
+						break;
+					case "EN UNION DE HECHO":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|EN UNION DE HECHO|", "|5|"));
+						break;
+					case "NO REGISTRA":
+						iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData().replace("|NO REGISTRA|", "|1|"));
+						break;
+					default:
+						break;
+					}
+				}
+			}else{
+				
+				iso.setISO_039_ResponseCode("100");
+				iso.setISO_039p_ResponseDetail("NO SE PUDO RECUPERAR CONFIGURACION PARA HOMOLOGACIONES INTERNAS");
+			}
+			
+			String [] desgloseNombres = iso.getISO_034_PANExt().split(" ");
+			String acum = StringUtils.Empty();
+			for (int i = 0; i < 4; i++) {
+				
+				try {
+					acum += desgloseNombres[i] + "|";
+				} catch (Exception e) {
+					acum += " |";	
+				}	
+			}
+			acum = StringUtils.trimEnd(acum, "|");
+			iso.setISO_055_EMV(acum);
+			
+			iso.setISO_090_OriginalData(Arrays.asList(iso.getISO_055_EMV().split("\\|")).get(0) + " " 
+			+ Arrays.asList(iso.getISO_055_EMV().split("\\|")).get(1) + "|" + 
+			Arrays.asList(iso.getISO_055_EMV().split("\\|")).get(2) + " " + 
+			Arrays.asList(iso.getISO_055_EMV().split("\\|")).get(3));
+					
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS, PROBLEMAS AL HOMOLOGAR");
+			log.WriteLogMonitor("Error modulo BanredIsAcq::changesEnroll ", TypeMonitor.error, e);
+		}
+	}
+	
+}

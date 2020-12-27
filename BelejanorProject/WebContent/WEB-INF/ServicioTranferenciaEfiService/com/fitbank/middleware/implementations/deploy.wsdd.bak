@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?><!-- Use this file to deploy some handlers/chains and services      --><!-- Two ways to do this:                                           --><!--   java org.apache.axis.client.AdminClient deploy.wsdd          --><!--      after the axis server is running                          --><!-- or                                                             --><!--   java org.apache.axis.utils.Admin client|server deploy.wsdd   --><!--      from the same directory that the Axis engine runs         --><deployment xmlns="http://xml.apache.org/axis/wsdd/" xmlns:java="http://xml.apache.org/axis/wsdd/providers/java">
+
+  <!-- Services from ServicioTranferenciaEfiService WSDL service -->
+
+  <service name="ServicioTranferenciaEfi" provider="java:RPC" style="wrapped" use="literal">
+      <parameter name="wsdlTargetNamespace" value="http://implementations.middleware.fitbank.com"/>
+      <parameter name="wsdlServiceElement" value="ServicioTranferenciaEfiService"/>
+      <parameter name="schemaQualified" value="http://electroniccash.middleware.fitbank.com,http://implementations.middleware.fitbank.com"/>
+      <parameter name="wsdlServicePort" value="ServicioTranferenciaEfi"/>
+      <parameter name="className" value="com.belejanor.switcher.implementations.ServicioTranferenciaEfi"/>
+      <parameter name="wsdlPortType" value="ServicioTranferenciaEfi"/>
+      <parameter name="typeMappingVersion" value="1.2"/>
+      <operation xmlns:operNS="http://implementations.middleware.fitbank.com" xmlns:retNS="http://implementations.middleware.fitbank.com" xmlns:rtns="http://electroniccash.middleware.fitbank.com" name="revert" qname="operNS:revert" returnQName="retNS:revertReturn" returnType="rtns:DTOResponseRevert" soapAction="">
+        <parameter xmlns:pns="http://implementations.middleware.fitbank.com" xmlns:tns="http://electroniccash.middleware.fitbank.com" qname="pns:DTORequestRevert" type="tns:DTORequestRevert"/>
+      </operation>
+      <operation xmlns:operNS="http://implementations.middleware.fitbank.com" xmlns:retNS="http://implementations.middleware.fitbank.com" xmlns:rtns="http://electroniccash.middleware.fitbank.com" name="credit" qname="operNS:credit" returnQName="retNS:creditReturn" returnType="rtns:DTOResponseCredit" soapAction="">
+        <parameter xmlns:pns="http://implementations.middleware.fitbank.com" xmlns:tns="http://electroniccash.middleware.fitbank.com" qname="pns:DTORequestCredit" type="tns:DTORequestCredit"/>
+      </operation>
+      <operation xmlns:operNS="http://implementations.middleware.fitbank.com" xmlns:retNS="http://implementations.middleware.fitbank.com" xmlns:rtns="http://electroniccash.middleware.fitbank.com" name="debit" qname="operNS:debit" returnQName="retNS:debitReturn" returnType="rtns:DTOResponseDebit" soapAction="">
+        <parameter xmlns:pns="http://implementations.middleware.fitbank.com" xmlns:tns="http://electroniccash.middleware.fitbank.com" qname="pns:DTORequestDebit" type="tns:DTORequestDebit"/>
+      </operation>
+      <operation xmlns:operNS="http://implementations.middleware.fitbank.com" xmlns:retNS="http://implementations.middleware.fitbank.com" xmlns:rtns="http://electroniccash.middleware.fitbank.com" name="isValidAccount" qname="operNS:isValidAccount" returnQName="retNS:isValidAccountReturn" returnType="rtns:DTOResponseIsValidAccount" soapAction="">
+        <parameter xmlns:pns="http://implementations.middleware.fitbank.com" xmlns:tns="http://electroniccash.middleware.fitbank.com" qname="pns:DTORequestIsValidAccount" type="tns:DTORequestIsValidAccount"/>
+      </operation>
+      <parameter name="allowedMethods" value="revert credit debit isValidAccount"/>
+
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTOResponseRevert" type="java:com.belejanor.switcher.electroniccash.DTOResponseRevert" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTOResponseIsValidAccount" type="java:com.belejanor.switcher.electroniccash.DTOResponseIsValidAccount" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTORequestRevert" type="java:com.belejanor.switcher.electroniccash.DTORequestRevert" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTOResponseDebit" type="java:com.belejanor.switcher.electroniccash.DTOResponseDebit" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTORequestCredit" type="java:com.belejanor.switcher.electroniccash.DTORequestCredit" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTORequestDebit" type="java:com.belejanor.switcher.electroniccash.DTORequestDebit" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTORequestIsValidAccount" type="java:com.belejanor.switcher.electroniccash.DTORequestIsValidAccount" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+      <typeMapping xmlns:ns="http://electroniccash.middleware.fitbank.com" qname="ns:DTOResponseCredit" type="java:com.belejanor.switcher.electroniccash.DTOResponseCredit" serializer="org.apache.axis.encoding.ser.BeanSerializerFactory" deserializer="org.apache.axis.encoding.ser.BeanDeserializerFactory" encodingStyle=""/>
+  </service>
+</deployment>

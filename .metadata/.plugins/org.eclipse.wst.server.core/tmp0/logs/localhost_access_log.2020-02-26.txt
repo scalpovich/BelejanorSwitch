@@ -1,0 +1,4 @@
+127.0.0.1 - - [26/Feb/2020:20:46:30 -0500] "GET / HTTP/1.1" 404 996
+0:0:0:0:0:0:0:1 - - [26/Feb/2020:20:46:33 -0500] "GET /BelejanorProject/WEB-INF/classes/com/belejanor/switcher/authorizations/CobisIsAut.java HTTP/1.1" 404 994
+127.0.0.1 - - [26/Feb/2020:20:47:14 -0500] "POST /BelejanorSwitch/services/BimoRestServices/AuthorizationsFitBank HTTP/1.1" 404 1122
+127.0.0.1 - - [26/Feb/2020:20:47:45 -0500] "POST /BelejanorProject/services/BimoRestServices/AuthorizationsFitBank HTTP/1.1" 200 1641

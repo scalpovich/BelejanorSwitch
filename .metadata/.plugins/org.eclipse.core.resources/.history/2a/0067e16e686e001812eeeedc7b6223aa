@@ -1,0 +1,5 @@
+package com.fitbank.middleware.struct.servipagos;
+
+public class TrxRespuestaConsulta {
+
+}

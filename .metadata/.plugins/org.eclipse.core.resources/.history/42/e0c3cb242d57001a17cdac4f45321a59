@@ -1,0 +1,32 @@
+package com.belejanor.switcher.scheduler;
+
+import java.util.TimerTask;
+import com.belejanor.switcher.logger.Logger;
+import com.belejanor.switcher.logger.LoggerConfig.TypeMonitor;
+import com.belejanor.switcher.memcached.BatchDay;
+import com.belejanor.switcher.memcached.MemoryGlobal;
+
+public class TaskBatchExecuteDay extends TimerTask{
+
+	@Override
+	public void run() {
+		
+		Logger log = null;
+		BatchDay bt = new BatchDay();
+		try {
+			log = new Logger();
+			BatchDay batch = bt.getParamsBatch("D");
+			if(batch != null) {
+				
+			}else {
+				log.WriteLogMonitor("No se encuentra Parametro BATCH ", TypeMonitor.monitor, null);
+			}
+			
+		} catch (Exception e) {
+			
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo TaskBatchExecuteDay::run()", TypeMonitor.error, e);
+		}
+	}
+
+}

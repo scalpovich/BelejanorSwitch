@@ -1,0 +1,14 @@
+package com.fitbank.middleware.acquirers;
+
+import com.fitbank.middleware.logger.Logger;
+
+public class IVRIsAcq {
+
+	private Logger log;
+	
+	public IVRIsAcq() {
+		this.log = new Logger();
+	}
+	
+	
+}

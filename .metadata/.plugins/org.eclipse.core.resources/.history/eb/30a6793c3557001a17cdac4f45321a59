@@ -1,0 +1,24 @@
+package com.belejanor.switcher.scheduler;
+
+import java.util.TimerTask;
+import com.belejanor.switcher.logger.Logger;
+import com.belejanor.switcher.logger.LoggerConfig.TypeMonitor;
+
+public class TaskBatchExcuteChrono extends TimerTask{
+
+	@Override
+	public void run() {
+		Logger log = null;
+		try {
+			
+			
+			
+		} catch (Exception e) {
+			
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo TaskBatchExcuteChrono::run()", TypeMonitor.error, e);
+		}
+			
+	}
+
+}

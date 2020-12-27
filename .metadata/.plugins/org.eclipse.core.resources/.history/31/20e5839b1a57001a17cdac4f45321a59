@@ -1,0 +1,66 @@
+package com.belejanor.switcher.memcached;
+
+import java.sql.Connection;
+import java.sql.SQLException;
+import com.belejanor.switcher.logger.Logger;
+import com.belejanor.switcher.logger.LoggerConfig.TypeMonitor;
+import com.belejanor.switcher.sqlservices.DBCPDataSource;
+import com.belejanor.switcher.sqlservices.DataSetMemoryLoader;
+
+public class BatchDay extends Thread{
+
+	private int hora;
+	private int minuto;
+	private int segundo;
+	private int frecuencia;
+	private String task_name;
+	private String method_call;
+	private String params_call;
+	
+    public BatchDay() {
+		
+	}
+	
+	
+	
+	@Override
+	public void run() {	
+		
+		Logger log;
+		Connection conn = null;
+		try {
+			
+			conn = DBCPDataSource.getConnection();
+			String query = "SELECT * FROM BATCH_DAY";		
+			DataSetMemoryLoader<BatchDay> loader = 
+		    new DataSetMemoryLoader<BatchDay>
+			(conn, BatchDay.class, query);
+			MemoryGlobal.ListBatchDayTableMem = loader.LoadDataClass();
+			
+			log = new Logger();
+			log.WriteLogMonitor("[MEM_CAHED]: Cargando TAREAS BATCH...", TypeMonitor.monitor, null);
+			
+			
+		} catch (SQLException e) {
+			
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo BatchDay::run() ", TypeMonitor.error, e);
+			
+		}catch (Exception e) {
+			
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo BatchDay::run() ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			try {
+				if(conn != null)
+					conn.close();
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		
+		
+	}			
+}

@@ -1,0 +1,66 @@
+package com.fitbank.middleware.implementations.equifax;
+
+import javax.annotation.Resource;
+import javax.jws.WebService;
+import javax.servlet.http.HttpServletRequest;
+import javax.xml.ws.WebServiceContext;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import com.fitbank.middleware.acquirers.IRegisterEquifax;
+import com.fitbank.middleware.bridges.BridgeEquifax;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeLog;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.struct.equifax.Error;
+import com.fitbank.middleware.struct.equifax.RegisterData;
+import com.fitbank.middleware.struct.equifax.ResponseRegisterDataEquifax;
+import com.fitbank.middleware.utils.GeneralUtils;
+
+@WebService(targetNamespace = "http://equifax.implementations.middleware.fitbank.com/", portName = "RegisterDataEquifaxPort", serviceName = "RegisterDataEquifaxService")
+public class RegisterDataEquifax implements IRegisterEquifax{
+
+	@Override
+	public ResponseRegisterDataEquifax insertarEvaluacion(RegisterData dataIn) throws Error {
+		
+		Logger log = new Logger();
+		try {
+			
+			log.WriteOptimizeLog(dataIn, TypeLog.equifxAcq, RegisterData.class, true);
+			
+			ResponseRegisterDataEquifax response = new ResponseRegisterDataEquifax();
+			BridgeEquifax bridge = new BridgeEquifax();
+			response = bridge.procesaRegistroEquifax(dataIn, ObtainIpClient());
+			if(bridge.getCodError().equals("999")) {
+				
+				log.WriteOptimizeLog("Se responde con Error: " + bridge.getCodError() + " - " + bridge.getDesError()
+				, TypeLog.equifxAcq, ResponseRegisterDataEquifax.class, false);
+				throw new Error(bridge.getCodError(), bridge.getDesError());
+			}else {
+				
+				log.WriteOptimizeLog(response, TypeLog.equifxAcq, ResponseRegisterDataEquifax.class, true);
+				return response;
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo RegisterDataEquifax::insertarEvaluacion ", TypeMonitor.error, e);
+			throw new Error("999", GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, true));
+			
+		}
+	}
+
+	@Resource  
+	WebServiceContext wsContext; 
+	private String ObtainIpClient() {
+		try {
+			
+			org.apache.cxf.message.Message message = PhaseInterceptorChain.getCurrentMessage();
+			HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
+			return request.getRemoteAddr();
+			
+		} catch (Exception e) {
+			return "undefined-error";
+		}
+		
+	}
+}

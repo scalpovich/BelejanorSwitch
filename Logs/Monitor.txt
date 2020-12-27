@@ -1,0 +1,530 @@
+2020-12-26 10:45:46 INFO  monitorsLogger:416 - <<INICIANDO PROCESO BATCH: TaskBatchExcuteChrono>>
+2020-12-26 10:45:46 INFO  monitorsLogger:416 - <<INICIANDO PROCESO BATCH: TaskBatchExecuteDay>>
+2020-12-26 10:45:46 INFO  monitorsLogger:416 - EJECUCION BATCH: TaskBatchExcuteChrono:  NO ES FIN DE MES... PROCESO NO EJECUTADO
+2020-12-26 10:46:08 INFO  monitorsLogger:416 - EJECUCION BATCH: TaskBatchExecuteDay: 006: Se ha detectado IOException: java.net.ConnectException: Connection timed out: connect
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:45 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - <<<< Inicia proceso de Lotes SNP SPI....>>>>
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2
+2020-12-26 10:46:46 INFO  monitorsLogger:416 - ====> ENTRO POR VERSION 2

@@ -1,0 +1,19 @@
+package com.belejanor.switcher.scheduler;
+
+import java.util.TimerTask;
+
+public class TaskBatchExecuteDay extends TimerTask{
+
+	@Override
+	public void run() {
+		
+		System.out.println("Se ejecuto Day!!!");
+		try {
+			Thread.sleep(40000);
+		} catch (InterruptedException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+
+}

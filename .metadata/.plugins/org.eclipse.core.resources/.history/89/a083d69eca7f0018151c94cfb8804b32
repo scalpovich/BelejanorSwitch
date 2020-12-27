@@ -1,0 +1,371 @@
+package com.fitbank.middleware.sqlservices;
+
+import java.sql.CallableStatement;
+import java.sql.SQLException;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.utils.FormatUtils;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.SerializationObject;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class IsoSqlMaintenance {
+	
+	private int codeSqlError;
+	private String descriptionSqlError;
+	//private static Logger log = null;
+	private Logger log;
+		
+	/*public Logger getLogger() {
+		if (IsoSqlMaintenance.log == null) {
+			IsoSqlMaintenance.log = new Logger();
+		}
+
+		return IsoSqlMaintenance.log;
+	}*/
+	public IsoSqlMaintenance(){
+		log = new Logger();
+	}
+	
+	public int getCodeSqlError() {
+		return codeSqlError;
+	}
+
+	public void setCodeSqlError(int codeSqlError) {
+		this.codeSqlError = codeSqlError;
+	}
+
+	public String getDescriptionSqlError() {
+		return descriptionSqlError;
+	}
+
+	public void setDescriptionSqlError(String descriptionSqlError) {
+		this.descriptionSqlError = descriptionSqlError;
+	}
+
+	public int InsertIso8583(wIso8583 iso){
+		
+		CallableStatement cs = null;
+		try {			
+			
+			cs = MemoryGlobal.conn.prepareCall("{call SW_InsertISO8583(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");		
+			cs.setString("wISO_000_Message_Type", iso.getISO_000_Message_Type());
+			cs.setString("wISO_BITMAP", iso.getISO_BitMap());
+			cs.setString("wISO_002_PAN", iso.getISO_002_PAN());
+			cs.setString("wISO_003_ProcessingCode", iso.getISO_003_ProcessingCode());
+			cs.setDouble("wISO_004_AmountTransaction", iso.getISO_004_AmountTransaction());
+			cs.setDouble("wISO_006_BillAmount", iso.getISO_006_BillAmount());
+			cs.setTimestamp("wISO_007_TransDatetime", GeneralUtils.DateToTimestamp(iso.getISO_007_TransDatetime()));
+			cs.setDouble("wISO_008_BillFeeAmount", iso.getISO_008_BillFeeAmount());
+			cs.setString("wISO_011_SysAuditNumber", iso.getISO_011_SysAuditNumber());
+			cs.setTimestamp("wISO_012_LocalDatetime", GeneralUtils.DateToTimestamp(iso.getISO_012_LocalDatetime()));
+			cs.setTimestamp("wISO_013_LocalDate", GeneralUtils.DateToTimestamp(iso.getISO_013_LocalDate()));
+			cs.setTimestamp("wISO_015_SettlementDatel", GeneralUtils.DateToTimestamp(iso.getISO_015_SettlementDatel()));
+			cs.setString("wISO_018_MerchantType", iso.getISO_018_MerchantType());
+			cs.setString("wISO_019_AcqCountryCode", iso.getISO_019_AcqCountryCode());
+			cs.setString("wISO_022_PosEntryCode", iso.getISO_022_PosEntryMode());
+			cs.setString("wISO_023_CardSeq", iso.getISO_023_CardSeq());
+			cs.setString("wISO_024_NetworkId", iso.getISO_024_NetworkId());
+			cs.setDouble("wISO_028_TranFeeAmount", iso.getISO_028_TranFeeAmount());
+			cs.setDouble("wISO_029_SettlementFee", iso.getISO_029_SettlementFee());
+			cs.setDouble("wISO_030_ProcFee", iso.getISO_030_ProcFee());
+			cs.setString("wISO_032_ACQInsID", iso.getISO_032_ACQInsID());
+			cs.setString("wISO_033_FWDInsID", iso.getISO_033_FWDInsID());
+			cs.setString("wISO_034_PANExt", iso.getISO_034_PANExt());
+			cs.setString("wISO_035_Track2", iso.getISO_035_Track2());
+			cs.setString("wISO_036_Track3", iso.getISO_036_Track3());
+			cs.setString("wISO_037_RetrievalReferenceNro", iso.getISO_037_RetrievalReferenceNumber());
+			cs.setString("wISO_038_AutorizationNumber", iso.getISO_038_AutorizationNumber());
+			cs.setString("wISO_039_ResponseCode", iso.getISO_039_ResponseCode());
+			cs.setString("wISO_039p_ResponseDetail", iso.getISO_039p_ResponseDetail());
+			cs.setString("wISO_041_CardAcceptorID", iso.getISO_041_CardAcceptorID());
+			cs.setString("wISO_042_Card_Acc_ID_Code", iso.getISO_042_Card_Acc_ID_Code());
+			cs.setString("wISO_043_CardAcceptorLoc", iso.getISO_043_CardAcceptorLoc());
+			cs.setString("wISO_044_AddRespData",iso.getISO_044_AddRespData());
+			cs.setDouble("wISO_049_TranCurrCode", iso.getISO_049_TranCurrCode());
+			cs.setDouble("wISO_051_CardCurrCode", iso.getISO_051_CardCurrCode());
+			cs.setString("wISO_052_PinBlock", iso.getISO_052_PinBlock());
+			cs.setString("wISO_054_AditionalAmounts", iso.getISO_054_AditionalAmounts());
+			cs.setString("wISO_055_EMV", iso.getISO_055_EMV());
+			cs.setString("wISO_090_OriginalData", iso.getISO_090_OriginalData());
+			cs.setString("wISO_102_AccountID_1", iso.getISO_102_AccountID_1());
+			cs.setString("wISO_103_AccountID_2", iso.getISO_103_AccountID_2());
+			cs.setString("wISO_104_TranDescription", iso.getISO_104_TranDescription());		
+			cs.setString("wISO_114_ExtendedData", iso.getISO_114_ExtendedData());
+			cs.setString("wISO_115_ExtendedData", iso.getISO_115_ExtendedData());
+		    cs.setString("wISO_120_ExtendedData", iso.getISO_120_ExtendedData());
+		    cs.setString("wISO_121_ExtendedData", iso.getISO_121_ExtendedData());
+		    cs.setString("wISO_122_ExtendedData", iso.getISO_122_ExtendedData());
+		    cs.setString("wISO_123_ExtendedData", iso.getISO_123_ExtendedData());
+		    cs.setString("wISO_124_ExtendedData", iso.getISO_124_ExtendedData());
+		    cs.setDouble("wsISO_LogStatus", iso.getWsIso_LogStatus());
+		    cs.setTimestamp("wsISO_TranDatetime", GeneralUtils.DateToTimestamp(iso.getWsISO_TranDatetime()));
+		    cs.setTimestamp("wsISO_TranDatetimeResponse", GeneralUtils.DateToTimestamp(iso.getWsISO_TranDatetimeResponse()));
+		    cs.setDouble("wsISO_SFRetryCounts", iso.getWsISO_SFRetryCounts());
+		    cs.setString("wsISO_FlagStoreFprward", String.valueOf(iso.getWsISO_FlagStoreForward()));
+		    cs.setDouble("wISO_012_LocalDatetime_decimal", iso.getwISO_012_LocalDatetime_decimal());
+		    cs.setDouble("wISO_TempoTrx_Value", iso.getWsTempTrx());
+		    cs.setDouble("wISO_TempoBDD_Value", iso.getWsTempBDD());
+		    cs.setDouble("wISO_TempoAut_Value", iso.getWsTempAut());
+		    cs.setString("wISO_IP", iso.getWs_IP());
+		    
+		    iso.getTickBdd().reset();
+		    iso.getTickBdd().start();
+		    	cs.execute();
+		    iso.getTickBdd().stop();
+			return 0;
+		    
+		} catch (SQLException ex) {
+				
+			if(iso.getTickBdd().isStarted())
+				iso.getTickBdd().stop();
+			this.codeSqlError = ex.getErrorCode();
+			this.descriptionSqlError = ex.getMessage().toString() + " " + ex.getStackTrace();
+			log.WriteLogMonitor("Error modulo IsoSqlMaintenance::InsertIso8583, [ISO11:] " + iso.getISO_011_SysAuditNumber(), TypeMonitor.error, ex);
+			return ex.getErrorCode();
+			
+		} catch (Exception e) {
+			if(iso.getTickBdd().isStarted())
+				iso.getTickBdd().stop();
+			this.codeSqlError = -11;
+			this.descriptionSqlError = e.getMessage().toString() + " " + e.getStackTrace();
+			log.WriteLogMonitor("Error modulo IsoSqlMaintenance::InsertIso8583, [ISO11:] " + iso.getISO_011_SysAuditNumber(), TypeMonitor.error, e);
+			return -11;
+		}finally {
+			
+			try {
+				if(cs!= null)
+				 cs.close();
+			} catch (SQLException e) {				
+				e.printStackTrace();
+			}
+			iso.setWsTempBDD((iso.getTickBdd().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+	}
+	
+    public int UpdateIso8583(wIso8583 iso){
+		
+    	CallableStatement cs = null;
+		try {			
+			
+			cs = MemoryGlobal.conn.prepareCall("{call SW_UpdateISO8583(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");		
+			cs.setString("iwISO_000_Message_Type", iso.getISO_000_Message_Type());
+			cs.setString("iwISO_011_SysAuditNumber", iso.getISO_011_SysAuditNumber());
+			cs.setTimestamp("iwISO_012_LocalDatetime", GeneralUtils.DateToTimestamp(iso.getISO_012_LocalDatetime()));						
+			cs.setString("iwISO_002_PAN", iso.getISO_002_PAN());
+			cs.setString("iwISO_BITMAP", iso.getISO_BitMap());
+			cs.setString("iwISO_003_ProcessingCode", iso.getISO_003_ProcessingCode());
+			cs.setDouble("iwISO_004_AmountTransaction", iso.getISO_004_AmountTransaction());
+			cs.setDouble("iwISO_006_BillAmount", iso.getISO_006_BillAmount());
+			cs.setTimestamp("iwISO_007_TransDatetime", GeneralUtils.DateToTimestamp(iso.getISO_007_TransDatetime()));
+			cs.setDouble("iwISO_008_BillFeeAmount", iso.getISO_008_BillFeeAmount());					
+			cs.setTimestamp("iwISO_013_LocalDate", GeneralUtils.DateToTimestamp(iso.getISO_013_LocalDate()));
+			cs.setTimestamp("iwISO_015_SettlementDatel", GeneralUtils.DateToTimestamp(iso.getISO_015_SettlementDatel()));
+			cs.setString("iwISO_018_MerchantType", iso.getISO_018_MerchantType());
+			cs.setString("iwISO_019_AcqCountryCode", iso.getISO_019_AcqCountryCode());
+			cs.setString("iwISO_022_PosEntryMode", iso.getISO_022_PosEntryMode());
+			cs.setString("iwISO_023_CardSeq", iso.getISO_023_CardSeq());
+			cs.setString("iwISO_024_NetworkId", iso.getISO_024_NetworkId());
+			cs.setDouble("iwISO_028_TranFeeAmount", iso.getISO_028_TranFeeAmount());
+			cs.setDouble("iwISO_029_SettlementFee", iso.getISO_029_SettlementFee());
+			cs.setDouble("iwISO_030_ProcFee", iso.getISO_030_ProcFee());
+			cs.setString("iwISO_032_ACQInsID", iso.getISO_032_ACQInsID());
+			cs.setString("iwISO_033_FWDInsID", iso.getISO_033_FWDInsID());
+			cs.setString("iwISO_034_PANExt", iso.getISO_034_PANExt());
+			cs.setString("iwISO_035_Track2", iso.getISO_035_Track2());
+			cs.setString("iwISO_036_Track3", iso.getISO_036_Track3());
+			cs.setString("iwISO_037_RetrRefNro", iso.getISO_037_RetrievalReferenceNumber());
+			cs.setString("iwISO_038_AutNro", iso.getISO_038_AutorizationNumber());
+			cs.setString("iwISO_039_ResponseCode", iso.getISO_039_ResponseCode());
+			if(StringUtils.IsNullOrEmpty(iso.getISO_039p_ResponseDetail()))
+				iso.setISO_039p_ResponseDetail("VALOR NULO");
+			if(iso.getISO_039p_ResponseDetail().length() > 4000)
+				cs.setString("iwISO_039p_ResponseDetail", iso.getISO_039p_ResponseDetail().substring(0,4000));
+			else
+				cs.setString("iwISO_039p_ResponseDetail", iso.getISO_039p_ResponseDetail());
+			cs.setString("iwISO_041_CardAcceptorID", iso.getISO_041_CardAcceptorID());
+			cs.setString("iwISO_042_Card_Acc_ID_Code", iso.getISO_042_Card_Acc_ID_Code());
+			cs.setString("iwISO_043_CardAcceptorLoc", iso.getISO_043_CardAcceptorLoc());
+			cs.setString("iwISO_044_AddRespData", iso.getISO_044_AddRespData());
+			cs.setDouble("iwISO_049_TranCurrCode", iso.getISO_049_TranCurrCode());
+			cs.setDouble("iwISO_051_CardCurrCode", iso.getISO_051_CardCurrCode());
+			cs.setString("iwISO_052_PinBlock", iso.getISO_052_PinBlock());
+			cs.setString("iwISO_054_AditionalAmounts", iso.getISO_054_AditionalAmounts());
+			cs.setString("iwISO_055_EMV", iso.getISO_055_EMV());
+			cs.setString("iwISO_090_OriginalData", iso.getISO_090_OriginalData());
+			cs.setString("iwISO_102_AccountID_1", iso.getISO_102_AccountID_1());
+			cs.setString("iwISO_103_AccountID_2", iso.getISO_103_AccountID_2());
+			cs.setString("iwISO_104_TranDescription", iso.getISO_104_TranDescription());		
+			cs.setString("iwISO_114_ExtendedData", iso.getISO_114_ExtendedData());
+			cs.setString("iwISO_115_ExtendedData", iso.getISO_115_ExtendedData());
+		    cs.setString("iwISO_120_ExtendedData", iso.getISO_120_ExtendedData());
+		    cs.setString("iwISO_121_ExtendedData", iso.getISO_121_ExtendedData());
+		    cs.setString("iwISO_122_ExtendedData", iso.getISO_122_ExtendedData());
+		    cs.setString("iwISO_123_ExtendedData", iso.getISO_123_ExtendedData());
+		    cs.setString("iwISO_124_ExtendedData", iso.getISO_124_ExtendedData());
+		    cs.setDouble("iwsISO_LogStatus", iso.getWsIso_LogStatus());
+		    cs.setTimestamp("iwsISO_TranDatetime", GeneralUtils.DateToTimestamp(iso.getWsISO_TranDatetime()));
+		    cs.setTimestamp("iwsISO_TranDatetimeResponse", GeneralUtils.DateToTimestamp(iso.getWsISO_TranDatetimeResponse()));
+		    cs.setDouble("iwsISO_SFRetryCounts", iso.getWsISO_SFRetryCounts());
+		    cs.setString("iwsISO_FlagStoreFprward", String.valueOf(iso.getWsISO_FlagStoreForward()));
+		    cs.setDouble("iwISO_012_LocalDatetime_dec", iso.getwISO_012_LocalDatetime_decimal());
+		    cs.setDouble("iwISO_TempoTrx_Value", iso.getWsTempTrx());
+		    cs.setDouble("iwISO_TempoBDD_Value", iso.getWsTempBDD());
+		    cs.setDouble("iwISO_TempoAut_Value", iso.getWsTempAut());
+		    cs.setString("iwISO_IP", iso.getWs_IP());		    
+		    
+		    this.codeSqlError = cs.executeUpdate();
+		    if(this.codeSqlError == 1)
+		    	this.descriptionSqlError = "UPDATE SUCCESSFULL";
+		    else if (this.codeSqlError == 0) {
+		    	this.descriptionSqlError = "ERROR UPDATE!!! (NO SE ACTUALIZO NINGUN REGISTRO) SQLERROR("+ this.codeSqlError +")";
+			}else {
+				this.descriptionSqlError = "ERROR UPDATE!!! (SE ACTUALIZO MAS DE UN REGISTRO) SQLERROR("+ this.codeSqlError +")";
+			}
+		    	
+			return this.codeSqlError;
+		    
+		} catch (SQLException ex) {
+				
+			this.codeSqlError = ex.getErrorCode();
+			this.descriptionSqlError = GeneralUtils.ExceptionToString("SQL ERROR UPDATE ", ex, false);
+			log.WriteLogMonitor("Error modulo IsoSqlMaintenance::UpdateIso8583, [ISO11:] " + iso.getISO_011_SysAuditNumber(), TypeMonitor.error, ex);
+			return ex.getErrorCode();
+			
+		} catch (Exception e) {			
+			this.codeSqlError = -11;
+			this.descriptionSqlError = GeneralUtils.ExceptionToString("SQL ERROR UPDATE (GENERAL) ", e, false);
+			log.WriteLogMonitor("Error modulo IsoSqlMaintenance::UpdateIso8583, [ISO11:] " + iso.getISO_011_SysAuditNumber(), TypeMonitor.error, e);
+			return -11;
+		}finally {
+			try {
+				if(cs!= null)
+				 cs.close();
+			} catch (SQLException e) {				
+				e.printStackTrace();
+			}
+		}
+		
+	}
+    
+    public int InsertSPIOrdenante(wIso8583 iso){
+		
+		CallableStatement cs = null;
+		try {			
+			
+			cs = MemoryGlobal.conn.prepareCall("{call SW_INSERT_SPI_ORD(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)}");		
+			cs.setTimestamp("wFECHA", GeneralUtils.DateToTimestamp(new Date()));
+			cs.setString("wMSGID", iso.getISO_121_ExtendedData());
+			cs.setTimestamp("wCREDTTM", GeneralUtils.DateToTimestamp(iso.getISO_012_LocalDatetime()));
+			cs.setString("wINSTRID", StringUtils.Empty());
+			cs.setString("wENDTOENDID", MemoryGlobal.BCE_Efi_VC + "/" + iso.getISO_011_SysAuditNumber());
+			cs.setString("wTXID", iso.getISO_102_AccountID_1() + iso.getISO_011_SysAuditNumber());
+			cs.setDouble("wAMMOUNT", iso.getISO_004_AmountTransaction());
+			cs.setTimestamp("wFECCONT", GeneralUtils.DateToTimestamp(iso.getISO_015_SettlementDatel()));
+			cs.setString("wORD_NM", iso.getISO_034_PANExt());
+			cs.setString("wORD_ID", iso.getISO_002_PAN().toUpperCase().trim());
+			cs.setString("wORD_TXID", iso.getISO_022_PosEntryMode().equalsIgnoreCase("CED") ? "NIDN": 
+				                      iso.getISO_022_PosEntryMode().equalsIgnoreCase("PAS")?"CCPT":"TXID");
+			cs.setString("wORD_ACCOUNT", iso.getISO_102_AccountID_1());
+			cs.setString("wORD_ACCOUNT_TYPE", iso.getISO_003_ProcessingCode().substring(2,3).equals("1")?"02":"01");
+			cs.setString("wORD_ACCOUNT_TYPE_MONEY", iso.getISO_051_CardCurrCode() == 840 ? "USD":"XXX");
+			cs.setString("wINST_ACC_BCE", MemoryGlobal.AccountConciliationVc); //ojo confirmar (Cuenta Coop en el BCE)
+			cs.setString("wINST_ACC_BCE_TYPE", "01");
+			cs.setString("wINST_ACC_BCE_TYPE_MONEY", "USD");
+			cs.setString("wINST_ORD_CODE", MemoryGlobal.BCE_Efi_VC);
+			cs.setString("wINST_ORD_AGE", iso.getISO_041_CardAcceptorID() + " - " + iso.getISO_042_Card_Acc_ID_Code());
+			cs.setString("wINST_RCP_CODE", iso.getISO_033_FWDInsID().toUpperCase().trim());
+			cs.setString("wRCP_NM", iso.getISO_114_ExtendedData());
+			cs.setString("wRCP_ID",  iso.getISO_035_Track2().equalsIgnoreCase("CED") ? "NIDN": 
+                                     iso.getISO_035_Track2().equalsIgnoreCase("PAS")?"CCPT":"TXID");
+			cs.setString("wRCP_TXID", iso.getISO_115_ExtendedData());
+			cs.setString("wRCP_ACCOUNT", iso.getISO_102_AccountID_1());
+			if(iso.getISO_003_ProcessingCode().substring(4,6).equals("10"))
+				cs.setString("wRCP_ACCOUNT_TYPE", "02");
+			else
+				cs.setString("wRCP_ACCOUNT_TYPE", "01");
+			cs.setString("wRCP_ACCOUNT_TYPE_MONEY", iso.getISO_051_CardCurrCode() == 840 ? "USD":"XXX");
+			cs.setString("wPURP_CODE", "17");
+			cs.setString("wCOD_ERR0R_AUTH", iso.getISO_039_ResponseCode());
+			cs.setString("wDES_ERROR_AUT", iso.getISO_039p_ResponseDetail());
+			cs.setDouble("wLOGSTATUS", iso.getWsIso_LogStatus());
+			cs.setDouble("wFITSWITCH_TIME", 0);
+			cs.setDouble("wBDD_TIME", 0);
+			cs.setDouble("wAUTH_TIME", 0);
+			cs.setString("wCOD_RETURN_CORE", iso.getISO_044_AddRespData());
+			cs.setString("wREVER_FLAG", StringUtils.Empty());
+			cs.setString("wREVER_RETURN_CORE_CODE", StringUtils.Empty());
+			cs.setTimestamp("wDATE_LAST_BCE", GeneralUtils.DateToTimestamp(FormatUtils.StringToDate(iso.getISO_122_ExtendedData(), "YYYY-MM-DD HH:mm:ss")));
+			cs.setString("wMSGID_LAST_BE", iso.getISO_123_ExtendedData());
+			cs.setString("wSTATUS_BCE", iso.getISO_104_TranDescription());
+			cs.setString("ISO_MESSAGE", SerializationObject.ObjectToString(iso, iso.getClass()));
+			
+		    iso.getTickBdd().reset();
+		    iso.getTickBdd().start();
+		    	cs.execute();
+		    iso.getTickBdd().stop();
+			return 0;
+		    
+		} catch (SQLException ex) {
+				
+			if(iso.getTickBdd().isStarted())
+				iso.getTickBdd().stop();
+			this.codeSqlError = ex.getErrorCode();
+			this.descriptionSqlError = ex.getMessage().toString() + " " + ex.getStackTrace();
+			log.WriteLogMonitor("Error modulo IsoSqlMaintenance::InsertSPIOrdenante, [ISO11:] " + iso.getISO_011_SysAuditNumber(), TypeMonitor.error, ex);
+			return ex.getErrorCode();
+			
+		} catch (Exception e) {
+			if(iso.getTickBdd().isStarted())
+				iso.getTickBdd().stop();
+			this.codeSqlError = -11;
+			this.descriptionSqlError = e.getMessage().toString() + " " + e.getStackTrace();
+			log.WriteLogMonitor("Error modulo IsoSqlMaintenance::InsertSPIOrdenante, [ISO11:] " + iso.getISO_011_SysAuditNumber(), TypeMonitor.error, e);
+			return -11;
+		}finally {
+			
+			try {
+				if(cs!= null)
+				 cs.close();
+			} catch (SQLException e) {				
+				e.printStackTrace();
+			}
+			iso.setWsTempBDD((iso.getTickBdd().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+	}
+    
+    public Runnable RunnableUpdateIso8583(wIso8583 iso){
+    	
+    	Runnable runnable = new Runnable() {			
+			@Override
+			public void run() {				
+				codeSqlError = UpdateIso8583(iso);
+				log.WriteLogMonitor("<< UPDATE Trx: Iso011: " + iso.getISO_011_SysAuditNumber() + " " 
+								    +  descriptionSqlError + " >>\n", TypeMonitor.monitor, null);
+			}
+		};
+		return runnable;
+    }
+    public Runnable RunnableInsertIso8583(wIso8583 iso){
+    	
+    	Runnable runnable = new Runnable() {			
+			@Override
+			public void run() {				
+				iso.setISO_000_Message_Type(iso.getISO_000_Message_Type().contains("00")? 
+						iso.getISO_000_Message_Type().replace("00", "10"):iso.getISO_000_Message_Type());
+				codeSqlError = InsertIso8583(iso);
+				log.WriteLogMonitor("<< INSERT Response Trx: Iso011: " + iso.getISO_011_SysAuditNumber() + " " 
+								    +  descriptionSqlError + " >>\n", TypeMonitor.monitor, null);
+			}
+		};
+		return runnable;
+    }
+    
+}
+

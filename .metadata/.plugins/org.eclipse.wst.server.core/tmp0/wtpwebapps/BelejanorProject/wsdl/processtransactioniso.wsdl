@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="ProcessTransactionIsoService" targetNamespace="http://implementations.belejanor.switcher.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://implementations.belejanor.switcher.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://implementations.belejanor.switcher.com/" schemaLocation="processtransactioniso_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="processtransaction">
+    <wsdl:part name="parameters" element="tns:processtransaction">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="processtransactionResponse">
+    <wsdl:part name="parameters" element="tns:processtransactionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="ProcessTransactionIso">
+    <wsdl:operation name="processtransaction">
+      <wsdl:input name="processtransaction" message="tns:processtransaction">
+    </wsdl:input>
+      <wsdl:output name="processtransactionResponse" message="tns:processtransactionResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="ProcessTransactionIsoServiceSoapBinding" type="tns:ProcessTransactionIso">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="processtransaction">
+      <soap:operation soapAction="urn:Processtransaction" style="document"/>
+      <wsdl:input name="processtransaction">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="processtransactionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="ProcessTransactionIsoService">
+    <wsdl:port name="ProcessTransactionIsoPort" binding="tns:ProcessTransactionIsoServiceSoapBinding">
+      <soap:address location="http://localhost:8080/SaiBankMiddleware/services/ProcessTransactionIsoPort"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

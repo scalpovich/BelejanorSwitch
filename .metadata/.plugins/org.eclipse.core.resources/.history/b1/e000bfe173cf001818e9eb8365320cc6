@@ -1,0 +1,658 @@
+package com.fitbank.middleware.acquirers;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import com.fitbank.middleware.authorizations.FitIsAut;
+import com.fitbank.middleware.cscoreswitch.EngineCallableProcessor;
+import com.fitbank.middleware.cscoreswitch.TransactionConfiguration;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.Iterables;
+import com.fitbank.middleware.utils.SerializationObject;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class IVRIsAcq {
+
+	private Logger log;
+	
+	public IVRIsAcq() {
+		this.log = new Logger();
+	}
+	
+	public wIso8583 getValoresPrestamo(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			List<wIso8583> isoList = new ArrayList<>();
+			
+			String[] cuentas = iso.getISO_121_ExtendedData().split("\\|");
+			for (int i = 0; i < cuentas.length; i++) {
+				
+				wIso8583 isoClone = (wIso8583) iso.clone();
+				isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+				isoClone.getWsTransactionConfig().setProccodeTransactionFit(Arrays.asList(isoClone.getWsTransactionConfig()
+						.getProccodeTransactionFit().split("\\|")).get(1));
+				isoClone.setISO_102_AccountID_1(cuentas[i]);
+				isoClone.setISO_011_SysAuditNumber(GeneralUtils.GetSecuencialNumeric(8));
+				isoList.add(isoClone);
+			}	
+			
+			/*Executor Thread*/
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+			EngineCallableProcessor<wIso8583> engine = new EngineCallableProcessor<>(5);
+			for (wIso8583 wIso : isoList) {
+				FitIsAut aut = new FitIsAut();
+				engine.add(aut.callGetInfoValoresCtasPrestamo(wIso));
+			}
+			List<wIso8583> listIsoResponses = engine.goProcess();
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+			wIso8583 isoRes = new wIso8583();
+			isoRes = listIsoResponses.stream()
+					 .filter(p -> p.getISO_039_ResponseCode() != "000")
+		             .findFirst().orElseGet(() -> null);
+
+			if(isoRes == null){
+				
+				iso.setISO_039_ResponseCode("000");
+				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+				
+				for (wIso8583 wIsor : listIsoResponses) {
+					
+					iso.setISO_114_ExtendedData(iso.getISO_114_ExtendedData() + wIsor.getISO_120_ExtendedData() + "^");
+					iso.setISO_123_ExtendedData(iso.getISO_123_ExtendedData() + wIsor.getISO_123_ExtendedData() + "^");
+				}
+				
+				iso.setISO_114_ExtendedData(StringUtils.trimEnd(iso.getISO_114_ExtendedData(),"^"));
+				iso.setISO_123_ExtendedData(StringUtils.trimEnd(iso.getISO_123_ExtendedData(),"^"));
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(isoRes.getISO_039_ResponseCode());
+				iso.setISO_039p_ResponseDetail(isoRes.getISO_039p_ResponseDetail());
+			}
+				
+		} catch (Exception e) {
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getValoresPrestamo ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		return iso;
+	}
+	
+	public wIso8583 getSaldosCtasVista(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			List<wIso8583> isoList = new ArrayList<>();
+			
+			String[] cuentas = iso.getISO_121_ExtendedData().split("\\|");		
+			for (int i = 0; i < cuentas.length; i++) {
+			
+				wIso8583 isoClone = (wIso8583) iso.clone();
+				isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+				isoClone.getWsTransactionConfig().setProccodeTransactionFit(Arrays.asList(isoClone.getWsTransactionConfig()
+						.getProccodeTransactionFit().split("\\|")).get(1));
+				isoClone.setISO_102_AccountID_1(cuentas[i]);
+				isoClone.setISO_011_SysAuditNumber(GeneralUtils.GetSecuencialNumeric(8));
+				isoList.add(isoClone);
+			}	
+			
+			/*Executor Thread*/
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+			EngineCallableProcessor<wIso8583> engine = new EngineCallableProcessor<>(5);
+			for (wIso8583 wIso : isoList) {
+				FitIsAut aut = new FitIsAut();
+				engine.add(aut.callQueryBalance(wIso));
+			}
+			List<wIso8583> listIsoResponses = engine.goProcess();
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+			wIso8583 isoRes = new wIso8583();
+			isoRes = listIsoResponses.stream()
+					 .filter(p -> p.getISO_039_ResponseCode() != "000")
+		             .findFirst().orElseGet(() -> null);
+
+			if(isoRes == null){
+				
+				iso.setISO_039_ResponseCode("000");
+				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+				iso.setISO_121_ExtendedData(StringUtils.Empty());
+				
+				for (wIso8583 wIsor : listIsoResponses) {
+					
+					iso.setISO_034_PANExt(wIsor.getISO_034_PANExt());
+					iso.setISO_120_ExtendedData(iso.getISO_120_ExtendedData() + wIsor.getISO_102_AccountID_1() + "|");
+					iso.setISO_121_ExtendedData(iso.getISO_121_ExtendedData() +  wIsor.getISO_054_AditionalAmounts() + "|");
+					
+				}
+				 
+				iso.setISO_120_ExtendedData(StringUtils.trimEnd(iso.getISO_120_ExtendedData(),"|"));
+				iso.setISO_121_ExtendedData(StringUtils.trimEnd(iso.getISO_121_ExtendedData(),"|"));
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(isoRes.getISO_039_ResponseCode());
+				iso.setISO_039p_ResponseDetail(isoRes.getISO_039p_ResponseDetail());
+			}
+				
+		} catch (Exception e) {
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getSaldosCtasVista ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		return iso;
+	}
+	
+	public wIso8583 getInfoInversiones(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			if(iso.getISO_039_ResponseCode().equals("000")) {
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				@SuppressWarnings("unchecked")
+				List<Iterables> it = (List<Iterables>) SerializationObject
+						.XMLToObject(iso.getISO_114_ExtendedData());
+				if(it != null) {
+				
+					List<Iterables> filterVigentes = it.stream()
+							                        .filter(p -> p.getIterarors().get("DESCRIPCIONESTATUSCUENTA")
+							                        .equalsIgnoreCase("VIGENTE"))
+							                        .peek(Objects::requireNonNull)
+							    					.collect(Collectors.toList());
+					if(filterVigentes != null) {
+						
+						String acum = StringUtils.Empty();
+						for (Iterables ite : filterVigentes) {
+							
+							
+							iso.setISO_034_PANExt(ite.getIterarors().get("NOMBRELEGAL"));
+							acum += ite.getIterarors().get("CCUENTA") + "|" + ite.getIterarors().get("MONTO") + "|" +
+									ite.getIterarors().get("TASA") + "%|" + ite.getIterarors().get("FVENCIMIENTO").substring(0, 10) + "^";
+						}
+						iso.setISO_114_ExtendedData(null);
+						iso.setISO_120_ExtendedData(StringUtils.trimEnd(acum, "^"));
+						
+						if(iso.getTickAut().isStarted())
+							iso.getTickAut().stop();
+						
+					}else {
+						
+						iso.setISO_039_ResponseCode("116");
+						iso.setISO_039p_ResponseDetail("LA CEDULA: " + iso.getISO_002_PAN() + 
+								" NO TIENE INVERSIONES VIGENTES");
+					}
+							                        
+				}
+			}
+			
+		} catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getInfoInversiones ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+	
+	public wIso8583 manUserWEB(wIso8583 iso) {
+		
+		FitIsAut auth = null;
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			wIso8583 isoClone = (wIso8583) iso.clone();
+			isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+			isoClone.getWsTransactionConfig().setProccodeTransactionFit(Arrays.asList(isoClone.getWsTransactionConfig()
+					.getProccodeTransactionFit().split("\\|")).get(1));
+			
+			auth = new FitIsAut();
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+				isoClone = auth.ExecuteStandarTransaction(isoClone);
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+			iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+			iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+			iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::manUserWEB ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+	
+	public wIso8583 getDesafio1(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			if(iso.getISO_039_ResponseCode().equals("000")) {
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				@SuppressWarnings("unchecked")
+				List<Iterables> it = (List<Iterables>) SerializationObject
+						.XMLToObject(iso.getISO_114_ExtendedData());
+				if(it != null) {
+				
+					List<Iterables> filterVigentes = it.stream()
+							                        .filter(p -> p.getIterarors().get("CESTATUSCUENTA")
+							                        .equalsIgnoreCase("003") || p.getIterarors().get("CESTATUSCUENTA")
+							                        .equalsIgnoreCase("004"))
+							                        .peek(Objects::requireNonNull)
+							    					.collect(Collectors.toList());
+					if(filterVigentes != null) {
+						
+						iso.setISO_090_OriginalData("1");
+						
+					}else 
+						iso.setISO_090_OriginalData("0");			                        
+				}else 
+					iso.setISO_090_OriginalData("0");
+			}else 
+				iso.setISO_090_OriginalData("0");
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio1 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+	
+    public wIso8583 getDesafio2(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			if(iso.getISO_039_ResponseCode().equals("000")) {
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				@SuppressWarnings("unchecked")
+				List<Iterables> it = (List<Iterables>) SerializationObject
+						.XMLToObject(iso.getISO_114_ExtendedData());
+				if(it != null) {
+				
+					List<Iterables> filterVigentes = it.stream()
+							                        .filter(p -> p.getIterarors().get("DESCRIPCIONESTATUSCUENTA")
+							                        .equalsIgnoreCase("VIGENTE"))
+							                        .peek(Objects::requireNonNull)
+							    					.collect(Collectors.toList());
+					if(filterVigentes != null) {
+						
+						iso.setISO_090_OriginalData("1");
+						
+					}else 
+						iso.setISO_090_OriginalData("0");			                        
+				}else 
+					iso.setISO_090_OriginalData("0");
+			}else 
+				iso.setISO_090_OriginalData("0");
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio2 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 getDesafio3(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			if(iso.getISO_039_ResponseCode().equals("000")) {
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				iso.setISO_090_OriginalData("1");
+			}else 
+				iso.setISO_090_OriginalData("0");
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio3 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 getDesafio4(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+			
+				iso.setISO_090_OriginalData("0");
+				
+				if(iso.getTickAut().isStarted())
+					iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio3 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 getDesafio5(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			if(iso.getISO_039_ResponseCode().equals("000")) {
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				@SuppressWarnings("unchecked")
+				List<Iterables> it = (List<Iterables>) SerializationObject
+						.XMLToObject(iso.getISO_114_ExtendedData());
+				if(it != null) {
+				
+					if(it.size() > 1) {
+						
+						iso.setISO_090_OriginalData("1");
+						
+					}else 
+						iso.setISO_090_OriginalData("0");			                        
+				}else 
+					iso.setISO_090_OriginalData("0");
+			}else 
+				iso.setISO_090_OriginalData("0");
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio5 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 getDesafio6(wIso8583 iso) {
+		
+    	boolean escenario1 = false;
+    	boolean escenario2 = false;
+    	
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			if(iso.getISO_039_ResponseCode().equals("000")) {
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				@SuppressWarnings("unchecked")
+				List<Iterables> it = (List<Iterables>) SerializationObject
+						.XMLToObject(iso.getISO_114_ExtendedData());
+				if(it != null) {
+				
+					List<Iterables> filterVigentes = it.stream()
+							                        .filter(p -> p.getIterarors().get("CESTATUSCUENTA")
+							                        .equalsIgnoreCase("003") && p.getIterarors().get("CCONDICIONOPERATIVA")
+							                        .equalsIgnoreCase("CBR") || p.getIterarors().get("CCONDICIONOPERATIVA")
+							                        .equalsIgnoreCase("LEG"))
+							                        .peek(Objects::requireNonNull)
+							    					.collect(Collectors.toList());
+					
+					List<Iterables> filterVencidos = it.stream()
+	                        .filter(p -> p.getIterarors().get("CESTATUSCUENTA")
+	                        .equalsIgnoreCase("004"))
+	                        .peek(Objects::requireNonNull)
+	    					.collect(Collectors.toList());
+					
+					if(filterVigentes != null) {
+						if(filterVigentes.size() > 0)
+							escenario1 = true;
+					}
+					
+					if(filterVencidos != null) {
+						
+						if(filterVencidos.size() > 0)
+							escenario2 = true;	
+					}
+					
+					if(escenario1 || escenario2)
+						iso.setISO_090_OriginalData("1");
+					
+					if(!escenario1 && !escenario2)
+						iso.setISO_090_OriginalData("0");
+					
+				}else 
+					iso.setISO_090_OriginalData("0");
+			}else 
+				iso.setISO_090_OriginalData("0");
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio6 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 getDesafio7(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+			
+				if(iso.getISO_039_ResponseCode().equals("000")) {
+					
+					String anoNac = Arrays.asList(iso.getISO_115_ExtendedData()
+							.split("\\|")).get(2).substring(0, 4);
+					iso.setISO_090_OriginalData(anoNac);
+					
+				}else {
+					
+					iso.setISO_090_OriginalData("0000");
+				}
+				
+				if(iso.getTickAut().isStarted())
+					iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio7 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 getDesafio8(wIso8583 iso) {
+		
+		try {
+			
+			iso.setISO_041_CardAcceptorID("1800-292929");
+			
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+			
+				if(iso.getISO_039_ResponseCode().equals("000")) {
+					
+					if(!iso.getISO_124_ExtendedData().equals("N/D")) {
+						
+						
+						
+					}else {
+						
+						iso.setISO_090_OriginalData("0000");
+					}
+					
+				}else {
+					
+					iso.setISO_090_OriginalData("0000");
+				}
+				
+				if(iso.getTickAut().isStarted())
+					iso.getTickAut().stop();
+			
+		}catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getDesafio7 ", 
+					TypeMonitor.error, e);
+		}finally {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			iso.setISO_114_ExtendedData(null);
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+    
+    protected int numberAleatorioDesafio() {
+    	
+    	int valor = 0;
+		do {
+			valor = obtenerAleatorio(111, 999);
+		} while (validaRepetidos(valor));
+		
+		return valor;
+    }
+    
+    protected int obtenerAleatorio(int desde, int hasta){
+	      return (int)( Math.random() * ( hasta - desde + 1 ) ) + desde;
+	} 
+    
+    protected boolean validaRepetidos(long number) {
+		
+		 boolean res = false;
+	     int[] cont = new int[10]; 
+	     int digito;
+	     while(number > 0) {
+	         digito = (int) (number % 10);
+	         cont[digito]++;
+	         number /= 10;
+	     }
+	     for(digito=0;digito<10;digito++) {
+	         if(cont[digito]>1) {
+	            res = true;
+	            break;
+	         }
+	     }
+	     return res;
+	}
+    
+}

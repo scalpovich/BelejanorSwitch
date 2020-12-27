@@ -1,0 +1,71 @@
+package com.belejanor.switcher.scheduler;
+
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
+import com.belejanor.switcher.logger.Logger;
+import com.belejanor.switcher.logger.LoggerConfig.TypeMonitor;
+import com.belejanor.switcher.memcached.BatchDay;
+import com.belejanor.switcher.memcached.MemoryGlobal;
+
+
+public class InitSchedule {
+
+	Logger log;
+	public InitSchedule() {
+		
+		log = new Logger();
+	}
+	
+	public void chargeTask() {
+		
+		try {
+			
+			Date horaEjecucion = new Date(System.currentTimeMillis());
+			Calendar c = Calendar.getInstance();
+			c.setTime(horaEjecucion);
+			
+			
+			for (BatchDay batch : MemoryGlobal.ListBatchDayTableMem) {
+				
+				c.set(Calendar.HOUR_OF_DAY, batch.getHora());
+		        c.set(Calendar.MINUTE, batch.getMinuto());
+		        c.set(Calendar.SECOND, batch.getSegundo());
+				horaEjecucion = c.getTime();
+		        
+				String messageClass = batch.getMethod_call();					
+				List<String> aa = Arrays.asList(messageClass.split("\\."));
+				String methodName = aa.get(aa.size() -1);
+				String classname = messageClass.replace("." + methodName, "");
+				
+				Class<?> instanceClass = Class.forName(classname);																			
+				Object classInstance = instanceClass.getConstructor(new Class[]{}).newInstance();					
+				
+				Timer temporizador = new Timer();
+		        temporizador.schedule((TimerTask) classInstance, horaEjecucion, batch.getFrecuencia());
+		        
+		        log.WriteLogMonitor("[SCHEDULER]: Cargando TASK:... {" + batch.getTask_name() + "}" , TypeMonitor.monitor, null);
+		        
+			}
+			
+			
+		} catch (Exception e) {
+
+			log.WriteLogMonitor("Error modulo InitSchedule::chargeTask", TypeMonitor.error, e);
+		}
+	}
+	
+	public Runnable runChargeTask() {
+		Runnable run = new Runnable() {
+			
+			@Override
+			public void run() {
+				chargeTask();
+			}
+		};
+		return run;
+	}
+}

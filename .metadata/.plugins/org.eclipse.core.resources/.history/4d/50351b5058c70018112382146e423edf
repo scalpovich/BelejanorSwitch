@@ -1,0 +1,207 @@
+#Archivo de configuracion de parametros Middleware
+commonSucursal=1
+commonCodOficina=1
+commonRol=1
+commonIdioma=ES
+commonArea=1
+commonTPP=1
+commonCompania=2
+commonSesion=1
+commonTrxReverso=1
+commonFechaContable=1
+#BDD Oracle
+InitialPoolSize=10
+MinPoolSize=15
+MaxPoolSize=20
+#BASE DE DATOS 29 OCTUBRE BIMO (Y OTRAS COSAS MAS)
+bddconnectionurl=jdbc:oracle:thin:@172.17.1.9:2041:DVPFIT 
+bdduser=FITSWITCH
+bddpassword=fitswitch
+#BASE DE DATOS COOP. AMBATO PEPA
+#bddconnectionurl=jdbc:oracle:thin:@198.162.1.110:1521:TESTFIT 
+#bdduser=FITSWITCH
+#bddpassword=testfit
+#BASE DE DATOS COOP. LORENTE PEPA
+#bddconnectionurl=jdbc:oracle:thin:@192.168.10.144:1521:ORCL 
+#bdduser=fitswitch
+#bddpassword=fitswitch
+#BASE DE DATOS COOP. CCC AMBATO (FINANCOOP)
+#bddconnectionurl=jdbc:oracle:thin:@192.168.10.194:1521:fitdesa 
+#bdduser=FITSWITCH
+#bddpassword=FITSWITCH
+#BASE DE DATOS LOCAL FIT_ONE ----- ESTA ES LA DE LA OFI OFICIAL----------------------
+#bddconnectionurl=jdbc:oracle:thin:@172.17.1.6:1521:FITDVP 
+#bdduser=fitswitch
+#bddpassword=fitswitch
+#BASE DE DATOS LOCAL SAIBANK RELOADED ----- 
+#bddconnectionurl=jdbc:oracle:thin:@11.19.1.229:1521:fitbank
+#bdduser=FITSWITCH
+#bddpassword=FITSWITCH
+#BASE DE DATOS CCCAMBATO
+#bddconnectionurl=jdbc:oracle:thin:@192.168.10.194:1521:fitdesa 
+#bdduser=FITSWITCH
+#bddpassword=FITSWITCH
+#BASE DE DATOS COOP AMBATO
+#bddconnectionurl=jdbc:oracle:thin:@198.162.1.110:1521:fitbank 
+#bdduser=FITSWITCH
+#bddpassword=FITSWITCH
+#Pruebas CCAmbato UCI
+#ipUci=192.168.10.194
+#portUci=20011
+#Pruebas Temporales FInander FIT2 Luz Valle
+#ipUci=172.17.1.25
+#portUci=20011
+#Pruebas Carga
+#ipUci=172.17.1.25
+#portUci=20009
+#Para la 29 de Octubre
+#ipUci=172.17.1.9
+#portUci=20040
+#Server BASE (Coop 29 Octubre Ambiente Local) ---------------------> aqui
+#ipUci=172.17.1.10
+#portUci=20000
+#Server BASE (Coop 29 Octubre Ambiente Remoto) TUNEL (levantar putty)---------------------> aqui
+ipUci=127.0.0.1
+portUci=20000
+#Server BASE (CAMARA DE COMERCIO DE AMBATO) ---------------------> aqui
+#ipUci=192.168.10.194
+#portUci=20012
+#Conexion Core con SaiBank------------------------------------------> aqui
+#ipUci=11.19.1.229
+#portUci=21000
+#Conexion Core con CCAMBATO FINANCOOP------------------------------------------> aqui
+#ipUci=192.168.10.194
+#portUci=20012
+#Para la LEVEL 3 Luz Valle ---OJO DANGER
+#ipUci=10.125.25.2
+#portUci=20012
+#ipUci=192.168.19.186
+#portUci=21000
+timeOutUci=32
+uciReverseTrx=03-6032-01-MAN
+uciReverseTrxFit1=03-0140-01-MAN
+ownNetwork=555551
+ownChannel=0003
+proccodeMsgControl=000000
+sendMsgControlFlag=false
+sendMsgControlInterval=60
+abaIfi=526017,520961
+#Dinero Electronico
+flagPutCertificate=true
+flagPutCertificateII=true
+urlServiceBce=https://181.211.102.40:8444/mts_bce/services/MTSServiceEFI.MTSServiceEFIHttpsSoap12Endpoint/
+urlServiceBceAdmin=https://190.152.47.178/testmts?wsdl
+ipBCEServiceAdmin=190.152.47.178
+portBCEServiceAdmin=443
+userNameBce=UsrSANJOSE01
+pwdBce=1d7e7eb438
+idiomBce=ES
+nameCertBceI=pruebasde.p12
+nameCertBceII=sde-prueba.p12
+pwdCertI=bce1
+pwdCertII=bce1
+flagRandomSecuenceRever=true
+#serviceFacilito=http://190.216.208.198:2681/Implement_Service_SBD.svc
+#serviceFacilitoConfirm=http://190.216.208.196:2693/ConfirmaTransacion/ConfirmaTransaccion.svc
+serviceFacilito=http://190.216.208.196:2681/Implement_Service_SBD.svc
+serviceFacilitoConfirm=http://190.216.208.196:2681/ConfirmaTransacion/ConfirmaTransaccion.svc
+TCPServerPort=4040
+TCPServerNroThreads=20
+TCPServerTextPort=2424
+SSLTCPFile=valle.pkcs12
+SSLFilePassword=extremeLValle2017
+TypeTCPServer=5
+TCPServerUseSSL=true
+queueStoreForward=qSForward
+queueNameIni=qIni
+queueNameProcessor=qProcessor
+queueNameProcessorExtern=qProcessExtern
+queueCoonecta=queueStationTCPSanJose
+flagUSeQueueInit=false
+#ParametrosFacilito
+facilitoABA=001122
+facilitoTOKEN=001T1006000011
+facilitoTRACE_SW=REFA
+facilitoUSUARIO=29OCTUBRE
+facilitoCLAVE=29OCTUBRE11
+facilitoCODIGO_AUTORIZACION=0
+facilitoNUMERO_CONTRATO=0
+facilitoSEGURIDAD=1
+flagCertficatefacilito=true
+facilitoNameCert=FACILITO_SW_29OCTUBRE.PFX
+facilitoPasswordCert=29OCTUBRE@
+#Parametros BCE Ventanillas Compartidas
+endPointURLDepoRetVc=https://127.0.0.1:9443/VentanillaCompartidaSRRWS/VentanillaCompartidaSRRWSPort
+endPointURLTransferVc=https://127.0.0.1:9443/TransferenciaElectronicaSRRWS/TransferenciaElectronicaSRRWSPort
+userWsBCEVc=jorellana
+ipAcqBCEVc=127.0.0.1
+ipSocketVc=127.0.0.1
+portSocketVc=9443
+nameCertVc=cooperativa29deoctubre-20170920.p12
+passwordCertVc=20bdd03.
+BCE_VC_Efi_Id=CDCAECE1
+BICFI_Bce=BCENECEQ
+AccountConciliationVc=15703023
+#---------------PARAMETROS PARA FIT1.1---------------------------OJO FIT1 -> UCI, FIT 1.1 DIRECTO
+#Tipo de contexto (ormi o jnp)
+fit1.context.type               =   jnp
+#URL del contexto jnp
+fit1.jnp.url                    =   jnp://192.168.10.155:1889
+#fit1.jnp.url                    =   jnp://192.168.10.194:1888
+fit1.jnp.contextFactory         =   org.jnp.interfaces.NamingContextFactory
+#URL del contexto ormi
+fit1.rmi.url                    =   ormi://192.168.100.17:12490/FITBANK
+fit1.rmi.contextFactory         =   com.evermind.server.rmi.RMIInitialContextFactory
+fit1.rmi.username               =   oc4jadmin
+fit1.rmi.password               =   oracle1
+#Tiempo maximo de espera de procesamiento en FIT1 (segundos)
+fit1.timeout                    =   30000
+#Tipo de Conexion JNP que va a hacer FitSwitch L = Local, R = Remota
+fit1.connection                 =   R
+#fit1.ip.connectionRemote        =   198.162.1.110
+fit1.ip.connectionRemote        =   127.0.0.1
+fit1.port.connectionRemote      =   2911
+#---------------------------ATMS COONECTA ----------------------------------------------
+codCoonectaCoop=240
+#---------------------------BIMO--------------------------------------------------------
+Id.BIMO.Efi=249
+Id.BIMO.Banred=300
+#Url.BIMO.Autorizador=http://127.0.0.1:14000/mm_services/webapi/InMessage?messageType=XXXXXX&channelId=IFISBIMO
+Url.BIMO.Autorizador=https://127.0.0.1:15000/mm_services/webapi/InMessage?messageType=XXXXXX&channelId=IFISBIMO
+#---------------------------------------------------------------------------------------
+#----------------------------SNP SPI REINGENIERIA BCE---------------------------------------
+snp.url.spi.bce              = https://127.0.0.1:7443/SolicitudPagoInterbancarioSNPWS/SolicitudPagoInterbancarioSNPWSPort
+snp.user.spi.bce             = jorellana
+snp.nameCert.bce             = coopAmbato20180507.p12
+snp.password.bce             = 20bdd03.
+snp.code.efi.bce             = CDCAECE1
+snp.code.switch.bce          = BCENECEQ
+snp.account.efi.bce          = 15703023
+snp.ipAddres.bce             = 127.0.0.1
+snp.ipSocket.bce             = 127.0.0.1
+snp.port.socket.bce          = 7443
+snp.number.threads.spi.receptor  = 20
+snp.url.spi.notificaciones   = https://127.0.0.1:7443/ConfirmacionSPIWS/ConfirmacionSPIWSPort
+snp.url.spi.not.tagFechaIni  = <recibido>
+snp.url.spi.not.tagFechaEnd  = </recibido>
+snp.scheduler.lotes.flag     = false
+snp.scheduler.lotes.timer.interval = 120
+#---------------------------- SNP SCI REINGENIERIA BCE---------------------------------------
+snp.url.sci.bce              = https://127.0.0.1:7443/SolicitudCobroInterbancarioSNPWSPortTypeService/SolicitudCobroInterbancarioSNPWSPort
+snp.user.sci.bce             = jorellana
+snp.nameCert.sci.bce         = coopAmbato20180507.p12
+snp.password.sci.bce         = 20bdd03.
+snp.ipAddres.sci.bce         = 127.0.0.1
+snp.ipSocket.sci.bce         = 127.0.0.1
+snp.port.socket.sci.bce          = 7443
+snp.number.threads.sci.receptor  = 10
+snp.url.sci.notificaciones       = https://127.0.0.1:7443/ConfirmacionSCIWS/ConfirmacionSCIWSPort
+snp.url.spi.not.tagFechaIni.sci  = <recibido>
+snp.url.spi.not.tagFechaEnd.sci  = </recibido>
+snp.scheduler.lotes.flag.sci     = false
+snp.scheduler.lotes.timer.interval.sci = 120
+#---------------------------------------------------------------------------------------
+#-----------------------------------------SERVIPAGOS-----------------------------------
+servipag.code.efi     = 1361
+servipag.monto.consep = 5000
+#--------------------------------------------------------------------------------------

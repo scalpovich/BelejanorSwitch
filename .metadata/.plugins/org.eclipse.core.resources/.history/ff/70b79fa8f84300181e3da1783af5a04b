@@ -1,0 +1,193 @@
+package com.fitbank.middleware.cscoreswitch;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.TransactionCommands;
+import com.fitbank.middleware.utils.GeneralUtils;
+
+public class ProcessCommands {
+
+	private Logger log;
+	private String codError;
+	private String desError;
+	
+	public ProcessCommands() {
+		log = new Logger();
+		this.codError = "000";
+		this.desError = "TRANSACCION EXITOSA";
+	}
+	
+	public String getCodError() {
+		return codError;
+	}
+
+	public String getDesError() {
+		return desError;
+	}
+	
+	
+	@SuppressWarnings("rawtypes")
+	private List<TransactionCommands> getCommands(wIso8583 iso){
+		
+		TransactionCommands processor = new TransactionCommands();
+		List<TransactionCommands> commands = null;
+		@SuppressWarnings("unchecked")
+		final ContainerProcessor<List<TransactionCommands>> container = new ContainerProcessor();
+		
+		try {
+			
+			commands = processor.getTransactionCommandsObject(iso.getISO_003_ProcessingCode()
+					                  , iso.getISO_018_MerchantType(), Integer.parseInt(iso.getISO_024_NetworkId())
+					                  , iso.getWsTransactionConfig().getAmmountDebit());
+			
+			commands = commands.stream()
+					.filter(a -> a.getActivo() == 1) //Solo comandos activos
+					.peek(Objects::requireNonNull)
+					.collect(Collectors.toList());
+			
+			container.setObject(commands);
+			
+			if(commands != null){
+				
+				Thread t = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+
+						Collections.sort(container.getObject(), (p1, p2) -> 
+						Integer.compare(p1.getOrden(), p2.getOrden()));
+					}
+				});
+				
+				t.start();
+				t.join();
+				
+			}else{
+				
+				this.codError = "073";
+				this.desError = "NO SE HA PODIDO RECUPERAR LISTA DE COMANDOS A EJECUTAR EN LA TRANSACCION";
+			}
+			
+		} catch (Exception e) {
+			
+			this.codError = "070";
+			this.desError = GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false);
+			log.WriteLogMonitor("Error modulo ProcessorBimo::getCommands ", TypeMonitor.error, e);
+			
+		}
+		
+		return container.getObject();
+	}
+	
+    public wIso8583 executeCommands(wIso8583 iso){
+		
+		List<TransactionCommands> commandList = null;
+		double temp = 0;
+		double tempIni = 0;
+		int cont = 0;
+		String SecuencialResp = null;
+		SecuencialResp = iso.getISO_011_SysAuditNumber();
+		try {
+			
+			ProcessCommands procCommands = new ProcessCommands();
+			commandList = procCommands.getCommands(iso);
+			if(procCommands.getCodError().equals("000")){
+				
+				if(commandList.size() > 0){
+					
+					for (TransactionCommands trxCommands : commandList) {
+					
+					   iso.setCommandCounter(cont);
+					   if(trxCommands.getSecurandom() > 0){
+							
+							int longOriginalIso11 = iso.getISO_011_SysAuditNumber().length();
+							String secu = GeneralUtils.GetSecuencial(longOriginalIso11);
+							iso.setISO_011_SysAuditNumber(secu);
+							iso.setSecuencialCommandExecutor(secu);
+							
+						}else{
+							
+							iso.setISO_011_SysAuditNumber(SecuencialResp);
+							iso.setSecuencialCommandExecutor(SecuencialResp);
+						}
+					    
+						String messageClass = trxCommands.getCommand();					
+						List<String> aa = Arrays.asList(messageClass.split("\\."));
+						String methodName = aa.get(aa.size() -1);
+						String classname = messageClass.replace("." + methodName, "");
+						
+						Class<?> instanceClass = Class.forName(classname);																			
+						Object classInstance = instanceClass.getConstructor(new Class[]{}).newInstance();					
+						Method methodToInvoke = instanceClass.getMethod(methodName, wIso8583.class);	
+						
+						iso = (wIso8583) methodToInvoke.invoke(classInstance, iso);
+						temp += iso.getWsTempAut();
+						tempIni = temp - tempIni;
+						log.WriteLogMonitor("*** Execute Command [" + cont + "]\nInvoke: " + messageClass + "\nStatus: " 
+						+ iso.getISO_039_ResponseCode() + " ---> Temp: " + ""+(tempIni), TypeMonitor.monitor, null);
+						
+						
+						
+						if(!iso.getISO_039_ResponseCode().equals("000")){
+							iso.setISO_039p_ResponseDetail("[" + cont + "] " + iso.getISO_039p_ResponseDetail());
+							break;
+						}
+						cont++;
+					}
+				
+				}else{
+					
+					iso.setISO_039_ResponseCode("100");
+					iso.setISO_039p_ResponseDetail("LA TRANSACCION: " + iso.getISO_003_ProcessingCode() + 
+							" NO TIENE COMANDOS A EJECUTAR");
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(procCommands.getCodError());
+				iso.setISO_039p_ResponseDetail(procCommands.getDesError() + " [" + cont + "]");
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+			log.WriteLogMonitor("Error modulo ProcessorBimo::processEnrollBanredAcq ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			iso.setWsTempAut(temp);
+		}
+		return iso;
+	}
+}
+class ContainerProcessor<T>{
+	
+	private T object;
+
+	public ContainerProcessor() {
+		
+	}
+	
+	public ContainerProcessor(T object) {
+		
+		this.object = object;
+	}
+	
+	public T getObject() {
+		return object;
+	}
+
+	public void setObject(T object) {
+		this.object = object;
+	}
+	
+	
+}

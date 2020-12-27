@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename type &apos;com.fitbank.middleware.snp.spi.SnpOrdenante&apos; to &apos;SnpSPIOrdenante&apos;&#x0D;&#x0A;- Original project: &apos;FitSwitchProject&apos;&#x0D;&#x0A;- Original element: &apos;com.fitbank.middleware.snp.spi.SnpOrdenante&apos;&#x0D;&#x0A;- Renamed element: &apos;com.fitbank.middleware.snp.spi.SnpSPIOrdenante&apos;&#x0D;&#x0A;- Update references to refactored element&#x0D;&#x0A;- Update textual occurrences in comments and strings" description="Rename type &apos;SnpOrdenante&apos;" flags="589830" id="org.eclipse.jdt.ui.rename.type" input="/src&lt;com.fitbank.middleware.snp.spi{SnpOrdenante.java[SnpOrdenante" matchStrategy="1" name="SnpSPIOrdenante" qualified="false" references="true" similarDeclarations="false" stamp="1530801584814" textual="false" version="1.0"/>
+</session>

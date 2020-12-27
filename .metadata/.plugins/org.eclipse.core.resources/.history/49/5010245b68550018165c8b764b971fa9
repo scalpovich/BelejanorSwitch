@@ -1,0 +1,29 @@
+package com.fitbank.middleware.acquirers;
+
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+
+public class SocialBankingIsAcq {
+
+	private Logger log;
+	
+	public SocialBankingIsAcq(){
+		this.log = new Logger();
+	}
+	
+	public wIso8583 getCtasFitForIdentification(wIso8583 iso){
+		
+		try {
+			
+			
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SocialBankingIsAcq::getCtasFitForIdentification ", 
+					TypeMonitor.error, e);
+		}
+		
+		return iso;
+	}
+}

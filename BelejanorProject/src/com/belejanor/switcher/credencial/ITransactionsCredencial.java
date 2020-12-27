@@ -1,0 +1,9 @@
+package com.belejanor.switcher.credencial;
+
+public interface ITransactionsCredencial {
+
+	abstract DebitCredencialResponse debitAccount(DebitCredencialRequest DebitCredencialRequest);
+	abstract RevertCredencialResponse revertDebitAccount(RevertCredencialRequest RevertCredencialRequest);
+	abstract BalanceCredencialResponse balanceAccount(BalanceCredencialRequest BalanceCredencialRequest);
+	abstract MovementsCredencialResponse movementsAccount(MovementsCredencialRequest MovementsCredencialRequest);
+}

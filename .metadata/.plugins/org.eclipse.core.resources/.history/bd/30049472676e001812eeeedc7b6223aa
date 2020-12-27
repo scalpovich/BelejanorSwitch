@@ -1,0 +1,31 @@
+package com.fitbank.middleware.struct.servipagos;
+
+public class TrxRequerimientoConsulta {
+
+	private TransaccionConsulta consulta;
+	private DetalleTransaccion detalleConsulta;
+	
+	public TrxRequerimientoConsulta(){
+		
+		this.consulta = null;
+		this.detalleConsulta = null;
+	}
+
+	public TransaccionConsulta getConsulta() {
+		return consulta;
+	}
+
+	public void setConsulta(TransaccionConsulta consulta) {
+		this.consulta = consulta;
+	}
+
+	public DetalleTransaccion getDetalleConsulta() {
+		return detalleConsulta;
+	}
+
+	public void setDetalleConsulta(DetalleTransaccion detalleConsulta) {
+		this.detalleConsulta = detalleConsulta;
+	}
+	
+	
+}

@@ -1,0 +1,5 @@
+package com.fitbank.middleware.authorizations;
+
+public class CredencialIsAut {
+
+}

@@ -1,0 +1,121 @@
+#Archivo de configuracion de parametros Middleware
+commonSucursal=01
+commonCodOficina=01
+commonRol=1
+commonIdioma=ES
+commonArea=1
+commonTPP=1
+commonCompania=2
+commonSesion=1
+commonTrxReverso=1
+commonFechaContable=1
+#BDD Oracle
+InitialPoolSize=10
+MinPoolSize=15
+MaxPoolSize=20
+#BASE DE DATOS LOCAL FIT_ONE
+#bddconnectionurl=jdbc:oracle:thin:@172.17.1.6:1521:FITDVP 
+#bdduser=fitswitch
+#bddpassword=FITSWITCH
+#BASE DE DATOS CCCAMBATO
+bddconnectionurl=jdbc:oracle:thin:@192.168.10.194:1521:fitdesa 
+bdduser=FITSWITCH
+bddpassword=FITSWITCH
+#Pruebas CCAmbato UCI
+#ipUci=192.168.10.194
+#portUci=20011
+#Pruebas Temporales FInander FIT2 Luz Valle
+ipUci=172.17.1.25
+portUci=20011
+#Pruebas Carga
+#ipUci=172.17.1.25
+#portUci=20009
+#Para la 29 de Octubre
+#ipUci=172.17.1.9
+#portUci=20040
+#Para la LEVEL 3 Luz Valle
+#ipUci=10.125.25.2
+#portUci=20012
+#ipUci=192.168.19.186
+#portUci=21000
+timeOutUci=39
+uciReverseTrx=03-6032-01-MAN
+uciReverseTrxFit1=03-0140-01-MAN
+ownNetwork=555551
+ownChannel=0003
+proccodeMsgControl=000000
+sendMsgControlFlag=false
+sendMsgControlInterval=60
+abaIfi=526017,520961
+#Dinero Electronico
+flagPutCertificate=true
+flagPutCertificateII=true
+urlServiceBce=https://181.211.102.40:8444/mts_bce/services/MTSServiceEFI.MTSServiceEFIHttpsSoap12Endpoint/
+urlServiceBceAdmin=https://190.152.47.178/testmts?wsdl
+ipBCEServiceAdmin=190.152.47.178
+portBCEServiceAdmin=443
+userNameBce=UsrSANJOSE01
+pwdBce=1d7e7eb438
+idiomBce=ES
+nameCertBceI=pruebasde.p12
+nameCertBceII=sde-prueba.p12
+pwdCertI=bce1
+pwdCertII=bce1
+flagRandomSecuenceRever=true
+#serviceFacilito=http://190.216.208.198:2681/Implement_Service_SBD.svc
+#serviceFacilitoConfirm=http://190.216.208.196:2693/ConfirmaTransacion/ConfirmaTransaccion.svc
+serviceFacilito=http://190.216.208.196:2681/Implement_Service_SBD.svc
+serviceFacilitoConfirm=http://190.216.208.196:2681/ConfirmaTransacion/ConfirmaTransaccion.svc
+TCPServerPort=4040
+TCPServerNroThreads=20
+SSLTCPFile=valle.pkcs12
+SSLFilePassword=extremeLValle2017
+TypeTCPServer=6
+TCPServerUseSSL=true
+queueStoreForward=qSForward
+queueNameIni=qIni
+queueCoonecta=queueStationTCPSanJose
+flagUSeQueueInit=false
+#ParametrosFacilito
+facilitoABA=001122
+facilitoTOKEN=001T1006000011
+facilitoTRACE_SW=REFA
+facilitoUSUARIO=29OCTUBRE
+facilitoCLAVE=29OCTUBRE11
+facilitoCODIGO_AUTORIZACION=0
+facilitoNUMERO_CONTRATO=0
+facilitoSEGURIDAD=1
+flagCertficatefacilito=true
+facilitoNameCert=FACILITO_SW_29OCTUBRE.PFX
+facilitoPasswordCert=29OCTUBRE@
+#Parametros BCE Ventanillas Compartidas
+endPointURLDepoRetVc=https://127.0.0.1:9443/VentanillaCompartidaSRRWS/VentanillaCompartidaSRRWSPort
+endPointURLTransferVc=https://127.0.0.1:9443/TransferenciaElectronicaSRRWS/TransferenciaElectronicaSRRWSPort
+userWsBCEVc=jorellana
+ipAcqBCEVc=127.0.0.1
+ipSocketVc=127.0.0.1
+portSocketVc=9443
+nameCertVc=cooperativa29deoctubre-20170920.p12
+passwordCertVc=20bdd03.
+BCE_VC_Efi_Id=COOCECE1
+BICFI_Bce=BCENECEQ
+AccountConciliationVc=1700427
+#---------------PARAMETROS PARA FIT1.1---------------------------OJO FIT1 -> UCI, FIT 1.1 DIRECTO
+#Tipo de contexto (ormi o jnp)
+fit1.context.type               =   jnp
+#URL del contexto jnp
+fit1.jnp.url                    =   jnp://172.17.1.4:1889
+#fit1.jnp.url                    =   jnp://192.168.10.194:1888
+fit1.jnp.contextFactory         =   org.jnp.interfaces.NamingContextFactory
+#URL del contexto ormi
+fit1.rmi.url                    =   ormi://192.168.100.17:12490/FITBANK
+fit1.rmi.contextFactory         =   com.evermind.server.rmi.RMIInitialContextFactory
+fit1.rmi.username               =   oc4jadmin
+fit1.rmi.password               =   oracle1
+#Tiempo maximo de espera de procesamiento en FIT1 (segundos)
+fit1.timeout                    =   30000
+#Tipo de Conexion JNP que va a hacer FitSwitch L = Local, R = Remota
+fit1.connection                 =   R
+fit1.ip.connectionRemote        =   192.168.10.194
+#fit1.ip.connectionRemote        =   127.0.0.1
+fit1.port.connectionRemote      =   2911

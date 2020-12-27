@@ -1,0 +1,5 @@
+package com.fitbank.middleware.acquirers;
+
+public class IVRIsAcq {
+
+}

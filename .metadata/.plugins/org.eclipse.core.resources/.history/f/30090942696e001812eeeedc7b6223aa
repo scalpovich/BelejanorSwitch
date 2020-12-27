@@ -1,0 +1,54 @@
+package com.fitbank.middleware.struct.servipagos;
+
+import java.io.Serializable;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlType;
+
+@SuppressWarnings("serial")
+@XmlType(propOrder={"cabeceraDetalle", "registroMetadata", "registro"})
+public class DetalleTransaccion implements Serializable{
+
+	private CabeceraDetalle cabeceraDetalle;
+	private RegistroMetadata registroMetadata;
+	private Registro registro;
+	
+	public DetalleTransaccion(){
+		
+		this.cabeceraDetalle = null;
+		this.registroMetadata = null;
+		this.registro = null;
+	}
+	
+    public DetalleTransaccion(CabeceraDetalle cabDet, RegistroMetadata regMeta, Registro reg){
+		
+		this.cabeceraDetalle = cabDet;
+		this.registroMetadata = regMeta;
+		this.registro = reg;
+	}
+	
+	@XmlElement(name="cabeceraDetalle")
+	public CabeceraDetalle getCabeceraDetalle() {
+		return cabeceraDetalle;
+	}
+
+	public void setCabeceraDetalle(CabeceraDetalle cabeceraDetalle) {
+		this.cabeceraDetalle = cabeceraDetalle;
+	}
+	@XmlElement(name="registroMetadata")
+	public RegistroMetadata getRegistroMetadata() {
+		return registroMetadata;
+	}
+
+	public void setRegistroMetadata(RegistroMetadata registroMetadata) {
+		this.registroMetadata = registroMetadata;
+	}
+	@XmlElement(name="registro")
+	public Registro getRegistro() {
+		return registro;
+	}
+
+	public void setRegistro(Registro registro) {
+		this.registro = registro;
+	}
+}

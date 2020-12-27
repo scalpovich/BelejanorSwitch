@@ -1,0 +1,80 @@
+package com.belejanor.switcher.authorizations;
+
+import java.lang.reflect.Method;
+import java.sql.ResultSet;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import com.belejanor.switcher.cscoreswitch.AdminConcurrentMap;
+import com.belejanor.switcher.cscoreswitch.wIso8583;
+import com.belejanor.switcher.implementations.AutorizationTransactions;
+import com.belejanor.switcher.memcached.MemoryGlobal;
+
+public class CobisIsAut {
+
+
+	
+	@SuppressWarnings("null")
+	protected ResultSet CobisCoreProcessor(wIso8583 iso, String methodName) {
+		
+		final ResultCobis resultCobis;
+		ResultSet rs = null;
+		try {
+			
+			Class<?> instanceClass = AutorizationTransactions.class;																			
+			Object classInstance = instanceClass.getConstructor(new Class[]{}).newInstance();					
+			Method methodToInvoke = instanceClass.getMethod(methodName, wIso8583.class);	
+			final CountDownLatch semaphore = new CountDownLatch(1);
+	    	
+	    	iso.getTickAut().reset();
+			iso.getTickAut().start();
+	    	//Void
+			methodToInvoke.invoke(classInstance, iso);
+			Thread t = new Thread(new Runnable() {
+				@Override
+				public void run() {
+					
+					while (true) {
+						synchronized(MemoryGlobal.concurrentIso) {
+							if(MemoryGlobal.concurrentIso.containsKey(iso.getISO_011_SysAuditNumber())){
+								resultCobis = (ResultCobis) MemoryGlobal.concurrentIso.get(iso.getISO_011_SysAuditNumber());
+								@SuppressWarnings("unused")
+								AdminConcurrentMap map = new AdminConcurrentMap(iso.getISO_011_SysAuditNumber());
+								semaphore.countDown();
+								break;
+							}
+						}
+					}
+				}
+			});
+			t.start();
+        	
+			if(!semaphore.await(iso.getWsTransactionConfig().getProccodeTimeOutValue(), TimeUnit.MILLISECONDS)) {
+				
+				iso.setISO_039_ResponseCode("907");
+				iso.setISO_039p_ResponseDetail("AUTORIZADOR COBIS NO DISPONIBLE");
+			}
+			else {
+				
+				//rs = resultCobis.getRs();
+			}
+			
+			
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
+		
+		return rs;
+	}
+}
+class ResultCobis{
+	
+	private ResultSet rs;
+
+	public ResultSet getRs() {
+		return rs;
+	}
+
+	public void setRs(ResultSet rs) {
+		this.rs = rs;
+	}
+}

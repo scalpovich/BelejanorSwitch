@@ -1,0 +1,7 @@
+INDEX VERSION 1.4+D:\Personal\TULCAN\BelejanorProject_V2\.metadata\.plugins\org.eclipse.wst.jsdt.core\indexes
+286580321.index
+1285497937.index
+4094521687.index
+1565179961.index
+888961767.index
+4155452699.index

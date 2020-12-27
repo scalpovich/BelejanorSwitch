@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:jaxws="http://cxf.apache.org/jaxws"
+	xmlns:cxf="http://cxf.apache.org/core"
+	xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans                       http://www.springframework.org/schema/beans/spring-beans-2.5.xsd                       http://cxf.apache.org/jaxrs http://cxf.apache.org/schemas/jaxrs.xsd                       http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd">
+
+	<!--<bean id="BasicAuthAuthorizationInterceptorBCE" class="com.belejanor.switcher.cscoreswitch.BasicAuthAuthorizationInterceptorBCE"> 
+		<property name="users"> <map> <entry key="synapseadmin" value="welcome1"/> 
+		</map> </property> </bean> -->
+
+	<jaxws:endpoint
+		xmlns:tns="http://implementations.belejanor.switcher.com/"
+		id="processtransactioniso"
+		implementor="com.belejanor.switcher.implementations.ProcessTransactionIso"
+		wsdlLocation="wsdl/processtransactioniso.wsdl"
+		endpointName="tns:ProcessTransactionIsoPort"
+		serviceName="tns:ProcessTransactionIsoService"
+		address="/ProcessTransactionIsoPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<!-- <jaxws:inInterceptors> <bean class="com.belejanor.switcher.cscoreswitch.BasicAuthAuthorizationInterceptor" 
+			/> </jaxws:inInterceptors> -->
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://implementations.belejanor.switcher.com/"
+		id="autorizationtransactions"
+		implementor="com.belejanor.switcher.implementations.AutorizationTransactions"
+		wsdlLocation="wsdl/autorizationtransactions.wsdl"
+		endpointName="tns:AutorizationTransactionsPort"
+		serviceName="tns:AutorizationTransactionsService"
+		address="/AutorizationTransactionsPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/srr/VentanillaCompartidaSRRWS"
+		id="ventanillacompartidasrrws"
+		implementor="com.belejanor.switcher.ventanillaimp.VentanillaCompartidaSRRWS"
+		wsdlLocation="wsdl/ventanillacompartidasrrws.wsdl"
+		endpointName="tns:VentanillaCompartidaSRRWSPort"
+		serviceName="tns:VentanillaCompartidaSRRWSService"
+		address="/VentanillaCompartidaSRRWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptor" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/srr/TransferenciaElectronicaSRRWS"
+		id="transferenciaelectronicasrrws"
+		implementor="com.belejanor.switcher.transferenciasimp.TransferenciaElectronicaSRRWS"
+		wsdlLocation="wsdl/transferenciaelectronicasrrws.wsdl"
+		endpointName="tns:TransferenciaElectronicaSRRWSPort"
+		serviceName="tns:TransferenciaElectronicaSRRWSService"
+		address="/TransferenciaElectronicaSRRWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptor" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/snp/ReversoTecnicoSNPWS"
+		id="reversotecnicosnpws"
+		implementor="com.belejanor.switcher.reversotecnicoimp.ReversoTecnicoSNPWS"
+		wsdlLocation="wsdl/reversotecnicosnpws.wsdl"
+		endpointName="tns:ReversoTecnicoSNPWSPort"
+		serviceName="tns:ReversoTecnicoSNPWSService"
+		address="/ReversoTecnicoSNPWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptor" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://implementations.belejanor.switcher.com"
+		id="serviciotranferenciaefi"
+		implementor="com.belejanor.switcher.implementations.ServicioTranferenciaEfi"
+		wsdlLocation="wsdl/serviciotranferenciaefi.wsdl"
+		endpointName="tns:ServicioTranferenciaEfiPort"
+		serviceName="tns:ServicioTranferenciaEfiService"
+		address="/ServicioTranferenciaEfiPort">
+		<!--<jaxws:inInterceptors> <ref bean="BasicAuthAuthorizationInterceptorBCE"/> 
+			</jaxws:inInterceptors> -->
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/snp/spi/SolicitudPagoInterbancarioSNPWS"
+		id="solicitudpagointerbancariosnpws"
+		implementor="com.belejanor.switcher.transferenciasspiimp.SolicitudPagoInterbancarioSNPWS"
+		wsdlLocation="wsdl/solicitudpagointerbancariosnpws.wsdl"
+		endpointName="tns:SolicitudPagoInterbancarioSNPWSPort"
+		serviceName="tns:SolicitudPagoInterbancarioSNPWSService"
+		address="/SolicitudPagoInterbancarioSNPWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="false" />
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptorSPI" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<bean
+		class="com.belejanor.switcher.bimo.implementations.ServiceFitBankSwitcher"
+		id="ServiceFitBankRest" />
+	<jaxrs:server address="/BimoRestServices" id="base">
+		<jaxrs:serviceBeans>
+			<ref bean="ServiceFitBankRest" />
+		</jaxrs:serviceBeans>
+	</jaxrs:server>
+	
+	<bean
+		class="com.belejanor.switcher.asextreme.implementations.ServiceFitBankFinancoop"
+		id="ServiceFinanCoopRest" />
+	<jaxrs:server address="/FinanCoopRestServices" id="base1">
+		<jaxrs:serviceBeans>
+			<ref bean="ServiceFinanCoopRest" />
+		</jaxrs:serviceBeans>
+	</jaxrs:server>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/snp/RespuestaServiciosSNPWS"
+		id="respuestaserviciossnpws"
+		implementor="com.belejanor.switcher.respuestasspiimp.RespuestaServiciosSNPWS"
+		wsdlLocation="wsdl/respuestaserviciossnpws.wsdl"
+		endpointName="tns:RespuestaServiciosSNPWSPort"
+		serviceName="tns:RespuestaServiciosSNPWSService"
+		address="/RespuestaServiciosSNPWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="false" />
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+	</jaxws:endpoint>
+
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/snp/ReversoTecnicoSNPSPIWS"
+		id="reversotecnicosnpspiws"
+		implementor="com.belejanor.switcher.reversotecnicospiimp.ReversoTecnicoSNPSPIWS"
+		wsdlLocation="wsdl/reversotecnicosnpspiws.wsdl"
+		endpointName="tns:ReversoTecnicoSNPSPIWSPort"
+		serviceName="tns:ReversoTecnicoSNPSPIWSService"
+		address="/ReversoTecnicoSNPSPIWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="false" />
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://servipagos.implementations.belejanor.switcher.com/"
+		id="executetransactionservipagos"
+		implementor="com.belejanor.switcher.implementations.servipagos.ExecuteTransactionServipagos"
+		wsdlLocation="wsdl/executetransactionservipagos.wsdl"
+		endpointName="tns:ExecuteTransactionServipagosPort"
+		serviceName="tns:ExecuteTransactionServipagosService"
+		address="/ExecuteTransactionServipagosPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.implementations.servipagos.CustomSoap11FaultOutInterceptorServipagos" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+	<jaxws:endpoint
+		xmlns:tns="http://equifax.implementations.belejanor.switcher.com/"
+		id="getdataequifax"
+		implementor="com.belejanor.switcher.implementations.equifax.GetDataEquifax"
+		wsdlLocation="wsdl/getdataequifax.wsdl"
+		endpointName="tns:GetDataEquifaxPort"
+		serviceName="tns:GetDataEquifaxService" address="/GetDataEquifaxPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.implementations.equifax.CustomSoap11FaultOutInterceptorEquifax" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS"
+		id="solicitudcobrointerbancariosnpws"
+		implementor="com.belejanor.switcher.cobrossci.SolicitudCobroInterbancarioSNPWS"
+		wsdlLocation="wsdl/solicitudcobrointerbancariosnpws.wsdl"
+		endpointName="tns:SolicitudCobroInterbancarioSNPWSPort"
+		serviceName="tns:SolicitudCobroInterbancarioSNPWSService"
+		address="/SolicitudCobroInterbancarioSNPWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="false" />
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptorSPI" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/snp/RespuestaServiciosSNPSCIWS"
+		id="respuestaserviciossnpsciws"
+		implementor="com.belejanor.switcher.respuestassciimp.RespuestaServiciosSNPSCIWS"
+		wsdlLocation="wsdl/respuestaserviciossnpsciws.wsdl"
+		endpointName="tns:RespuestaServiciosSNPSCIWSPort"
+		serviceName="tns:RespuestaServiciosSNPSCIWSService"
+		address="/RespuestaServiciosSNPSCIWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="false" />
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptorSPI" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://www.bce.fin.ec/wsdl/snp/ReversoTecnicoSNPSCIWS"
+		id="reversotecnicosnpsciws"
+		implementor="com.belejanor.switcher.reversotecnicosciimp.ReversoTecnicoSNPSCIWS"
+		wsdlLocation="wsdl/reversotecnicosnpsciws.wsdl"
+		endpointName="tns:ReversoTecnicoSNPSCIWSPort"
+		serviceName="tns:ReversoTecnicoSNPSCIWSService"
+		address="/ReversoTecnicoSNPSCIWSPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:properties>
+			<entry key="schema-validation-enabled" value="false" />
+			<entry key="set-jaxb-validation-event-handler" value="false" />
+		</jaxws:properties>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.ventanillaimp.CustomSoap11FaultOutInterceptorSPI" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+
+	<jaxws:endpoint
+		xmlns:tns="http://equifax.implementations.belejanor.switcher.com/"
+		id="registerdataequifax"
+		implementor="com.belejanor.switcher.implementations.equifax.RegisterDataEquifax"
+		wsdlLocation="wsdl/registerdataequifax.wsdl"
+		endpointName="tns:RegisterDataEquifaxPort"
+		serviceName="tns:RegisterDataEquifaxService"
+		address="/RegisterDataEquifaxPort">
+		<jaxws:features>
+			<bean class="org.apache.cxf.feature.LoggingFeature" />
+		</jaxws:features>
+		<jaxws:outFaultInterceptors>
+			<bean
+				class="com.belejanor.switcher.implementations.equifax.CustomSoap11FaultOutInterceptorRegisterEquifax" />
+		</jaxws:outFaultInterceptors>
+	</jaxws:endpoint>
+</beans>

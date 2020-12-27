@@ -1,0 +1,116 @@
+package com.fitbank.middleware.authorizations;
+
+import java.util.concurrent.TimeUnit;
+import com.fitbank.middleware.client.ConsumerClientWs;
+import com.fitbank.middleware.cscoreswitch.Iso8583;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeLog;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.logger.LoggerConfig.TypeWriteLog;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.sqlservices.IsoSqlMaintenance;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class SPIBceIsAut {
+	
+	private Logger log;
+	public SPIBceIsAut(){
+		
+	    log = new Logger();
+	}
+
+	public wIso8583 SendRequestSPIOrd(wIso8583 iso){
+		
+		ConsumerClientWs consumer = null;
+		Iso8583 isoResponse = null;
+		
+		try {
+		     iso.setWsTempAut(0);	 
+			 isoResponse = new Iso8583();
+			 consumer = new ConsumerClientWs(MemoryGlobal.UrlSpiBCE, 
+					    MemoryGlobal.UrlSpiUserBCE, MemoryGlobal.UrlSpiIpAdressBCE, MemoryGlobal.UrlSpiIpSocketBCE, 
+					    Integer.parseInt(MemoryGlobal.UrlSpiPortSocketBCE),
+					    (iso.getWsTransactionConfig().getProccodeTimeOutValue()/2), iso.getWsTransactionConfig().getProccodeTimeOutValue(), 
+					    (MemoryGlobal.currentPath + MemoryGlobal.UrlSpiNameCertBCE),
+					    MemoryGlobal.UrlSpiPasswordBCE, MemoryGlobal.UrlSpiCodeEfi_BCE, MemoryGlobal.UrlSpiCodeSwitch_BCE, 
+					    MemoryGlobal.UrlSpiAccountEfi_BCE);
+			 
+			 consumer.setMethodCreditName_SPI("recibirSolicitudOPI");
+			 consumer.setNamespacePack_SPI("urn:iso:std:iso:20022:tech:xsd:pacs.008.001.04");
+			 consumer.setPrefixPack_SPI("sol");
+			 consumer.setNamespaceUrl_SPI("http://www.bce.fin.ec/snp/spi/SolicitudPagoInterbancarioSNPWS");
+			 consumer.setPrefixUrl_SPI("urn");
+			 consumer.setParamMethodName_SPI("documentoSolicitud");
+			 
+			 iso.getTickAut().reset();
+		     iso.getTickAut().start();
+			 isoResponse = consumer.executeSPI(iso, StringUtils.Empty());
+			 if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			 
+			 iso.setISO_039_ResponseCode(isoResponse.getISO_039_ResponseCode());
+			 iso.setISO_039p_ResponseDetail(isoResponse.getISO_039p_ResponseDetail());
+			 iso.setISO_104_TranDescription(StringUtils.IsNullOrEmpty(isoResponse.getISO_104_TranDescription())?
+					                        "N/D":isoResponse.getISO_104_TranDescription());
+			 iso.setISO_121_ExtendedData(StringUtils.IsNullOrEmpty(isoResponse.getISO_121_ExtendedData())?
+                                            "N/D":isoResponse.getISO_121_ExtendedData());
+			 iso.setISO_122_ExtendedData(StringUtils.IsNullOrEmpty(isoResponse.getISO_122_ExtendedData())?
+                                            "N/D":isoResponse.getISO_122_ExtendedData());
+			 iso.setISO_123_ExtendedData(StringUtils.IsNullOrEmpty(isoResponse.getISO_123_ExtendedData())?
+                                            "N/D":isoResponse.getISO_123_ExtendedData());
+			 iso.setWsIso_LogStatus(2);
+			 
+			 log.WriteLog(consumer.getXmlIn(), TypeLog.bceaut, TypeWriteLog.file);
+			 log.WriteLog(consumer.getXmlResponse(), TypeLog.bceaut, TypeWriteLog.file);
+			
+		} catch (Exception e) {
+		
+			 if(iso.getTickAut().isStarted())
+					iso.getTickAut().stop();
+			log.WriteLog(iso.getISO_039p_ResponseDetail(), TypeLog.bceaut, TypeWriteLog.file);
+			log.WriteLogMonitor("Error modulo SPIBceIsAut::SendRequestSPIOrd ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+	public wIso8583 RegisterResposeSPI(wIso8583 iso){
+		
+		int SqlValue = 0;
+		IsoSqlMaintenance sql = null;
+		try {
+			
+			iso.setWsTempAut(0);
+            sql = new IsoSqlMaintenance();
+            iso.getTickAut().reset();
+		    iso.getTickAut().start();
+				SqlValue = sql.InsertSPIOrdenante(iso);
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			if(SqlValue == 0){
+				
+				iso.setISO_039_ResponseCode("000");
+				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			}else{
+				
+				iso.setISO_039_ResponseCode("308");
+				iso.setISO_039p_ResponseDetail("NO SE PUDO INGRESAR EL REGISTRO, PROBLEMAS EN BDD, SQLERROR: " + SqlValue);
+			}
+			
+		} catch (Exception e) {
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			log.WriteLog(iso.getISO_039p_ResponseDetail(), TypeLog.bceaut, TypeWriteLog.file);
+			log.WriteLogMonitor("Error modulo SPIBceIsAut::SendRequestSPIOrd ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		return iso;
+	}
+}

@@ -1,0 +1,9 @@
+package com.fitbank.middleware.struct.servipagos;
+
+public class TrxReqConsulta {
+
+	private TransaccionConsulta consulta;
+	private DetalleTransaccion detalleConsulta;
+	
+	
+}

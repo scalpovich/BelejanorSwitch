@@ -1,0 +1,397 @@
+package com.fitbank.middleware.authorizations;
+
+import java.lang.reflect.Method;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+import com.fitbank.common.exception.FitbankException;
+import com.fitbank.middleware.cscoreswitch.Iso8583;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.fit1struct.DetailFit1;
+import com.fitbank.middleware.jnp.Fit1Client;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeLog;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.ActionCodeTable;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.memcached.TransactionCommands;
+import com.fitbank.middleware.parser.Fit1Parser;
+import com.fitbank.middleware.parser.Fit1Parser.DataReturnParser;
+import com.fitbank.middleware.sqlservices.DataSetMemoryLoader;
+import com.fitbank.middleware.storeandforward.AdminProcessStoreAndForward;
+import com.fitbank.middleware.tcpclient.SocketClient;
+import com.fitbank.middleware.utils.FormatUtils;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.SerializationObject;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class Fit1CoreProcessor {
+
+	private wIso8583 iso;
+	private Logger log;
+	
+	public Fit1CoreProcessor(){
+		this.log = new Logger();
+	}
+	public Fit1CoreProcessor(wIso8583 iso){
+		this();
+		this.iso = iso;
+	}
+	public wIso8583 getIso() {
+		return iso;
+	}
+	public void setIso(wIso8583 iso) {
+		this.iso = iso;
+	}
+	public Logger getLog() {
+		return log;
+	}
+	public void setLog(Logger log) {
+		this.log = log;
+	}
+	
+	public DetailFit1 ProcessingTransactionFit1Core(String nameMethod){
+		
+		DetailFit1 ResponseDetail = null;
+		final com.fitbank.middleware.jnp.Fit1Client fitcli = new Fit1Client(MemoryGlobal.fit1ContextType, MemoryGlobal.fit1JnpUrl, 
+				MemoryGlobal.fit1JnpContextFactory, null, null, null, null);;
+		
+		try {
+			
+			DataReturnParser responseXMLwIso = null;
+			if(this.iso.getISO_000_Message_Type().startsWith("12")){
+				
+				Class<?> instanceClass = Fit1Parser.class;																			
+				Object classInstance = instanceClass.getConstructor(new Class[]{}).newInstance();					
+				Method methodToInvoke = instanceClass.getMethod("parse" + nameMethod, wIso8583.class);					
+				responseXMLwIso = (DataReturnParser) methodToInvoke.invoke(classInstance, this.iso);
+				
+			}else{
+				
+				if(this.iso.getWsTransactionConfig().getProccodeReverFlag() < 300) {
+					
+					Fit1Parser parser = new Fit1Parser();
+					responseXMLwIso = parser.parseReversoFit1(this.iso);
+					
+				}else {
+					
+					/*Aqui metodo que reversa mas de una transaccion*/
+					
+				}
+			}
+				
+			if(responseXMLwIso.getCodError().equals("111")){
+				
+				
+				iso.setISO_124_ExtendedData(responseXMLwIso.getcPersona() + "^" + responseXMLwIso.getIdentificador() + "^"
+						+ responseXMLwIso.getNombresCuenta() + "^" + responseXMLwIso.getTipoIdentificacion() + 
+						"^" + responseXMLwIso.getNumCuenta() + "^" + responseXMLwIso.getTipoPersona());
+				
+				String tramaRq = responseXMLwIso.getData();
+				log.WriteOptimizeLog(tramaRq, TypeLog.debug, String.class, false, 0);
+				
+				final ContainerUCI1 container = new ContainerUCI1();
+				container.setDet(tramaRq);
+				container.setIso(iso);
+				container.setFlag(false);
+				
+				final CountDownLatch semaphore = new CountDownLatch(1);
+				iso.getTickAut().reset();
+				iso.getTickAut().start();
+				Thread tUci = new Thread(new Runnable() {
+					
+					@Override
+					public void run() {
+						
+						try {
+							
+							if(MemoryGlobal.fit1FlagConnection.equalsIgnoreCase("L")){
+								container.setDetResponse(fitcli.send(tramaRq));
+							     semaphore.countDown();
+							}
+							else {
+								
+								SocketClient sock = 
+								new SocketClient(MemoryGlobal.fit1IpConnectionRemote, 
+								         MemoryGlobal.fit1PortConnectionRemote);
+								
+								String dataR = sock.SendSocketClient(tramaRq);
+								
+								if(sock.getDetailError().startsWith("OK")){
+									
+									container.setDetResponse(dataR);
+									
+								}else{
+									
+									iso.setISO_039_ResponseCode("908");
+									iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS SOCKET NO RESPONDE (JNP_BRIDGE) " + sock.getDetailError());
+									iso.setISO_104_TranDescription("ERROR AL RECUPERAR RESPUESTA UCI, JNP_BRIDGE");
+									container.setFlag(true);
+								}
+								semaphore.countDown();	
+							}
+							
+							if(iso.getTickAut().isStarted())
+								iso.getTickAut().stop();
+							
+						} catch (InterruptedException e) {
+							
+							if(iso.getTickAut().isStarted())
+								iso.getTickAut().stop();
+							iso.setISO_039_ResponseCode("909");
+							iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS, " + GeneralUtils.ExceptionToString(null, e, false));
+							iso.setISO_104_TranDescription("ERROR AL RECUPERAR RESPUESTA UCI, RUNNABLE INTERRUPTED EXCEPTION");
+
+							log.WriteOptimizeLog("Error Procesos Sec: " + iso.getISO_011_SysAuditNumber() + " ---- " + 
+									iso.getISO_039p_ResponseDetail(), TypeLog.debug, String.class, false, 0);
+							container.setFlag(true);
+							semaphore.countDown();
+							
+						} catch (FitbankException e) {
+							
+							if(iso.getTickAut().isStarted())
+								iso.getTickAut().stop();
+							iso.setISO_039_ResponseCode("909");
+							iso.setISO_039p_ResponseDetail("ERROR, " + GeneralUtils.ExceptionToString(null, e, false));
+							iso.setISO_104_TranDescription("ERROR AL RECUPERAR RESPUESTA UCI [FITBANK EXCEPTION]");
+							log.WriteOptimizeLog("Error Procesos Sec: " + iso.getISO_011_SysAuditNumber() + " ---- " + 
+									iso.getISO_039p_ResponseDetail(), TypeLog.debug, String.class, false, 0);
+							container.setFlag(true);
+							semaphore.countDown();
+									
+						} catch (Exception e) {
+							if(iso.getTickAut().isStarted())
+								iso.getTickAut().stop();
+							iso.setISO_039_ResponseCode("909");
+							iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS [GENERA:], " + GeneralUtils.ExceptionToString(null, e, false));
+							iso.setISO_104_TranDescription("ERROR AL RECUPERAR RESPUESTA UCI GENERAL");
+							log.WriteOptimizeLog("Error Procesos Sec: " + iso.getISO_011_SysAuditNumber() + " ---- " + 
+									iso.getISO_039p_ResponseDetail(), TypeLog.debug, String.class, false, 0);
+							
+							container.setFlag(true);
+							semaphore.countDown();
+						}
+					}
+				}); 
+				tUci.start();
+				
+				if(!semaphore.await(this.iso.getWsTransactionConfig().
+						 getProccodeTimeOutValue(), TimeUnit.MILLISECONDS)){
+					
+					this.iso.setISO_039_ResponseCode("907");
+					this.iso.setISO_039p_ResponseDetail("TRANSACCION EXPIRADA, TIMEOUT FIT1");
+					this.iso.setISO_104_TranDescription("HA EXPIRADO EL TIEMPO DE ESERA DE FITSWITCH HACIA FIT1 PARA ESTA OPERACION");
+					this.iso.setWsIso_LogStatus(9);
+					log.WriteOptimizeLog("Error Procesos Sec: " + iso.getISO_011_SysAuditNumber() + " ---- " + 
+								iso.getISO_039p_ResponseDetail(), TypeLog.debug, String.class, false, 0);
+					this.iso.setWsISO_FlagStoreForward(true);
+					
+				}else{
+					 
+					if(!container.isFlag()){
+						
+						String response = container.getDetResponse();
+						log.WriteOptimizeLog(response, TypeLog.debug, String.class, false, 0);
+						if(response.startsWith("<FITBANK>") || response.contains("<FITBANK>")){
+							ResponseDetail = (DetailFit1) SerializationObject.StringToObject(response, DetailFit1.class);
+							if(ResponseDetail.getRespuesta() != null){
+								
+								if(ResponseDetail.getRespuesta().getCodRespuesta().equals("0")){
+									
+									this.iso.setISO_039_ResponseCode("000");
+									this.iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+									this.iso.setISO_104_TranDescription("LA TRANSACCION HA SIDO COMPLETADA SATISFACTORIAMENTE");
+									String nroMensajeResponse = StringUtils.IsNullOrEmpty(ResponseDetail.getRespuesta().getNroMensajeRespuesta())
+										  ?FormatUtils.DateToString(iso.getISO_012_LocalDatetime(), "YYYYMMddHHmmss") + "_" + iso.getISO_011_SysAuditNumber()
+										  :ResponseDetail.getRespuesta().getNroMensajeRespuesta();
+								    this.iso.setISO_044_AddRespData(nroMensajeResponse);
+									
+								}else{
+									
+									Thread t = new Thread(new AdminProcessStoreAndForward().
+											EvaluateStoreAndForwardCodesThread(iso, ResponseDetail.getRespuesta().getCodRespuesta().trim()));
+									t.start();
+									
+									String [] errorParse =  ParseErrorsCodeIsoToFit(ResponseDetail.getRespuesta().getCodRespuesta().trim());
+									this.iso.setISO_039_ResponseCode(errorParse[0]);
+									this.iso.setISO_039p_ResponseDetail(ResponseDetail.getRespuesta().getCodRespuesta().trim() + " - " + 
+																		ResponseDetail.getRespuesta().getDesRespuesta().toUpperCase());
+									this.iso.setISO_104_TranDescription(errorParse[1]);
+									this.iso.setISO_044_AddRespData(FormatUtils.DateToString(iso.getISO_012_LocalDatetime(), "YYYYMMddHHmmss") 
+											+ "_" + iso.getISO_011_SysAuditNumber());
+								}
+							}else{
+								
+								this.iso.setISO_039_ResponseCode("909");
+								this.iso.setISO_039p_ResponseDetail("ERROR AL PROCESAR RESPUESTA DE FIT1");
+								this.iso.setISO_104_TranDescription("HA OCURRIDO UN PROBLEMA AL DESEREALIZAR EL MENSAJE DE RESPUESTA DE FIT1");
+								this.iso.setWsIso_LogStatus(2);
+							}
+							this.iso.setWsIso_LogStatus(2);
+							
+						}else{
+
+							this.iso.setISO_039_ResponseCode("908");
+							this.iso.setISO_039p_ResponseDetail(response);
+							this.iso.setISO_104_TranDescription("HA OCURRIDO UN PROBLEMA EN EL MENSAJE DE RESPUESTA DE FIT1");
+						}
+						
+					}
+				}
+				
+			}else{
+				
+				this.iso.setISO_039_ResponseCode(responseXMLwIso.getCodError());
+				this.iso.setISO_039p_ResponseDetail(responseXMLwIso.getDesError());
+			}
+			
+		} catch (Exception e) {
+			
+			if(this.iso.getTickAut().isStarted())
+				this.iso.getTickAut().stop();
+			this.iso.setISO_039_ResponseCode("909");
+			this.iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR MODULO AUTORIZACION ", e, false));
+			log.WriteLogMonitor("Error modulo Fit1CoreProcessor::ProcessingTransactionFit1Core ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			this.iso.setWsTempAut((this.iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		return ResponseDetail;
+	}
+	private String[] ParseErrorsCodeIsoToFit(String errorFit){
+		String[] data = new String[]{ "308","" };
+		try {
+			ActionCodeTable codTable = new ActionCodeTable();
+			codTable = codTable.getCodErrorFromFitCodeList(errorFit);
+			if(codTable != null){
+				data[0] = codTable.getAct_codIso();
+				data[1] = codTable.getAct_desIso();
+			}
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo FitCoreProcessor::ParseErrorsCodeIsoToFit ", TypeMonitor.error, e);
+			e.printStackTrace();
+		}
+		return data;
+	}
+	
+	private wIso8583 MultiplesReversosProcesador(wIso8583 iso) {
+		
+		try {
+			
+			List<Iso8583> isoList = getDataIsoTrxsRetrieve(iso);
+			if(isoList != null) {
+				
+				if(isoList.size() > 0) {
+					
+					
+					
+				}else {
+					
+					iso.setISO_039_ResponseCode("601");
+					iso.setISO_039p_ResponseDetail("NO EXISTE TRANSACCION A REVERSAR");
+				}
+				
+			}else {
+				
+				iso.setISO_039_ResponseCode("100");
+				iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS, NO SE PUEDE REVERSAR LA TRANSACCION");
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo FitCoreProcessor::MultiplesReversosProcesador ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			iso.setWsIso_LogStatus(2);
+		}
+		return iso;
+	}
+	
+	private List<Iso8583> getDataIsoTrxsRetrieve(wIso8583 iso){
+	
+		List<Iso8583> isoList = null;
+		try {
+			
+			String cabeceraQuery = "SELECT \r\n" + 
+					"wiso_000_message_type, wiso_bitmap, wiso_002_pan, wiso_003_processingcode,\r\n" + 
+					"wiso_004_amounttransaction, wiso_006_billamount, wiso_007_transdatetime,\r\n" + 
+					"wiso_008_billfeeamount, wiso_011_sysauditnumber, wiso_012_localdatetime,\r\n" + 
+					"wiso_013_localdate, wiso_015_settlementdatel, wiso_018_merchanttype,\r\n" + 
+					"wiso_019_acqcountrycode, wiso_022_posentrymode, wiso_023_cardseq,\r\n" + 
+					"wiso_024_networkid, wiso_024_networkid, wiso_028_tranfeeamount,wiso_029_settlementfee,\r\n" + 
+					"wiso_030_procfee,wiso_032_acqinsid,wiso_033_fwdinsid,wiso_034_panext,wiso_035_track2,\r\n" + 
+					"wiso_036_track3,wiso_037_retrievalreferencenro,wiso_038_autorizationnumber,\r\n" + 
+					"wiso_039_responsecode,wiso_039p_responsedetail,wiso_041_cardacceptorid,\r\n" + 
+					"wiso_042_card_acc_id_code,wiso_043_cardacceptorloc,wiso_043_cardacceptorloc,\r\n" + 
+					"wiso_044_addrespdata,wiso_049_trancurrcode,wiso_051_cardcurrcode,wiso_052_pinblock,\r\n" + 
+					"wiso_054_aditionalamounts,wiso_055_emv,wiso_090_originaldata,wiso_102_accountid_1,\r\n" + 
+					"wiso_103_accountid_2,wiso_120_extendeddata,wiso_121_extendeddata,wiso_122_extendeddata,\r\n" + 
+					"wiso_123_extendeddata,wiso_124_extendeddata\r\n" + 
+					"FROM ISO8583 ";
+			
+			int tipoReverso = iso.getWsTransactionConfig().getProccodeReverFlag(); 
+			String queryTotal = StringUtils.Empty();
+			switch (tipoReverso) {
+			case 300:
+				isoList = new ArrayList<>();
+				
+				queryTotal = cabeceraQuery + "where wiso_037_retrievalreferencenro = '"+ 
+								 iso.getISO_011_SysAuditNumber() +"'\r\n" + 
+						         "and wiso_002_pan = '"+ iso.getISO_002_PAN() +"'";		
+				DataSetMemoryLoader<Iso8583> loader = 
+			    new DataSetMemoryLoader<Iso8583>
+				(MemoryGlobal.conn, TransactionCommands.class, queryTotal);
+				isoList = loader.LoadDataClass();	
+				
+				break;
+
+			default:
+				break;
+			}
+			
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo FitCoreProcessor::MultiplesReversosProcesador ", TypeMonitor.error, e);
+		}
+		return isoList;
+	}
+	
+}
+
+class ContainerUCI1{
+	
+	private String det;
+	private String detResponse;
+	private wIso8583 iso;
+	private boolean flag;
+	
+	public String getDet() {
+		return det;
+	}
+	public void setDet(String det) {
+		this.det = det;
+	}
+	public wIso8583 getIso() {
+		return iso;
+	}
+	public void setIso(wIso8583 iso) {
+		this.iso = iso;
+	}
+	public boolean isFlag() {
+		return flag;
+	}
+	public void setFlag(boolean flag) {
+		this.flag = flag;
+	}
+	public String getDetResponse() {
+		return detResponse;
+	}
+	public void setDetResponse(String detResponse) {
+		this.detResponse = detResponse;
+	}
+	
+	
+}

@@ -1,0 +1,416 @@
+package com.fitbank.middleware.parser;
+
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import com.fitbank.middleware.authorizations.FitIsAut;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.fit1struct.Bloques;
+import com.fitbank.middleware.fit1struct.Cabecera;
+import com.fitbank.middleware.fit1struct.Campos;
+import com.fitbank.middleware.fit1struct.Criterios;
+import com.fitbank.middleware.fit1struct.DetailFit1;
+import com.fitbank.middleware.fit1struct.Detalle;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.memcached.User_Channel;
+import com.fitbank.middleware.sqlservices.IsoRetrievalTransaction;
+import com.fitbank.middleware.utils.FormatUtils;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.Ref;
+import com.fitbank.middleware.utils.SerializationObject;
+
+public class Fit1Parser {
+	
+	private Logger log;
+	
+	public Fit1Parser(){
+		log = new Logger();
+	}
+
+	public DataReturnParser parseDepositoReciclador(wIso8583 iso){
+		
+		DataReturnParser data = null;
+		final List<wIso8583> isoAux = new ArrayList<>();
+		List<wIso8583> isoResAux = new ArrayList<>();
+		IsoRetrievalTransaction sql = new IsoRetrievalTransaction();
+		
+		ExecutorService executor = null;
+		try {
+			
+			FitIsAut fit = new FitIsAut();
+			iso = fit.addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			data = new DataReturnParser();
+			
+			DetailFit1 msg = new DetailFit1();
+			
+			Cabecera cab = new Cabecera();
+			if(iso.getWsTransactionConfig().getValidTerm().equalsIgnoreCase("Y")){
+				
+				Ref<Cabecera> cabValidations = new Ref<Cabecera>(cab);
+				Ref<DataReturnParser> resVal = new Ref<DataReturnParser>(data);
+				cab = ValidateUserTerminal(cabValidations, iso, resVal);
+				if(!resVal.get().getCodError().equals("000")){
+					
+					return data;
+				}
+				
+			}else{
+				
+				cab.setUser(iso.getWsTransactionConfig().getUser_Fit());
+				cab.setPassword(GeneralUtils.GetSecuencial(32));
+				cab.setCodSucursal(iso.getWsTransactionConfig().getCommonCodSursal());
+				cab.setCodOficina(iso.getWsTransactionConfig().getCommonCodOficina());
+			}
+			
+			
+			isoAux.add((wIso8583) iso.clone());
+			isoAux.add((wIso8583) iso.clone());
+			isoAux.get(0).setISO_042_Card_Acc_ID_Code(cab.getCodSucursal());
+			
+			executor = Executors.newWorkStealingPool();
+			
+			List<Callable<wIso8583>> callables = Arrays.asList(
+			        () -> sql.getFechaContableFit1(isoAux.get(0)),
+			        () -> sql.getDataPersonFit1(isoAux.get(1))
+			);
+			
+			isoResAux = (List<wIso8583>) executor.invokeAll(callables)
+				    .stream()
+				    .map(future -> {
+				        try {
+				            return future.get();
+				        }
+				        catch (Exception e) {
+				            throw new IllegalStateException(e);
+				        }
+				    })
+				    .peek(Objects::requireNonNull)
+				    .collect(Collectors.toList());
+			
+			if(isoResAux != null){
+				
+				wIso8583 res  = isoResAux.stream()
+				          .filter(a -> !a.getISO_039_ResponseCode().equals("000"))
+				          .findFirst().orElseGet(()-> null);
+				
+				if(res != null){
+					
+					data.setCodError(res.getISO_039_ResponseCode());
+					data.setDesError(res.getISO_039p_ResponseDetail());
+					return data;
+				}
+				
+			}else{
+				
+				data.setCodError("909");
+				data.setDesError("ERROR AL RECUPERAR FECHA CONTABLE, DATOS PERSONA (LAMBDA NULL EXCEPTION)");
+				return data;
+			}
+			
+			cab.setSessionId(MemoryGlobal.sessionSys);
+			cab.setTipoTrx(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(3).substring(0,3));
+			cab.setFechaTrx(FormatUtils.DateToString(iso.getISO_012_LocalDatetime(), "YYYY-MM-dd HH:mm:ss"));
+			cab.setIpAutporizada(Arrays.asList(iso.getWsTransactionConfig().getTerm_Name().split("\\-")).get(2));
+			cab.setSubsistema(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(0));
+			cab.setTransaccion(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(1));
+			cab.setVersion(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(2));
+			cab.setMessageId(FormatUtils.DateToString(iso.getISO_012_LocalDatetime(), "YYYYMMddHHmmss") + "_" + iso.getISO_011_SysAuditNumber());
+			cab.setIdioma(iso.getWsTransactionConfig().getCommonIdioma());
+			cab.setTerminal(Arrays.asList(iso.getWsTransactionConfig().getTerm_Name().split("\\-")).get(0));
+			cab.setCanal(Arrays.asList(iso.getWsTransactionConfig().getTerm_Name().split("\\-")).get(1));
+			cab.setCodCompania(iso.getWsTransactionConfig().getCommonCompania());
+			cab.setFechaContable(isoResAux.get(0).getISO_120_ExtendedData());
+			cab.setNivelSeguridad("10");
+			cab.setRol(iso.getWsTransactionConfig().getCommonRol());
+			cab.setCaducarTrx("0");
+			cab.setEsHistorico("0");
+			cab.setEsPDF("0");
+			cab.setTodoAnterior("0");
+			cab.setCompaniaID(iso.getWsTransactionConfig().getCommonCompania());
+			cab.setNumero("60397");
+			cab.setCampoSEC("4");
+			cab.setCampoTDC("1");
+			cab.setCampoESP("1");
+			cab.setCampoLEG("30000");
+			
+			Detalle det = new Detalle();
+			Bloques blq1 = new Bloques("0","1","1");
+			List<Criterios> listCriterios = new ArrayList<>();			
+			List<Campos> listCampos = new ArrayList<>();
+			
+			listCampos.add(new Campos("CEDULA", null, isoResAux.get(1).getISO_121_ExtendedData(), "1", "false"));
+			listCampos.add(new Campos("NOMLEGAL", null, isoResAux.get(1).getISO_122_ExtendedData(), "1", "false"));
+			listCampos.add(new Campos("FCN", null,  isoResAux.get(0).getISO_120_ExtendedData() + " 00:00:00.0", "1", "false"));
+			listCampos.add(new Campos("CUENTACREDITO", null, iso.getISO_102_AccountID_1(), "1", "false"));
+			listCampos.add(new Campos("MONEDACUENTACREDITO", null, "USD", "1", "false"));
+			
+			blq1.setCampos(listCampos);
+			
+			listCriterios.add(new Criterios("518005", isoResAux.get(1).getISO_120_ExtendedData(), null, null));//Cpersona
+			listCriterios.add(new Criterios("192030", null, null, null));
+			listCriterios.add(new Criterios("518009", isoResAux.get(1).getISO_122_ExtendedData(), null, null));
+	
+			blq1.setCriterios(listCriterios);
+			
+			
+			Bloques blq2 = new Bloques("1", "1", "1");
+			List<Campos> listCamposBlq2 = new ArrayList<>();
+			listCamposBlq2.add(new Campos("DESCRIPCION", null, iso.getISO_123_ExtendedData(), "1", "false"));
+			blq2.setCampos(listCamposBlq2);
+			
+			DecimalFormatSymbols simbolo=new DecimalFormatSymbols();
+		    simbolo.setDecimalSeparator('.');
+			DecimalFormat df = new DecimalFormat("0.00",simbolo);
+			
+			Bloques blq3 = new Bloques("2", "1", "1");
+			List<Campos> listCamposBlq3 = new ArrayList<>();
+			listCamposBlq3.add(new Campos("CTIPOCOMPONENTE", null, Arrays.asList(iso.getWsTransactionConfig()
+					      .getProccodeParams().split("\\-")).get(0), "1", "false"));
+			listCamposBlq3.add(new Campos("COMPONENTE", null, Arrays.asList(iso.getWsTransactionConfig()
+					      .getProccodeParams().split("\\-")).get(1), "1", "false"));
+			listCamposBlq3.add(new Campos("MONEDA", null, isoResAux.get(1).getISO_124_ExtendedData(), "1", "false"));
+			listCamposBlq3.add(new Campos("FECHAVALOR", null, null, "1", "false"));
+			listCamposBlq3.add(new Campos("FECHADISPONIBLE", null, null, "1", "false"));
+			listCamposBlq3.add(new Campos("VALOR", null, df.format(iso.getISO_004_AmountTransaction()), "1", "false"));
+			blq3.setCampos(listCamposBlq3);
+			
+			List<Bloques> listBlq = new ArrayList<>();
+			listBlq.add(blq1);
+			listBlq.add(blq2);
+			listBlq.add(blq3);
+		
+			
+			det.setBloques(listBlq);
+			
+			msg.setCabecera(cab);
+			msg.setDetalle(det);
+			
+			data.setData(SerializationObject.ObjectToString(msg, DetailFit1.class));
+			data.setCodError("111");
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo Fit1Parser::DataReturnParser ", TypeMonitor.error, e);
+			data.setCodError("909");
+			data.setDesError("ERROR AL PARSEAR DETAIL PARA FIT1 " + 
+			GeneralUtils.ExceptionToString(null, e, false));
+		}
+		
+		return data;
+	}
+	
+	public DataReturnParser parseReversoFit1(wIso8583 iso){
+		
+		DataReturnParser data = null;
+		try {
+			
+			DetailFit1 msg = new DetailFit1();
+			data = new DataReturnParser();
+			wIso8583 isoRetrieve = new wIso8583();
+			IsoRetrievalTransaction retrieve = new IsoRetrievalTransaction();
+			isoRetrieve = retrieve.RetrieveTransactionIso(iso, 
+					      iso.getWsTransactionConfig().getProccodeReverFlag());
+				System.out.println("Campo 44  Fit1(Reverso)----- >  " + isoRetrieve.getISO_044_AddRespData());
+			
+			if(iso.getWsISO_SF_Count() > 0)
+				isoRetrieve.setISO_039_ResponseCode("000");
+			if(isoRetrieve.getISO_039_ResponseCode().equals("000")){
+	
+				iso.getWsTransactionConfig().setProccodeReverseFitOriginal(iso.getWsTransactionConfig().getProccodeTransactionFit());
+				iso.getWsTransactionConfig().setProccodeTransactionFit(MemoryGlobal.messageReverseUCIFit1);
+				iso.getWsTransactionConfig().setRevRetrievalIso011fromBdd(isoRetrieve.getISO_044_AddRespData());
+				iso.setISO_102_AccountID_1(isoRetrieve.getISO_102_AccountID_1());
+			}
+			else{
+				
+				data.setCodError(isoRetrieve.getISO_039_ResponseCode());
+				data.setCodError(isoRetrieve.getISO_039p_ResponseDetail());
+				return data;
+			}
+			
+			Cabecera cab = new Cabecera();
+			if(iso.getWsTransactionConfig().getValidTerm().equalsIgnoreCase("Y")){
+				
+				Ref<Cabecera> cabValidations = new Ref<Cabecera>(cab);
+				Ref<DataReturnParser> resVal = new Ref<DataReturnParser>(data);
+				cab = ValidateUserTerminal(cabValidations, iso, resVal);
+				if(!resVal.get().getCodError().equals("000")){
+					
+					return data;
+				}
+				
+			}else{
+				
+				cab.setUser(iso.getWsTransactionConfig().getUser_Fit());
+				cab.setPassword(GeneralUtils.GetSecuencial(32));
+				cab.setCodSucursal(iso.getWsTransactionConfig().getCommonCodSursal());
+				cab.setCodOficina(iso.getWsTransactionConfig().getCommonCodOficina());
+			}
+			cab.setSessionId(MemoryGlobal.sessionSys);
+			cab.setTipoTrx(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(3).substring(0,3));
+			cab.setFechaTrx(FormatUtils.DateToString(isoRetrieve.getISO_012_LocalDatetime(), "YYYY-MM-dd HH:mm:ss"));
+			cab.setIpAutporizada(Arrays.asList(iso.getWsTransactionConfig().getTerm_Name().split("\\-")).get(2));
+			cab.setSubsistema(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(0));
+			cab.setTransaccion(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(1));
+			cab.setVersion(Arrays.asList(iso.getWsTransactionConfig().getProccodeTransactionFit().split("\\-")).get(2));
+			String msgSufijo = "_R";
+			System.out.println("Reverso momento poner (FIT1).... " + iso.getWsTransactionConfig().getRevRetrievalIso011fromBdd());
+			if(MemoryGlobal.flagSecuenceInReverse)
+				cab.setMessageId(GeneralUtils.GetSecuencial(16) + msgSufijo);
+			else
+				cab.setMessageId(iso.getWsTransactionConfig().getRevRetrievalIso011fromBdd() + msgSufijo);
+			cab.setIdioma(iso.getWsTransactionConfig().getCommonIdioma());
+			cab.setTerminal(Arrays.asList(iso.getWsTransactionConfig().getTerm_Name().split("\\-")).get(0));
+			cab.setCanal(Arrays.asList(iso.getWsTransactionConfig().getTerm_Name().split("\\-")).get(1));
+			cab.setCodCompania(iso.getWsTransactionConfig().getCommonCompania());
+			cab.setFechaContable(FormatUtils.DateToString(isoRetrieve.getISO_015_SettlementDatel(), "yyyy-MM-dd"));
+			cab.setNivelSeguridad("10");
+			cab.setRol(iso.getWsTransactionConfig().getCommonRol());
+			cab.setCaducarTrx("0");
+			cab.setEsHistorico("0");
+			cab.setEsPDF("0");
+			cab.setTodoAnterior("0");
+			cab.setCompaniaID(iso.getWsTransactionConfig().getCommonCompania());
+			
+			Detalle det = new Detalle();
+			List<Bloques> listBlq = new ArrayList<>();
+			
+			
+			Bloques blq1 = new Bloques("0","1","0");
+			List<Criterios> listCriteriosBlq1 = new ArrayList<>();			
+			listCriteriosBlq1.add(new Criterios("369007", cab.getUser(), null, null));// Usuario
+			listCriteriosBlq1.add(new Criterios("369006", "ECG", null, null));// Tipo Usuario
+			listCriteriosBlq1.add(new Criterios("369006", "1", null, null));// CTIPOUSUARIO quemado 1
+			if(iso.getWsTransactionConfig().getValidTerm().equalsIgnoreCase("Y"))
+				listCriteriosBlq1.add(new Criterios("369001", iso.getISO_041_CardAcceptorID(), null, null));// ALIAS CAJERO
+			else
+				listCriteriosBlq1.add(new Criterios("369001", iso.getWsTransactionConfig().getUser_Fit(), null, null));// ALIAS NORMAL
+			blq1.setCriterios(listCriteriosBlq1);
+			
+			
+			Bloques blq2 = new Bloques("1","1","0");
+			
+			Bloques blq3 = new Bloques("2","1","0");
+			List<Criterios> listCriteriosBlq3 = new ArrayList<>();
+			listCriteriosBlq3.add(new Criterios("659008", null, null, null));// VCAJATRANSACCIONESDIA	CSUBSISTEMA_TRANSACCION
+			listCriteriosBlq3.add(new Criterios("659011", null, null, null));// VCAJATRANSACCIONESDIA	CTRANSACCION
+			listCriteriosBlq3.add(new Criterios("659010", null, null, null));// VCAJATRANSACCIONESDIA	CTIPOCOMPONENTE
+			listCriteriosBlq3.add(new Criterios("659001", null, null, null));// VCAJATRANSACCIONESDIA	CCOMPONENTECODIGO
+			listCriteriosBlq3.add(new Criterios("659013", null, null, null));// VCAJATRANSACCIONESDIA	DEBITOCREDITO
+			listCriteriosBlq3.add(new Criterios("659002", null, null, null));// VCAJATRANSACCIONESDIA	CCUENTA
+			
+			
+			
+			Bloques blq4 = new Bloques("3","1","1");
+			List<Campos> listCampBlq4 = new ArrayList<>();
+			listCampBlq4.add(new Campos())
+			
+			
+			
+			blq1.setCriterios(listCriteriosBlq1);
+			blq3.setCriterios(listCriteriosBlq3);
+			
+			listBlq.add(blq1);
+			listBlq.add(blq2);
+			listBlq.add(blq3);
+			
+			
+			det.setBloques(listBlq);
+			
+			msg.setCabecera(cab);
+			msg.setDetalle(det);
+			
+			data.setData(SerializationObject.ObjectToString(msg, DetailFit1.class));
+			data.setCodError("111");
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo Fit1Parser::parseReversoFit1 ", TypeMonitor.error, e);
+			data.setCodError("909");
+			data.setDesError("ERROR AL PARSEAR DETAIL PARA FIT1 (REVERSO)" + 
+			GeneralUtils.ExceptionToString(null, e, false));
+		}
+		return data;
+	}
+	
+	
+	
+	private Cabecera ValidateUserTerminal(Ref<Cabecera> cab, wIso8583 iso, Ref<DataReturnParser> data){
+		
+		Cabecera _cab = null;
+		DataReturnParser _data = data.get();
+		try {
+			
+			_cab = cab.get();
+			User_Channel usrch = new User_Channel();
+			usrch = usrch.getUserChannel(iso.getISO_018_MerchantType(), 
+										 iso.getISO_041_CardAcceptorID());
+			
+			  if(usrch != null){
+				
+				_cab.setUser(usrch.getUser_fit());
+				_cab.setCodSucursal(usrch.getUch_sucursal());
+				_cab.setCodOficina(usrch.getUch_oficina());
+				_cab.setPassword(usrch.getUser_pass());
+				
+			}else{
+				
+				_data.setCodError("101");
+				_data.setDesError("TERMINAL " + iso.getISO_041_CardAcceptorID() + 
+						", CANAL: " + iso.getISO_018_MerchantType() + " NO REGISTRADOS");
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo Fit1Parser::ValidateUserTerminal ", TypeMonitor.error, e);
+		}
+			    data.set(_data);
+				cab.set(_cab);
+		return cab.get();
+	}
+	
+	public class DataReturnParser{
+		
+		private String data;
+		private String codError;
+		private String desError;
+		
+		public DataReturnParser() {
+			
+			this.codError = "000";
+			this.data = null;
+			this.desError = "PARSEO EXITOSO";
+		}
+		
+		public String getData() {
+			return data;
+		}
+		public void setData(String data) {
+			this.data = data;
+		}
+		public String getCodError() {
+			return codError;
+		}
+		public void setCodError(String codError) {
+			this.codError = codError;
+		}
+		public String getDesError() {
+			return desError;
+		}
+		public void setDesError(String desError) {
+			this.desError = desError;
+		}
+		
+		
+	}
+
+}

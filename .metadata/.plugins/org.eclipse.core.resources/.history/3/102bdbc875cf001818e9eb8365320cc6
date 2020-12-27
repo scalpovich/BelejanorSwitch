@@ -1,0 +1,58 @@
+package com.fitbank.middleware.acquirers;
+
+
+public class Tester {
+
+	public static void main(String[] args) {
+		
+		// Producir nuevo int aleatorio entre 0 y 99
+		//int q = obtenerAleatorio(111, 999);
+		//System.out.println(q);
+		 //System.out.println(validaRepetidos(12068));
+		/*int valor = 0;
+		//do while (!validaRepetidos(aleatorio)) {
+			
+		//	valor = aleatorio;
+		//}
+		do {
+			
+			valor = obtenerAleatorio(111, 999);
+			
+		} while (validaRepetidos(valor));
+		
+		System.out.println(valor);*/
+		
+		String a = "aassadads_123123";
+		if(a.contains("[0-9]*") == true)
+			System.out.println("SI");
+		else
+			System.out.println("NO");
+		
+
+	}
+	
+	public static boolean validaRepetidos(long number) {
+		
+		 boolean res = false;
+	     int[] cont = new int[10]; 
+	     int digito;
+	     while(number > 0) {
+	         digito = (int) (number % 10);
+	         cont[digito]++;
+	         number /= 10;
+	     }
+	     for(digito=0;digito<10;digito++) {
+	         if(cont[digito]>1) {
+	            res = true;
+	            break;
+	         }
+	     }
+	     
+	     return res;
+	}
+	
+	public static int obtenerAleatorio(int desde, int hasta){
+	      return (int)( Math.random() * ( hasta - desde + 1 ) ) + desde;
+	} 
+
+}

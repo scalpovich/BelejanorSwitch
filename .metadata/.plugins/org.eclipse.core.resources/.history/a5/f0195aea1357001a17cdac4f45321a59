@@ -1,0 +1,49 @@
+package com.belejanor.switcher.scheduler;
+
+import java.lang.reflect.Method;
+import java.util.Arrays;
+import java.util.List;
+
+import com.belejanor.switcher.acquirers.ProcessorResponsesFromBCE;
+import com.belejanor.switcher.cscoreswitch.EngineTaskVoidProcessor;
+import com.belejanor.switcher.cscoreswitch.wIso8583;
+import com.belejanor.switcher.logger.Logger;
+import com.belejanor.switcher.logger.LoggerConfig.TypeMonitor;
+import com.belejanor.switcher.memcached.BatchDay;
+import com.belejanor.switcher.memcached.MemoryGlobal;
+import com.belejanor.switcher.snp.spi.SnpSPIOrdenante;
+
+public class InitSchedule {
+
+	Logger log;
+	public InitSchedule() {
+		
+		log = new Logger();
+	}
+	
+	public void chargeTask() {
+		
+		EngineTaskVoidProcessor tasker = null;
+		try {
+			
+			tasker = new EngineTaskVoidProcessor(MemoryGlobal.ListBatchDayTableMem.size());
+			for (BatchDay batch : MemoryGlobal.ListBatchDayTableMem) {
+				
+				String messageClass = batch.getMethod_call();					
+				List<String> aa = Arrays.asList(messageClass.split("\\."));
+				String methodName = aa.get(aa.size() -1);
+				String classname = messageClass.replace("." + methodName, "");
+				
+				Class<?> instanceClass = Class.forName(classname);																			
+				Object classInstance = instanceClass.getConstructor(new Class[]{}).newInstance();					
+				//Method methodToInvoke = instanceClass.getMethod(methodName, wIso8583.class);	
+				tasker.add((Runnable)classInstance);
+			}
+			
+			tasker.go();*/
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo InitSchedule::chargeTask", TypeMonitor.error, e);
+		}
+	}
+}

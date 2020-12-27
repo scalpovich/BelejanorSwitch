@@ -1,0 +1,2 @@
+2020-12-25 00:05:30 [Thread-10000hread] INFO  debugLogger:232 - RQ>>>> executeBatchCobis: Param=>D
+2020-12-25 00:05:30 [Thread-10001hread] INFO  debugLogger:232 - RS>>>> executeBatchCobis: =>>000-EL PROCESO NO TIENE NADA QUE RESPALDAR EN PROCESO DIARIO

@@ -1,0 +1,190 @@
+<xs:schema xmlns:tns="http://implementations.belejanor.switcher.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema" elementFormDefault="unqualified" targetNamespace="http://implementations.belejanor.switcher.com/" version="1.0">
+
+  <xs:element name="balanceAccount" type="tns:balanceAccount"/>
+
+  <xs:element name="balanceAccountResponse" type="tns:balanceAccountResponse"/>
+
+  <xs:element name="debitAccount" type="tns:debitAccount"/>
+
+  <xs:element name="debitAccountResponse" type="tns:debitAccountResponse"/>
+
+  <xs:element name="debitCredencialRequest" type="tns:debitCredencialRequest"/>
+
+  <xs:element name="movementsAccount" type="tns:movementsAccount"/>
+
+  <xs:element name="movementsAccountResponse" type="tns:movementsAccountResponse"/>
+
+  <xs:element name="movementsCredencialResponse" type="tns:movementsCredencialResponse"/>
+
+  <xs:element name="revertDebitAccount" type="tns:revertDebitAccount"/>
+
+  <xs:element name="revertDebitAccountResponse" type="tns:revertDebitAccountResponse"/>
+
+  <xs:complexType name="debitAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="debitCredencialRequest" type="tns:debitCredencialRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="debitCredencialRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Adquiriente" type="xs:string"/>
+      <xs:element minOccurs="0" name="Ciudad" type="xs:string"/>
+      <xs:element name="Comision" type="xs:double"/>
+      <xs:element name="ComisionLIQ" type="xs:double"/>
+      <xs:element minOccurs="0" name="FechaTransaccion" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorADQ" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorCuentaEMI" type="xs:string"/>
+      <xs:element name="Moneda" type="xs:int"/>
+      <xs:element name="MonedaLIQ" type="xs:int"/>
+      <xs:element name="Monto" type="xs:double"/>
+      <xs:element name="MontoLIQ" type="xs:double"/>
+      <xs:element name="Motivo" type="xs:int"/>
+      <xs:element minOccurs="0" name="NombreComercio" type="xs:string"/>
+      <xs:element minOccurs="0" name="Origen" type="xs:string"/>
+      <xs:element minOccurs="0" name="ReferenciaCuentaEMI" type="xs:string"/>
+      <xs:element minOccurs="0" name="Tarjeta" type="xs:string"/>
+      <xs:element minOccurs="0" name="Terminal" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="debitAccountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:debitCredencialResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="debitCredencialResponse">
+    <xs:sequence>
+      <xs:element name="CodigoRespuesta" type="xs:int"/>
+      <xs:element minOccurs="0" name="FechaOperacion" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorEMI" type="xs:string"/>
+      <xs:element minOccurs="0" name="MensajeRespuesta" type="xs:string"/>
+      <xs:element name="Moneda" type="xs:int"/>
+      <xs:element name="SaldoAnterior" type="xs:double"/>
+      <xs:element name="SaldoPosterior" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="movementsAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="movementsCredencialRequest" type="tns:movementsCredencialRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="movementsCredencialRequest">
+    <xs:complexContent>
+      <xs:extension base="tns:balanceCredencialRequest">
+        <xs:sequence/>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+  <xs:complexType name="balanceCredencialRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorADQ" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorCuentaEMI" type="xs:string"/>
+      <xs:element minOccurs="0" name="Origen" type="xs:string"/>
+      <xs:element minOccurs="0" name="ReferenciaCuentaEMI" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="movementsAccountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:movementsCredencialResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="movementsCredencialResponse">
+    <xs:sequence>
+      <xs:element name="CodigoRespuesta" type="xs:int"/>
+      <xs:element minOccurs="0" name="FechaOperacion" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="MensajeRespuesta" type="xs:string"/>
+      <xs:element minOccurs="0" name="Movimientos" type="tns:movimientos"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="movimientos">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Movimiento" type="tns:movements"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="movements">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="fecha" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="identificador" type="xs:string"/>
+      <xs:element name="moneda" type="xs:int"/>
+      <xs:element name="monto" type="xs:double"/>
+      <xs:element minOccurs="0" name="terminal" type="xs:string"/>
+      <xs:element minOccurs="0" name="tipoMovimiento" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="revertDebitAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="revertCredencialRequest" type="tns:revertCredencialRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="revertCredencialRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FechaTransaccion" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorADQ" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorEMI" type="xs:string"/>
+      <xs:element name="Moneda" type="xs:int"/>
+      <xs:element name="MonedaLIQ" type="xs:int"/>
+      <xs:element name="Monto" type="xs:double"/>
+      <xs:element name="MontoLIQ" type="xs:double"/>
+      <xs:element name="MotivoReversa" type="xs:int"/>
+      <xs:element minOccurs="0" name="NombreComercio" type="xs:string"/>
+      <xs:element minOccurs="0" name="Origen" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="revertDebitAccountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:revertCredencialResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="revertCredencialResponse">
+    <xs:sequence>
+      <xs:element name="CodigoRespuesta" type="xs:int"/>
+      <xs:element minOccurs="0" name="FechaOperacion" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="IdentificadorEMI" type="xs:string"/>
+      <xs:element minOccurs="0" name="MensajeRespuesta" type="xs:string"/>
+      <xs:element name="SaldoAnterior" type="xs:double"/>
+      <xs:element name="SaldoPosterior" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="balanceAccount">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="balanceCredencialRequest" type="tns:balanceCredencialRequest"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="balanceAccountResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="return" type="tns:balanceCredencialResponse"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="balanceCredencialResponse">
+    <xs:sequence>
+      <xs:element name="CodigoRespuesta" type="xs:int"/>
+      <xs:element minOccurs="0" name="FechaOperacion" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="Identificador" type="xs:string"/>
+      <xs:element minOccurs="0" name="MensajeRespuesta" type="xs:string"/>
+      <xs:element name="SaldoDisponible" type="xs:double"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>

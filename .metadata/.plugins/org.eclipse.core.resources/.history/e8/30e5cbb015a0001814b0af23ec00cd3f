@@ -1,0 +1,232 @@
+package com.fitbank.middleware.snp.spi;
+
+import java.util.List;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
+
+import com.fitbank.middleware.authorizations.SPIBceIsAut;
+import com.fitbank.middleware.cscoreswitch.EngineCallableProcessor;
+import com.fitbank.middleware.cscoreswitch.Iso8583;
+import com.fitbank.middleware.cscoreswitch.csProcess;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.extetrnalprocess.ScheduleProcessor;
+import com.fitbank.middleware.extetrnalprocess.SnpScheduledExecuteLot;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.parser.BceSPIParser;
+import com.fitbank.middleware.utils.Ref;
+
+public class ProcessorLotes extends Thread{
+	
+	private Logger log;
+	
+	public ProcessorLotes() {
+		
+		log = new Logger();
+	}
+	/*Metodo V1*/
+	public void ExecuteProcessSNPLoptes() {
+		
+		try {
+			
+			SnpOrdLotes ord = new SnpOrdLotes();
+			List<SnpOrdLotes> list = ord.retornaLotesDeamonWithout();
+			ContainerIsoList contIsos = new ContainerIsoList();
+			Ref<ContainerIsoList> refContainer = new Ref<>(contIsos);
+			
+			if(list != null) {
+				
+				if(list.size() > 0) {
+					
+					MemoryGlobal.semaphoreIniLotesSpi = new CountDownLatch(1);
+					
+					Thread tParser = new Thread(() -> {
+						
+						ParseoSnpLoteToIso8583(list, refContainer);
+					});
+					
+					tParser.start();
+					tParser.join();
+					
+					List<Iso8583> isoList = refContainer.get().getIsoList();
+					
+					
+					EngineCallableProcessor<Iso8583> engine = new EngineCallableProcessor<>(20);
+					
+					for (Iso8583 isos : isoList) {
+						
+						//System.out.println(isos.getISO_002_PAN() + "  " + isos.getISO_114_ExtendedData());
+						csProcess proc = new csProcess(isos, "127.0.0.1");
+						engine.add(proc);
+					}
+					List<Iso8583> listIsoProc = engine.goProcess();
+					MemoryGlobal.semaphoreIniLotesSpi.countDown();
+					log.WriteLogMonitor("============ TERMINO =============== " + listIsoProc.size() + "  TRANSACCIONES" , TypeMonitor.monitor, null);
+					
+				}
+				
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo ProcessorLotes::ExecuteProcessSNPLoptes ", TypeMonitor.error, e);
+		}
+	}
+	
+	/*Metodo V2*/
+	public void ExecuteProcessSNPLoptes_V2() {
+		
+		try {
+			
+			SnpOrdLotes ord = new SnpOrdLotes();
+			List<SnpOrdLotes> list = ord.retornaLotesDeamonWithout();
+			ContainerIsoList contIsos = new ContainerIsoList();
+			Ref<ContainerIsoList> refContainer = new Ref<>(contIsos);
+			SPIBceIsAut spiAut = null;
+			
+			if(list != null) {
+				
+				if(list.size() > 0) {
+					
+					MemoryGlobal.semaphoreIniLotesSpi = new CountDownLatch(1);
+					
+					Thread tParser = new Thread(() -> {
+						
+						ParseoSnpLoteToIso8583_V2(list, refContainer);
+					});
+					
+					tParser.start();
+					tParser.join();
+					
+					List<Iso8583> isoList = refContainer.get().getIsoList();
+					
+					/*Debitos Masivos*/
+					
+					EngineCallableProcessor<Iso8583> engine = new EngineCallableProcessor<>(20);
+					
+					for (Iso8583 isos : isoList) {
+						
+						//System.out.println(isos.getISO_002_PAN() + "  " + isos.getISO_114_ExtendedData());
+						csProcess proc = new csProcess(isos, "127.0.0.1");
+						engine.add(proc);
+					}
+					List<Iso8583> listIsoProc = engine.goProcess();
+					/* FIN Debitos Masivos*/
+					
+					MemoryGlobal.semaphoreIniLotesSpi.countDown();
+					log.WriteLogMonitor("============ TERMINO =============== " + listIsoProc.size() + "  TRANSACCIONES" , TypeMonitor.monitor, null);
+					 
+					spiAut = new SPIBceIsAut();
+					wIso8583 wiso = new wIso8583(isoList.get(0), "127.0.0.1");
+					
+					wiso = spiAut.SendRequestSPIOrdMasivo(isoList, wiso);
+					
+					
+					
+				
+					
+					
+				}
+				
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo ProcessorLotes::ExecuteProcessSNPLoptes ", TypeMonitor.error, e);
+		}
+	}
+	
+	protected void ParseoSnpLoteToIso8583(List<SnpOrdLotes> snpList, Ref<ContainerIsoList> RefcontainerIso) {
+		
+		ContainerIsoList container = new ContainerIsoList();
+		EngineCallableProcessor<Iso8583> engine = new EngineCallableProcessor<>(20);
+		try {
+			
+			for (SnpOrdLotes snp : snpList) {
+				
+				BceSPIParser parser = new BceSPIParser(snp);
+				engine.add(parser);
+			}
+			
+			List<Iso8583> listIsoProc = engine.goProcess();
+			container.setIsoList(listIsoProc);
+			RefcontainerIso.set(container);
+			
+		} catch (Exception e) {
+
+			log.WriteLogMonitor("Error modulo ProcessorLotes::parseoSnpLoteToIso8583 ", TypeMonitor.error, e);
+		}
+	}
+	
+	protected void ParseoSnpLoteToIso8583_V2(List<SnpOrdLotes> snpList, Ref<ContainerIsoList> RefcontainerIso) {
+		
+		ContainerIsoList container = new ContainerIsoList();
+		EngineCallableProcessor<Iso8583> engine = new EngineCallableProcessor<>(20);
+		try {
+			
+			for (SnpOrdLotes snp : snpList) {
+				
+				BceSPIParser parser = new BceSPIParser(snp);
+				engine.add(parser.callableLotesV2());
+			}
+			
+			List<Iso8583> listIsoProc = engine.goProcess();
+			container.setIsoList(listIsoProc);
+			RefcontainerIso.set(container);
+			
+		} catch (Exception e) {
+
+			log.WriteLogMonitor("Error modulo ProcessorLotes::ParseoSnpLoteToIso8583_V2 ", TypeMonitor.error, e);
+		}
+	}
+	
+    public void InitScheduleProcessorSnpLotes(){
+		
+    	SnpScheduledExecuteLot lotProcessor = new SnpScheduledExecuteLot();
+		ScheduleProcessor schedule = new ScheduleProcessor();
+		
+		Thread t = new Thread(new Runnable() {
+			
+			@Override
+			public void run() {
+				
+				schedule.ExecuteProcessPersistence(MemoryGlobal.serviceScheduleSnp, 
+						lotProcessor.executeScheduleLotSnp(), 
+							TimeUnit.SECONDS, MemoryGlobal.SnpScheduleLotesInterval);
+			}
+		});
+		t.start();
+	}
+
+	@Override
+	public void run() {
+		
+		InitScheduleProcessorSnpLotes();
+	}
+
+	
+}
+class ContainerIsoList{
+	
+	private List<Iso8583> isoList;
+	
+	public ContainerIsoList(List<Iso8583> isoList) {
+		this();
+		this.isoList = isoList;
+	}
+	
+	public ContainerIsoList() {
+		
+		isoList = new CopyOnWriteArrayList<>();
+	}
+	
+	public List<Iso8583> getIsoList() {
+		return isoList;
+	}
+
+	public void setIsoList(List<Iso8583> isoList) {
+		this.isoList = isoList;
+	}
+}

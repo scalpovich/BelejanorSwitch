@@ -1,0 +1,12 @@
+127.0.0.1 - - [17/Mar/2019:00:20:48 -0500] "GET / HTTP/1.1" 404 996
+0:0:0:0:0:0:0:1 - - [17/Mar/2019:00:20:49 -0500] "GET /BelejanorProject/WEB-INF/classes/com/belejanor/switcher/sqlservices/IsoSqlMaintenance.java HTTP/1.1" 404 994
+127.0.0.1 - - [17/Mar/2019:00:24:09 -0500] "GET / HTTP/1.1" 404 996
+127.0.0.1 - - [17/Mar/2019:00:26:18 -0500] "GET / HTTP/1.1" 404 996
+127.0.0.1 - - [17/Mar/2019:00:28:49 -0500] "GET / HTTP/1.1" 404 996
+0:0:0:0:0:0:0:1 - - [17/Mar/2019:00:28:50 -0500] "GET /BelejanorProject/WEB-INF/classes/com/belejanor/switcher/memcached/MemoryGlobal.java HTTP/1.1" 404 994
+127.0.0.1 - - [17/Mar/2019:00:47:11 -0500] "GET / HTTP/1.1" 404 996
+127.0.0.1 - - [17/Mar/2019:00:47:27 -0500] "POST /BelejanorProject/services/ProcessTransactionIsoPort HTTP/1.1" 200 2903
+127.0.0.1 - - [17/Mar/2019:00:47:59 -0500] "POST /BelejanorProject/services/ProcessTransactionIsoPort HTTP/1.1" 200 2878
+127.0.0.1 - - [17/Mar/2019:13:09:44 -0500] "GET / HTTP/1.1" 404 996
+0:0:0:0:0:0:0:1 - - [17/Mar/2019:13:09:45 -0500] "GET /BelejanorProject/WEB-INF/classes/com/belejanor/switcher/sqlservices/IsoSqlMaintenance.java HTTP/1.1" 404 994
+127.0.0.1 - - [17/Mar/2019:13:10:19 -0500] "POST /BelejanorProject/services/ProcessTransactionIsoPort HTTP/1.1" 200 3624

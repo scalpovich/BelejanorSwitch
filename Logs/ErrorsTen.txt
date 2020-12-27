@@ -1,0 +1,144 @@
+2020-12-26 10:45:46 ERROR errorsLogger:421 - <<FINAL PROCESO BATCH: TaskBatchExcuteChrono>>: NO ES FIN DE MES
+2020-12-26 10:46:08 ERROR errorsLogger:419 - [ERROR:] Error modulo IsoRetrievalTransaction::executeBatchCobis (SQLException) : JZ006: Se ha detectado IOException: java.net.ConnectException: Connection timed out: connect   ---> [STACKTRACE:] java.sql.SQLException: JZ006: Se ha detectado IOException: java.net.ConnectException: Connection timed out: connect
+	at com.sybase.jdbc4.jdbc.SybConnection.getAllExceptions(Unknown Source)
+	at com.sybase.jdbc4.jdbc.SybConnection.handleSQLE(Unknown Source)
+	at com.sybase.jdbc4.jdbc.SybConnection.a(Unknown Source)
+	at com.sybase.jdbc4.jdbc.SybConnection.handleHAFailover(Unknown Source)
+	at com.sybase.jdbc4.jdbc.SybConnection.<init>(Unknown Source)
+	at com.sybase.jdbc4.jdbc.SybConnection.<init>(Unknown Source)
+	at com.sybase.jdbc4.jdbc.SybDriver.connect(Unknown Source)
+	at org.apache.commons.dbcp2.DriverConnectionFactory.createConnection(DriverConnectionFactory.java:53)
+	at org.apache.commons.dbcp2.PoolableConnectionFactory.makeObject(PoolableConnectionFactory.java:355)
+	at org.apache.commons.pool2.impl.GenericObjectPool.create(GenericObjectPool.java:874)
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:417)
+	at org.apache.commons.pool2.impl.GenericObjectPool.borrowObject(GenericObjectPool.java:346)
+	at org.apache.commons.dbcp2.PoolingDataSource.getConnection(PoolingDataSource.java:134)
+	at org.apache.commons.dbcp2.BasicDataSource.getConnection(BasicDataSource.java:809)
+	at com.belejanor.switcher.sqlservices.DBCPDataSource.getConnection(DBCPDataSource.java:38)
+	at com.belejanor.switcher.sqlservices.IsoSqlMaintenance.executeBatchCobis(IsoSqlMaintenance.java:1967)
+	at com.belejanor.switcher.scheduler.TaskBatchExecuteDay.execute(TaskBatchExecuteDay.java:31)
+	at org.quartz.core.JobRunShell.run(JobRunShell.java:202)
+	at org.quartz.simpl.SimpleThreadPool$WorkerThread.run(SimpleThreadPool.java:573)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo DataSetMemoryLoader::LoadDataClass : JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []   ---> [STACKTRACE:] java.sql.SQLException: JZ0C0: La conexi?n ya est? cerrada. Query: SELECT * FROM SPI_LOTES WHERE ESTADO = 'PEND' Parameters: []
+	at org.apache.commons.dbutils.AbstractQueryRunner.rethrow(AbstractQueryRunner.java:392)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:351)
+	at org.apache.commons.dbutils.QueryRunner.query(QueryRunner.java:226)
+	at com.belejanor.switcher.sqlservices.DataSetMemoryLoader.LoadDataClass(DataSetMemoryLoader.java:39)
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:359)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:46 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:46 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+
+2020-12-26 10:46:45 ERROR errorsLogger:419 - [ERROR:] Error modulo ProcessorLotes::ExecuteProcessSNPLoptes :  ---> [STACKTRACE:] java.lang.NullPointerException
+	at com.belejanor.switcher.snp.spi.SnpOrdLotes.retornaLotesDeamonWithout(SnpOrdLotes.java:360)
+	at com.belejanor.switcher.snp.spi.ProcessorLotes.ExecuteProcessSNPLoptes_V2(ProcessorLotes.java:93)
+	at com.belejanor.switcher.extetrnalprocess.SnpScheduledExecuteLot$1.lambda$0(SnpScheduledExecuteLot.java:27)
+	at java.lang.Thread.run(Thread.java:748)
+

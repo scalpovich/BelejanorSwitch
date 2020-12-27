@@ -1,0 +1,5 @@
+package com.belejanor.switcher.authorizations;
+
+public class CobisIsAut {
+
+}

@@ -1,0 +1,701 @@
+package com.fitbank.middleware.acquirers;
+
+import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import com.fitbank.middleware.cscoreswitch.EngineCallableProcessor;
+import com.fitbank.middleware.cscoreswitch.Iso8583;
+import com.fitbank.middleware.cscoreswitch.csProcess;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.MemoryGlobal;
+import com.fitbank.middleware.parser.BceSPIParser;
+import com.fitbank.middleware.snp.spi.SnpSPIOrdenante;
+import com.fitbank.middleware.sqlservices.IsoRetrievalTransaction;
+import com.fitbank.middleware.sqlservices.IsoSqlMaintenance;
+import com.fitbank.middleware.utils.FormatUtils;
+import com.fitbank.middleware.utils.Ref;
+import com.fitbank.middleware.utils.SerializationExecutorString;
+import com.fitbank.middleware.utils.SerializationObject;
+import com.fitbank.middleware.utils.StringUtils;
+
+import urn.iso.std.iso20022.tech.xsd.pacs_002_001_05.DocumentRespuesta;
+
+public class SPIBceIsAcq {
+	
+	private Logger log;
+	
+	public SPIBceIsAcq(){
+		
+		log = new Logger();
+	}
+
+	public wIso8583 ReturnDateForConfirmationAsync(wIso8583 iso){
+		
+		try {
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+			iso.setISO_013_LocalDate(new Date());
+			iso.setWsIso_LogStatus(2);
+			if(iso.getISO_090_OriginalData().equals("RJCT")) {
+				
+				iso.setISO_039_ResponseCode("100");
+				iso.setISO_039p_ResponseDetail("SE RECIBE " + iso.getISO_023_CardSeq() +" TRANSACCION(ES) POR PARTE DEL BCE, CON ERROR. REVISAR LOGS. SE PROCESA LAS TRXS. ");
+			}else {
+			
+				iso.setISO_039_ResponseCode("000");
+				iso.setISO_039p_ResponseDetail("SE RECIBE " + iso.getISO_023_CardSeq() + " TRANSACCION(ES) EXITOSA(S) DEL BCE");
+			}
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			Thread t = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					processResponsesFromBCE(iso);
+				}
+			});
+			t.start();
+			
+		} catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::ReturnDateForConfirmationAsync ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+	
+	private void processResponsesFromBCE(wIso8583 iso){
+		
+		DocumentRespuesta doc = null;
+		BceSPIParser parser = null;
+		List<SnpSPIOrdenante> listSpi = new ArrayList<>(); 
+		IsoRetrievalTransaction sql = null;	
+		final ContainerSPIOrd container = new ContainerSPIOrd();
+		
+		try {
+			parser = new BceSPIParser();
+			
+			doc = new DocumentRespuesta();
+			String trama = iso.getISO_115_ExtendedData();
+			doc = (DocumentRespuesta) SerializationObject.StringToObject(trama, DocumentRespuesta.class);
+			listSpi = parser.parseRespuestasSNP_SPI_BCE_Async(doc);
+			
+			for (SnpSPIOrdenante snpLst : listSpi) {
+				
+				sql = new IsoRetrievalTransaction();
+				SnpSPIOrdenante snpQuery = (SnpSPIOrdenante) snpLst.clone();
+				snpQuery = sql.RetrieveTrxSPI_Ord(snpQuery);
+				log.WriteLogMonitor("**** CONFIRMACIONES ERROR: " + snpQuery.getError_code_prop(), TypeMonitor.monitor, null);
+				if(snpQuery.getError_code_prop().equals("000")) {
+					
+					final String isoMessage = snpQuery.getIso_message();
+					container.setMessageIso(isoMessage);
+					container.setSnpClase(snpQuery);
+					log.WriteLogMonitor("**** Mensaje Confirmacion " + snpLst.getStatus_bce(), TypeMonitor.monitor, null);
+					switch (snpLst.getStatus_bce()) {
+					case "RJCT":
+						log.WriteLogMonitor("**** Entro Reverso por RJCT " + snpLst.getStatus_bce(), TypeMonitor.monitor, null);
+						/*Reverso de Transaccion*/
+						Thread t = new Thread(new Runnable() {
+							
+							@Override
+							public void run() {
+								
+								ReverseTransactionForResponseBCE(container, snpLst);
+							}
+						});
+						
+						t.start();
+						break;
+						
+					case "ACSP"://Aceptada minorista
+					case "ACTC"://Validada
+					case "ACSC"://Aceptada mayorista
+					case "ACWC"://Aceptada con fecha posterior (programada, para lo cual se debera enviar el tag IntrBkSttlmDt)
+						log.WriteLogMonitor("**** Entro por RESPUESTA: " + snpLst.getStatus_bce(), TypeMonitor.monitor, null);
+						
+						
+						Thread x = new Thread(new Runnable() {
+							public void run() {
+							
+								UpdateTrxSpiOrdenante(container, snpLst);
+							}
+						});
+						x.start();
+						
+						break;
+	
+					default:
+						break;
+					}
+				}
+			}
+			
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::processResponsesFromBCE ", TypeMonitor.error, e);
+		}
+	}
+	
+	private void ReverseTransactionForResponseBCE(ContainerSPIOrd container, SnpSPIOrdenante snpres) {
+		
+		csProcess processor = null;
+		Iso8583 iso8583 = null;
+		Date fechaActual = new Date();
+		try {
+			log.WriteLogMonitor("**** ^^^^ YA EN METODO REVERSO ^^^^ ", TypeMonitor.monitor, null);
+			iso8583 = (Iso8583) SerializationObject.StringToObject(container.getMessageIso(),
+					Iso8583.class);
+			/*Cambio a Reverso y fechas*/
+			iso8583.setISO_000_Message_Type("1400");
+			@SuppressWarnings("deprecation")
+			int now = fechaActual.getDay();
+			@SuppressWarnings("deprecation")
+			int a = iso8583.getISO_007_TransDatetime().getDay();
+			@SuppressWarnings("deprecation")
+			int b = iso8583.getISO_012_LocalDatetime().getDay();
+			
+			if(a < now) 	
+				iso8583.setISO_007_TransDatetime(new Date());
+			if(b < now)
+				iso8583.setISO_012_LocalDatetime(new Date());
+			
+			/*Pongo el detalle del error en la trama a reversar*/
+			iso8583.setISO_124_ExtendedData(snpres.getCod_error_auth() + " - " + snpres.getDes_error_auth());
+			/*Pongo el mensaje de respuesta del BCE*/
+			iso8583.setISO_037_RetrievalReferenceNumber(snpres.getMsgid_last_be());
+			/*Pongo la Fecha y hora de Respuesta*/
+			iso8583.setISO_013_LocalDate(snpres.getCredttm());
+			processor = new csProcess();
+			iso8583 = processor.ProcessTransactionMain(iso8583, "127.0.0.1");
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::ReverseTransactionForResponseBCE ", TypeMonitor.error, e);
+		}
+	}
+	
+	private void UpdateTrxSpiOrdenante(ContainerSPIOrd container, SnpSPIOrdenante snpres) {
+		
+		SnpSPIOrdenante snpOriginal = null;
+		IsoSqlMaintenance sql = null;
+		
+		try {
+			snpOriginal = new SnpSPIOrdenante();
+			snpOriginal = container.getSnpClase();
+			
+			/*Igualo los campos de la respuesta a la original*/
+			snpOriginal.setStatus_bce(snpres.getStatus_bce());
+			snpOriginal.setDate_last_bce(snpres.getCredttm());
+			snpOriginal.setMsgid_last_be(snpres.getMsgid_last_be());
+			switch (snpres.getStatus_bce()) {
+			case "ACTC":
+				snpOriginal.setStatus_reason_bce("VALIDACION OK RECIBIDA POR EL BCE");
+				break;
+			case "ACSP":
+				snpOriginal.setStatus_reason_bce("CONFIRMACION CAMARA OK RECIBIDA POR EL BCE MINORISTA");
+				break;
+			case "ACWC":
+				snpOriginal.setStatus_reason_bce("CONFIRMACION CAMARA OK RECIBIDA POR EL BCE PROGRAMADA POSTERIOR");
+				break;
+			case "ACSC"://Aceptada con fecha posterior (programada, para lo cual se debera enviar el tag IntrBkSttlmDt)
+				snpOriginal.setStatus_reason_bce("CONFIRMACION CAMARA OK RECIBIDA POR EL BCE MAYORISTA");
+				break;
+			default:
+				break;
+			}
+			
+			sql = new IsoSqlMaintenance();
+			int responseSQL = sql.UpdateSPIOrdenante(snpOriginal);
+			log.WriteLogMonitor("UPDATE SNP " + snpOriginal.getMsgid() + " SQLCode: " + responseSQL, TypeMonitor.monitor, null);
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::UpdateTrxSpiOrdenante ", TypeMonitor.error, e);
+		}
+	}
+	
+	//Hilos Metodo
+	public void processTrxSpiReceptor(List<Iso8583> isoList) {
+		
+		ContainerIsoList cont = new ContainerIsoList();
+		Date tiempoInicio = new Date();
+		
+		try {
+			
+			Thread tmay = new Thread(() -> {
+			   
+				cont.setListMayorista(isoList.stream()
+						.filter(p -> p.getISO_BitMap().equalsIgnoreCase("HIGH"))
+						.peek(Objects::requireNonNull)
+						.collect(Collectors.toList()));
+			});
+			
+			Thread tmin = new Thread(() -> {
+				   
+				cont.setListMinorista(isoList.stream()
+						.filter(p -> p.getISO_BitMap().equalsIgnoreCase("LOW"))
+						.peek(Objects::requireNonNull)
+						.collect(Collectors.toList()));
+			});
+			
+			tmay.start();
+			tmin.start();
+			tmay.join();
+			tmin.join();
+			
+			List<Iso8583> isoListMayoristas = cont.getListMayorista();
+			List<Iso8583> isoListMinoristas = cont.getListMinorista();
+			
+		    log.WriteLogMonitor("============= INICIA SERIALIZACION: "+ FormatUtils.DateToString(new Date(), "YYYY-MM-DD-HH:mm:ss") +" ===============", TypeMonitor.monitor, null);
+			
+		    Thread SerialMayo = new Thread(() -> {
+				
+				SerializationIsos(isoListMayoristas);
+			});
+		    
+		    Thread SerialMino = new Thread(() -> {
+				
+				SerializationIsos(isoListMinoristas);
+			});
+		    
+		    SerialMayo.start();
+		    SerialMino.start();
+		    SerialMayo.join();
+		    SerialMino.join();
+		    		
+		    log.WriteLogMonitor("============= TERMINA SERIALIZACION: "+ FormatUtils.DateToString(new Date(), "YYYY-MM-DD-HH:mm:ss") +" ===============", TypeMonitor.monitor, null);
+		    
+		    Ref<ContainerIsoList> containerMayoristas = new Ref<>();
+		    Ref<ContainerIsoList> containerMinoristas = new Ref<>();
+		    
+			Thread tprocMay = new Thread(() -> {
+				
+				ReceptorProcessingTransactions(isoListMayoristas, 0, containerMayoristas);
+			});
+			
+			Thread tprocMin = new Thread(() -> {
+				
+				ReceptorProcessingTransactions(isoListMinoristas, 1, containerMinoristas);
+			});
+			
+			if(isoListMayoristas != null && isoListMayoristas.size() > 0) {
+				
+				tprocMay.start();
+				tprocMay.join();
+			}
+			if(isoListMinoristas != null && isoListMinoristas.size() > 0) {
+				
+				tprocMin.start();
+				tprocMin.join();
+			}
+			
+			List<Iso8583> soListResponseMayoristas = containerMayoristas.get().getListMayorista();
+			List<Iso8583> soListResponseMinoristas = containerMinoristas.get().getListMinorista();
+			
+			cont.setListMayorista(soListResponseMayoristas);
+			cont.setListMinorista(soListResponseMinoristas);
+			
+			//System.out.println("Ej. Mayorista: " + soListResponseMayoristas.get(0).getISO_039_ResponseCode() + " ---- " + soListResponseMayoristas.get(0).getISO_039p_ResponseDetail());
+			//System.out.println("Ej. Minorista: " + soListResponseMinoristas.get(0).getISO_039_ResponseCode() + " ---- " + soListResponseMinoristas.get(0).getISO_039p_ResponseDetail());
+			
+			log.WriteLogMonitor("\n**********************************************************************\n"
+					          + "============= TERMINO PROCESAMIENTO SPI RECEPTOR ===============\n"
+					          + "============= TRX. RECIBIDAS: "+ isoList.size() + " ===============================\n"
+					          + "============= TIEMPO INICIO : "+ FormatUtils.DateToString(tiempoInicio, "YYYY-MM-DD-HH:mm:ss") +" ===============\n"
+					          + "============= TIEMPO FINAL  : "+ FormatUtils.DateToString(new Date(), "YYYY-MM-DD-HH:mm:ss") +" ===============\n"
+					          + "**********************************************************************\n"
+					, TypeMonitor.monitor, null);
+			
+			Ref<ContainerIsoList> containerResponses = new Ref<ContainerIsoList>(cont);
+			PrepareTransactionConfirmToBCE(containerResponses);
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::processTrxSpiReceptor ", TypeMonitor.error, e);
+		}
+	}
+	
+	private void PrepareTransactionConfirmToBCE(final Ref<ContainerIsoList> cont) {
+		
+		ContainerIsoListResponses contResponses = new ContainerIsoListResponses();
+		try {
+			
+			Thread tmayOk = new Thread(() -> {
+			
+				contResponses.setListMayoristaOk(cont.get().getListMayorista().stream()
+							  .filter(p -> p.getISO_039_ResponseCode().equals("000"))
+						      .peek(Objects::requireNonNull)
+							  .collect(Collectors.toList()));
+			});
+			Thread tmayErr = new Thread(() -> {
+			contResponses.setListMayoristaErr(cont.get().getListMayorista().stream()
+							  .filter(p -> (!p.getISO_039_ResponseCode().equals("000")))
+						      .peek(Objects::requireNonNull)
+							  .collect(Collectors.toList()));
+			});
+			Thread tminOk = new Thread(() -> {
+			contResponses.setListMinoristaOK(cont.get().getListMinorista().stream()
+							  .filter(p -> p.getISO_039_ResponseCode().equals("000"))
+						      .peek(Objects::requireNonNull)
+							  .collect(Collectors.toList()));
+			});
+			Thread tminErr = new Thread(() -> {
+			contResponses.setListMinoristaERR(cont.get().getListMinorista().stream()
+							  .filter(p -> !(p.getISO_039_ResponseCode().equals("000")))
+						      .peek(Objects::requireNonNull)
+							  .collect(Collectors.toList()));
+			});
+			
+			tmayOk.start(); tmayErr.start(); tminOk.start(); tminErr.start();
+			tmayOk.join(); tmayErr.join(); tminOk.join(); tminErr.join();
+			
+			
+			/*System.out.println("======= MAYORISTAS OK ===========================");
+			for (int i = 0; i < contResponses.getListMayoristaOk().size(); i++) {
+				
+				if(contResponses.getListMayoristaOk().size() > 0) {
+					System.out.println(contResponses.getListMayoristaOk().get(i).getISO_BitMap() + " ==== " +
+							           contResponses.getListMayoristaOk().get(i).getISO_011_SysAuditNumber() + " ==== " +
+							           contResponses.getListMayoristaOk().get(i).getISO_039_ResponseCode() + " ==== " +
+							           contResponses.getListMayoristaOk().get(i).getISO_039p_ResponseDetail() + " ==== ");
+				}
+				else {
+						
+						System.out.println("No se encontraron transacciones OK Mayoristas");
+				}
+			}
+			System.out.println("======= MAYORISTAS ERROR ===========================");
+			for (int i = 0; i < contResponses.getListMayoristaErr().size(); i++) {
+				
+				if(contResponses.getListMayoristaErr().size() > 0) {
+					System.out.println(contResponses.getListMayoristaErr().get(i).getISO_BitMap() + " ==== " +
+							           contResponses.getListMayoristaErr().get(i).getISO_011_SysAuditNumber() + " ==== " +
+							           contResponses.getListMayoristaErr().get(i).getISO_039_ResponseCode() + " ==== " +
+							           contResponses.getListMayoristaErr().get(i).getISO_039p_ResponseDetail() + " ==== ");
+				}
+				else {
+						
+						System.out.println("No se encontraron transacciones Error Mayoristas");
+				}
+			}
+			System.out.println("======= MINORISTAS OK ===========================");
+			for (int i = 0; i < contResponses.getListMinoristaOK().size(); i++) {
+				
+				if(contResponses.getListMinoristaOK().size() > 0) {
+					System.out.println(contResponses.getListMinoristaOK().get(i).getISO_BitMap() + " ==== " +
+							           contResponses.getListMinoristaOK().get(i).getISO_011_SysAuditNumber() + " ==== " +
+							           contResponses.getListMinoristaOK().get(i).getISO_039_ResponseCode() + " ==== " +
+							           contResponses.getListMinoristaOK().get(i).getISO_039p_ResponseDetail() + " ==== ");
+				}
+				else {
+						
+						System.out.println("No se encontraron transacciones OK Minoristas");
+				}
+			}
+			System.out.println("======= MINORISTAS ERROR ===========================");
+			for (int i = 0; i < contResponses.getListMinoristaERR().size(); i++) {
+				
+				if(contResponses.getListMinoristaERR().size() > 0) {
+					System.out.println(contResponses.getListMinoristaERR().get(i).getISO_BitMap() + " ==== " +
+							           contResponses.getListMinoristaERR().get(i).getISO_011_SysAuditNumber() + " ==== " +
+							           contResponses.getListMinoristaERR().get(i).getISO_039_ResponseCode() + " ==== " +
+							           contResponses.getListMinoristaERR().get(i).getISO_039p_ResponseDetail() + " ==== ");
+				}
+				else {
+						
+						System.out.println("No se encontraron transacciones ERROR Minoristas");
+				}
+			}*/
+			
+           
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::SendTransactionConfirmToBCE ", TypeMonitor.error, e);
+		}
+	}
+	
+	/*METODO QUE ENVIA LAS TRANSACCIONES AL BCE (NOTIFICACIONES CUANDO ES RECEPTOR LA INSTITUCION FINANCIERA)*/
+	
+	private void SendTransactionsResponsesToBCE(final Ref<ContainerIsoListResponses> cont) {
+		
+		Iso8583 isoCentinela = null;
+		try {
+			
+			isoCentinela = new Iso8583();
+			isoCentinela.setISO_003_ProcessingCode("880056");
+			isoCentinela.setISO_018_MerchantType("0005");
+			isoCentinela.setISO_024_NetworkId("555777");
+			isoCentinela.setISO_032_ACQInsID(MemoryGlobal.UrlSpiCodeSwitch_BCE);
+			isoCentinela.setISO_033_FWDInsID(MemoryGlobal.UrlSpiCodeEfi_BCE);
+			
+			if(cont.get().getListMayoristaOk().size() > 0) {
+				
+				
+			}
+			
+			if(cont.get().getListMayoristaErr().size() > 0) {
+				
+			}
+			
+			if(cont.get().getListMinoristaOK().size() > 0) {
+				
+			}
+			
+			if(cont.get().getListMinoristaERR().size() > 0) {
+				
+			}
+			
+		} catch (Exception e) {
+		
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::SendTransactionsResponsesToBCE ", TypeMonitor.error, e);
+		}
+	}
+	
+	/*METODO PRINCIPAL QUE EJECUTA TODO SPI RECEPTOR*/
+	private void ReceptorProcessingTransactions(List<Iso8583> isoList, int flag, Ref<ContainerIsoList> refContainer) {
+		
+		try {
+			
+			ContainerIsoList container = new ContainerIsoList();
+			
+			String IP = StringUtils.Empty();
+			EngineCallableProcessor<Iso8583> engine = new EngineCallableProcessor<>(MemoryGlobal.UrlNumberThreadsExecutorSPI);
+			for (Iso8583 iso : isoList) {
+				IP = iso.getISO_036_Track3();
+				csProcess proc = new csProcess(iso, IP);
+				engine.add(proc);
+			}
+			List<Iso8583> listIsoProc = engine.goProcess();
+			
+			if(flag == 0)//Mayoristas
+				container.setListMayorista(listIsoProc);
+			else
+				container.setListMinorista(listIsoProc);
+			refContainer.set(container);
+			
+		} catch (Exception e) {
+		
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::ReceptorProcessingTransactions ", TypeMonitor.error, e);
+		}
+	}
+	
+	
+	private void SerializationIsos(List<Iso8583> isoList) {
+				
+		try {
+						
+				EngineCallableProcessor<String> engine = new EngineCallableProcessor<>(MemoryGlobal.UrlNumberThreadsExecutorSPI);
+				for (Iso8583 iso : isoList) {
+					
+					SerializationExecutorString serial = new SerializationExecutorString(Iso8583.class, iso);
+					engine.add(serial);
+				}
+				
+				List<String> listIsoProc = engine.goProcess();
+				
+				
+				for (Iso8583 obj : isoList) {
+					
+					String a = listIsoProc.stream().
+							  filter(p -> p.contains(obj.getISO_011_SysAuditNumber()))
+							 .findFirst().orElseGet(()-> null);
+					
+					obj.setISO_115_ExtendedData(a);
+				}
+				
+			
+		} catch (Exception e) {
+		
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::SerializationIsos ", TypeMonitor.error, e);
+		}
+	}
+	
+	public wIso8583 CreditoSpiAccount(wIso8583 iso) {
+		try {
+			
+			Thread.sleep(790);
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::DebitoSpiAccount ", TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+	public wIso8583 BloqueoSpiAccount(wIso8583 iso) {
+		try {
+			
+			Thread.sleep(590);
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::BloqueoSpiAccount ", TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	
+	public wIso8583 ValidateTransactionTransferSPI(wIso8583 iso) {
+		
+		IsoRetrievalTransaction sql = null;
+		try {
+			
+			wIso8583 isoClone = (wIso8583) iso.clone();
+			sql = new IsoRetrievalTransaction();
+			iso = sql.RetrieveValidationSNPSPI(isoClone);
+			if(isoClone.getISO_039_ResponseCode().equals("000")) {
+				
+				if(isoClone.getISO_103_AccountID_2().equals(iso.getISO_103_AccountID_2()) && 
+						isoClone.getISO_123_ExtendedData().equals(iso.getISO_123_ExtendedData())){
+					
+					iso.setISO_039_ResponseCode("000");
+					iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+					
+				}else {
+					
+					iso.setISO_039_ResponseCode("100");
+					iso.setISO_039p_ResponseDetail("LOS DATOS DEL RECEPTOR NO COINCIDEN CON LOS REGISTRADOS EN EL SISTEMA");
+					iso.setISO_124_ExtendedData("BE01-La identificacion del cliente final no corresponde con la asociada al numero de cuenta.");
+				}
+				
+			}else {
+				
+				iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+				iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::ValidateTransactionTransferSPI ", TypeMonitor.error, e);
+		}
+		return iso;
+	}
+	public static void gc() {
+	     Object obj = new Object();
+	     @SuppressWarnings("rawtypes")
+		WeakReference ref = new WeakReference<Object>(obj);
+	     obj = null;
+	     while(ref.get() != null) {
+	       System.gc();
+	     }
+	   }
+	
+}
+class ContainerSPIOrd{
+	
+	private String messageIso;
+	private SnpSPIOrdenante snpClase;
+	
+	public ContainerSPIOrd() {
+	
+		this.messageIso = StringUtils.Empty();
+		snpClase = new SnpSPIOrdenante();
+	}
+
+	public String getMessageIso() {
+		return messageIso;
+	}
+
+	public void setMessageIso(String messageIso) {
+		this.messageIso = messageIso;
+	}
+
+	public SnpSPIOrdenante getSnpClase() {
+		return snpClase;
+	}
+
+	public void setSnpClase(SnpSPIOrdenante snpClase) {
+		this.snpClase = snpClase;
+	}
+	
+	
+	
+}
+class ContainerIsoList{
+	
+	private List<Iso8583> listMayorista;
+	private List<Iso8583> listMinorista;
+	
+	public ContainerIsoList() {
+	
+		listMayorista = new ArrayList<>();
+		listMinorista = new ArrayList<>();
+	}
+	
+	public List<Iso8583> getListMayorista() {
+		return listMayorista;
+	}
+	public void setListMayorista(List<Iso8583> listMayorista) {
+		this.listMayorista = listMayorista;
+	}
+	public List<Iso8583> getListMinorista() {
+		return listMinorista;
+	}
+	public void setListMinorista(List<Iso8583> listMinorista) {
+		this.listMinorista = listMinorista;
+	}
+}
+class ContainerIsoListResponses{
+	
+	private List<Iso8583> listMayoristaOk;
+	private List<Iso8583> listMayoristaErr;
+	private List<Iso8583> listMinoristaOK;
+	private List<Iso8583> listMinoristaERR;
+	
+	public ContainerIsoListResponses() {
+	
+		listMayoristaOk = new ArrayList<>();
+		listMayoristaErr = new ArrayList<>();
+		listMinoristaOK = new ArrayList<>();
+		listMinoristaERR = new ArrayList<>();
+	}
+
+	public List<Iso8583> getListMayoristaOk() {
+		return listMayoristaOk;
+	}
+
+	public void setListMayoristaOk(List<Iso8583> listMayoristaOk) {
+		this.listMayoristaOk = listMayoristaOk;
+	}
+
+	public List<Iso8583> getListMayoristaErr() {
+		return listMayoristaErr;
+	}
+
+	public void setListMayoristaErr(List<Iso8583> listMayoristaErr) {
+		this.listMayoristaErr = listMayoristaErr;
+	}
+
+	public List<Iso8583> getListMinoristaOK() {
+		return listMinoristaOK;
+	}
+
+	public void setListMinoristaOK(List<Iso8583> listMinoristaOK) {
+		this.listMinoristaOK = listMinoristaOK;
+	}
+
+	public List<Iso8583> getListMinoristaERR() {
+		return listMinoristaERR;
+	}
+
+	public void setListMinoristaERR(List<Iso8583> listMinoristaERR) {
+		this.listMinoristaERR = listMinoristaERR;
+	}
+	
+}

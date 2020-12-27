@@ -1,0 +1,1454 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="SolicitudCobroInterbancarioSNPWSService" targetNamespace="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <xs:schema elementFormDefault="qualified" targetNamespace="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.04" version="1.0" xmlns:tns="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.04" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:element name="Document" type="tns:Document"/>
+
+  <xs:complexType name="documentCobroSCI">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="FIToFICstmrDrctDbt" type="tns:FIToFICustomerDirectDebitV04"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Document">
+    <xs:sequence>
+      <xs:element name="FIToFICstmrDrctDbt" type="tns:FIToFICustomerDirectDebitV04"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FIToFICustomerDirectDebitV04">
+    <xs:sequence>
+      <xs:element name="GrpHdr" type="tns:GroupHeader50"/>
+      <xs:element maxOccurs="unbounded" name="DrctDbtTxInf" type="tns:DirectDebitTransactionInformation14"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="SplmtryData" type="tns:SupplementaryData1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GroupHeader50">
+    <xs:sequence>
+      <xs:element name="MsgId" type="xs:string"/>
+      <xs:element name="CreDtTm" type="xs:anySimpleType"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Authstn" type="tns:Authorisation1Choice"/>
+      <xs:element minOccurs="0" name="BtchBookg" type="xs:boolean"/>
+      <xs:element name="NbOfTxs" type="xs:string"/>
+      <xs:element minOccurs="0" name="CtrlSum" type="xs:decimal"/>
+      <xs:element minOccurs="0" name="TtlIntrBkSttlmAmt" type="tns:ActiveCurrencyAndAmount"/>
+      <xs:element minOccurs="0" name="IntrBkSttlmDt" type="xs:anySimpleType"/>
+      <xs:element name="SttlmInf" type="tns:SettlementInstruction2"/>
+      <xs:element minOccurs="0" name="PmtTpInf" type="tns:PaymentTypeInformation25"/>
+      <xs:element minOccurs="0" name="InstgAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="InstdAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Authorisation1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="tns:Authorisation1Code"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ActiveCurrencyAndAmount">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="Ccy" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="SettlementInstruction2">
+    <xs:sequence>
+      <xs:element name="SttlmMtd" type="tns:SettlementMethod2Code"/>
+      <xs:element minOccurs="0" name="SttlmAcct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="ClrSys" type="tns:ClearingSystemIdentification3Choice"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CashAccount24">
+    <xs:sequence>
+      <xs:element name="Id" type="tns:AccountIdentification4Choice"/>
+      <xs:element minOccurs="0" name="Tp" type="tns:CashAccountType2Choice"/>
+      <xs:element minOccurs="0" name="Ccy" type="xs:string"/>
+      <xs:element minOccurs="0" name="Nm" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AccountIdentification4Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="IBAN" type="xs:string"/>
+      <xs:element minOccurs="0" name="Othr" type="tns:GenericAccountIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericAccountIdentification1">
+    <xs:sequence>
+      <xs:element name="Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="SchmeNm" type="tns:AccountSchemeName1Choice"/>
+      <xs:element minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AccountSchemeName1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CashAccountType2Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClearingSystemIdentification3Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaymentTypeInformation25">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="InstrPrty" type="tns:Priority2Code"/>
+      <xs:element minOccurs="0" name="ClrChanl" type="tns:ClearingChannel2Code"/>
+      <xs:element minOccurs="0" name="SvcLvl" type="tns:ServiceLevel8Choice"/>
+      <xs:element minOccurs="0" name="LclInstrm" type="tns:LocalInstrument2Choice"/>
+      <xs:element minOccurs="0" name="SeqTp" type="tns:SequenceType3Code"/>
+      <xs:element minOccurs="0" name="CtgyPurp" type="tns:CategoryPurpose1Choice"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceLevel8Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LocalInstrument2Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CategoryPurpose1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BranchAndFinancialInstitutionIdentification5">
+    <xs:sequence>
+      <xs:element name="FinInstnId" type="tns:FinancialInstitutionIdentification8"/>
+      <xs:element minOccurs="0" name="BrnchId" type="tns:BranchData2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FinancialInstitutionIdentification8">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="BICFI" type="xs:string"/>
+      <xs:element minOccurs="0" name="ClrSysMmbId" type="tns:ClearingSystemMemberIdentification2"/>
+      <xs:element minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element minOccurs="0" name="PstlAdr" type="tns:PostalAddress6"/>
+      <xs:element minOccurs="0" name="Othr" type="tns:GenericFinancialIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClearingSystemMemberIdentification2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="ClrSysId" type="tns:ClearingSystemIdentification2Choice"/>
+      <xs:element name="MmbId" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClearingSystemIdentification2Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PostalAddress6">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AdrTp" type="tns:AddressType2Code"/>
+      <xs:element minOccurs="0" name="Dept" type="xs:string"/>
+      <xs:element minOccurs="0" name="SubDept" type="xs:string"/>
+      <xs:element minOccurs="0" name="StrtNm" type="xs:string"/>
+      <xs:element minOccurs="0" name="BldgNb" type="xs:string"/>
+      <xs:element minOccurs="0" name="PstCd" type="xs:string"/>
+      <xs:element minOccurs="0" name="TwnNm" type="xs:string"/>
+      <xs:element minOccurs="0" name="CtrySubDvsn" type="xs:string"/>
+      <xs:element minOccurs="0" name="Ctry" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="AdrLine" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericFinancialIdentification1">
+    <xs:sequence>
+      <xs:element name="Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="SchmeNm" type="tns:FinancialIdentificationSchemeName1Choice"/>
+      <xs:element minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FinancialIdentificationSchemeName1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BranchData2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element minOccurs="0" name="PstlAdr" type="tns:PostalAddress6"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DirectDebitTransactionInformation14">
+    <xs:sequence>
+      <xs:element name="PmtId" type="tns:PaymentIdentification3"/>
+      <xs:element minOccurs="0" name="PmtTpInf" type="tns:PaymentTypeInformation25"/>
+      <xs:element name="IntrBkSttlmAmt" type="tns:ActiveCurrencyAndAmount"/>
+      <xs:element minOccurs="0" name="IntrBkSttlmDt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="InstdAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element minOccurs="0" name="XchgRate" type="xs:decimal"/>
+      <xs:element name="ChrgBr" type="tns:ChargeBearerType1Code"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="ChrgsInf" type="tns:Charges2"/>
+      <xs:element minOccurs="0" name="ReqdColltnDt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="DrctDbtTx" type="tns:DirectDebitTransaction7"/>
+      <xs:element name="Cdtr" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="CdtrAcct" type="tns:CashAccount24"/>
+      <xs:element name="CdtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="CdtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="UltmtCdtr" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="InitgPty" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="InstgAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="InstdAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="IntrmyAgt1" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="IntrmyAgt1Acct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="IntrmyAgt2" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="IntrmyAgt2Acct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="IntrmyAgt3" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="IntrmyAgt3Acct" type="tns:CashAccount24"/>
+      <xs:element name="Dbtr" type="tns:PartyIdentification43"/>
+      <xs:element name="DbtrAcct" type="tns:CashAccount24"/>
+      <xs:element name="DbtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="DbtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="UltmtDbtr" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="Purp" type="tns:Purpose2Choice"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="RgltryRptg" type="tns:RegulatoryReporting3"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="RltdRmtInf" type="tns:RemittanceLocation2"/>
+      <xs:element minOccurs="0" name="RmtInf" type="tns:RemittanceInformation7"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="SplmtryData" type="tns:SupplementaryData1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaymentIdentification3">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="InstrId" type="xs:string"/>
+      <xs:element name="EndToEndId" type="xs:string"/>
+      <xs:element name="TxId" type="xs:string"/>
+      <xs:element minOccurs="0" name="ClrSysRef" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ActiveOrHistoricCurrencyAndAmount">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="Ccy" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="Charges2">
+    <xs:sequence>
+      <xs:element name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element name="Agt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DirectDebitTransaction7">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MndtRltdInf" type="tns:MandateRelatedInformation8"/>
+      <xs:element minOccurs="0" name="CdtrSchmeId" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="PreNtfctnId" type="xs:string"/>
+      <xs:element minOccurs="0" name="PreNtfctnDt" type="xs:anySimpleType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MandateRelatedInformation8">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="MndtId" type="xs:string"/>
+      <xs:element minOccurs="0" name="DtOfSgntr" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="AmdmntInd" type="xs:boolean"/>
+      <xs:element minOccurs="0" name="AmdmntInfDtls" type="tns:AmendmentInformationDetails8"/>
+      <xs:element minOccurs="0" name="ElctrncSgntr" type="xs:string"/>
+      <xs:element minOccurs="0" name="FrstColltnDt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="FnlColltnDt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="Frqcy" type="tns:Frequency6Code"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AmendmentInformationDetails8">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="OrgnlMndtId" type="xs:string"/>
+      <xs:element minOccurs="0" name="OrgnlCdtrSchmeId" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="OrgnlCdtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="OrgnlCdtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="OrgnlDbtr" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="OrgnlDbtrAcct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="OrgnlDbtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element minOccurs="0" name="OrgnlDbtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element minOccurs="0" name="OrgnlFnlColltnDt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="OrgnlFrqcy" type="tns:Frequency6Code"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PartyIdentification43">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element minOccurs="0" name="PstlAdr" type="tns:PostalAddress6"/>
+      <xs:element minOccurs="0" name="Id" type="tns:Party11Choice"/>
+      <xs:element minOccurs="0" name="CtryOfRes" type="xs:string"/>
+      <xs:element minOccurs="0" name="CtctDtls" type="tns:ContactDetails2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Party11Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="OrgId" type="tns:OrganisationIdentification8"/>
+      <xs:element minOccurs="0" name="PrvtId" type="tns:PersonIdentification5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OrganisationIdentification8">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="AnyBIC" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Othr" type="tns:GenericOrganisationIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericOrganisationIdentification1">
+    <xs:sequence>
+      <xs:element name="Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="SchmeNm" type="tns:OrganisationIdentificationSchemeName1Choice"/>
+      <xs:element minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OrganisationIdentificationSchemeName1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PersonIdentification5">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DtAndPlcOfBirth" type="tns:DateAndPlaceOfBirth"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Othr" type="tns:GenericPersonIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DateAndPlaceOfBirth">
+    <xs:sequence>
+      <xs:element name="BirthDt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="PrvcOfBirth" type="xs:string"/>
+      <xs:element name="CityOfBirth" type="xs:string"/>
+      <xs:element name="CtryOfBirth" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericPersonIdentification1">
+    <xs:sequence>
+      <xs:element name="Id" type="xs:string"/>
+      <xs:element minOccurs="0" name="SchmeNm" type="tns:PersonIdentificationSchemeName1Choice"/>
+      <xs:element minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PersonIdentificationSchemeName1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactDetails2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="NmPrfx" type="tns:NamePrefix1Code"/>
+      <xs:element minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element minOccurs="0" name="PhneNb" type="xs:string"/>
+      <xs:element minOccurs="0" name="MobNb" type="xs:string"/>
+      <xs:element minOccurs="0" name="FaxNb" type="xs:string"/>
+      <xs:element minOccurs="0" name="EmailAdr" type="xs:string"/>
+      <xs:element minOccurs="0" name="Othr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Purpose2Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RegulatoryReporting3">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DbtCdtRptgInd" type="tns:RegulatoryReportingType1Code"/>
+      <xs:element minOccurs="0" name="Authrty" type="tns:RegulatoryAuthority2"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Dtls" type="tns:StructuredRegulatoryReporting3"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RegulatoryAuthority2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element minOccurs="0" name="Ctry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StructuredRegulatoryReporting3">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Tp" type="xs:string"/>
+      <xs:element minOccurs="0" name="Dt" type="xs:anySimpleType"/>
+      <xs:element minOccurs="0" name="Ctry" type="xs:string"/>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Inf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RemittanceLocation2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="RmtId" type="xs:string"/>
+      <xs:element minOccurs="0" name="RmtLctnMtd" type="tns:RemittanceLocationMethod2Code"/>
+      <xs:element minOccurs="0" name="RmtLctnElctrncAdr" type="xs:string"/>
+      <xs:element minOccurs="0" name="RmtLctnPstlAdr" type="tns:NameAndAddress10"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NameAndAddress10">
+    <xs:sequence>
+      <xs:element name="Nm" type="xs:string"/>
+      <xs:element name="Adr" type="tns:PostalAddress6"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RemittanceInformation7">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Ustrd" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="Strd" type="tns:StructuredRemittanceInformation9"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StructuredRemittanceInformation9">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="RfrdDocInf" type="tns:ReferredDocumentInformation3"/>
+      <xs:element minOccurs="0" name="RfrdDocAmt" type="tns:RemittanceAmount2"/>
+      <xs:element minOccurs="0" name="CdtrRefInf" type="tns:CreditorReferenceInformation2"/>
+      <xs:element minOccurs="0" name="Invcr" type="tns:PartyIdentification43"/>
+      <xs:element minOccurs="0" name="Invcee" type="tns:PartyIdentification43"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="AddtlRmtInf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReferredDocumentInformation3">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Tp" type="tns:ReferredDocumentType2"/>
+      <xs:element minOccurs="0" name="Nb" type="xs:string"/>
+      <xs:element minOccurs="0" name="RltdDt" type="xs:anySimpleType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReferredDocumentType2">
+    <xs:sequence>
+      <xs:element name="CdOrPrtry" type="tns:ReferredDocumentType1Choice"/>
+      <xs:element minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReferredDocumentType1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="tns:DocumentType5Code"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RemittanceAmount2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DuePyblAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="DscntApldAmt" type="tns:DiscountAmountAndType1"/>
+      <xs:element minOccurs="0" name="CdtNoteAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="TaxAmt" type="tns:TaxAmountAndType1"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="AdjstmntAmtAndRsn" type="tns:DocumentAdjustment1"/>
+      <xs:element minOccurs="0" name="RmtdAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DiscountAmountAndType1">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Tp" type="tns:DiscountAmountType1Choice"/>
+      <xs:element name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DiscountAmountType1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxAmountAndType1">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Tp" type="tns:TaxAmountType1Choice"/>
+      <xs:element name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxAmountType1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DocumentAdjustment1">
+    <xs:sequence>
+      <xs:element name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element minOccurs="0" name="CdtDbtInd" type="tns:CreditDebitCode"/>
+      <xs:element minOccurs="0" name="Rsn" type="xs:string"/>
+      <xs:element minOccurs="0" name="AddtlInf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditorReferenceInformation2">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Tp" type="tns:CreditorReferenceType2"/>
+      <xs:element minOccurs="0" name="Ref" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditorReferenceType2">
+    <xs:sequence>
+      <xs:element name="CdOrPrtry" type="tns:CreditorReferenceType1Choice"/>
+      <xs:element minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditorReferenceType1Choice">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="Cd" type="tns:DocumentType3Code"/>
+      <xs:element minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SupplementaryData1">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="PlcAndNm" type="xs:string"/>
+      <xs:element name="Envlp" type="tns:SupplementaryDataEnvelope1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SupplementaryDataEnvelope1">
+    <xs:sequence>
+      <xs:any namespace="##other" processContents="lax"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:simpleType name="Authorisation1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AUTH"/>
+      <xs:enumeration value="FDET"/>
+      <xs:enumeration value="FSUM"/>
+      <xs:enumeration value="ILEV"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SettlementMethod2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="INDA"/>
+      <xs:enumeration value="INGA"/>
+      <xs:enumeration value="CLRG"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Priority2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HIGH"/>
+      <xs:enumeration value="NORM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ClearingChannel2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RTGS"/>
+      <xs:enumeration value="RTNS"/>
+      <xs:enumeration value="MPNS"/>
+      <xs:enumeration value="BOOK"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SequenceType3Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FRST"/>
+      <xs:enumeration value="RCUR"/>
+      <xs:enumeration value="FNAL"/>
+      <xs:enumeration value="OOFF"/>
+      <xs:enumeration value="RPRE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="AddressType2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ADDR"/>
+      <xs:enumeration value="PBOX"/>
+      <xs:enumeration value="HOME"/>
+      <xs:enumeration value="BIZZ"/>
+      <xs:enumeration value="MLTO"/>
+      <xs:enumeration value="DLVY"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ChargeBearerType1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DEBT"/>
+      <xs:enumeration value="CRED"/>
+      <xs:enumeration value="SHAR"/>
+      <xs:enumeration value="SLEV"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NamePrefix1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DOCT"/>
+      <xs:enumeration value="MIST"/>
+      <xs:enumeration value="MISS"/>
+      <xs:enumeration value="MADM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Frequency6Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="YEAR"/>
+      <xs:enumeration value="MNTH"/>
+      <xs:enumeration value="QURT"/>
+      <xs:enumeration value="MIAN"/>
+      <xs:enumeration value="WEEK"/>
+      <xs:enumeration value="DAIL"/>
+      <xs:enumeration value="ADHO"/>
+      <xs:enumeration value="INDA"/>
+      <xs:enumeration value="FRTN"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RegulatoryReportingType1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CRED"/>
+      <xs:enumeration value="DEBT"/>
+      <xs:enumeration value="BOTH"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="RemittanceLocationMethod2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FAXI"/>
+      <xs:enumeration value="EDIC"/>
+      <xs:enumeration value="URID"/>
+      <xs:enumeration value="EMAL"/>
+      <xs:enumeration value="POST"/>
+      <xs:enumeration value="SMSM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DocumentType5Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MSIN"/>
+      <xs:enumeration value="CNFA"/>
+      <xs:enumeration value="DNFA"/>
+      <xs:enumeration value="CINV"/>
+      <xs:enumeration value="CREN"/>
+      <xs:enumeration value="DEBN"/>
+      <xs:enumeration value="HIRI"/>
+      <xs:enumeration value="SBIN"/>
+      <xs:enumeration value="CMCN"/>
+      <xs:enumeration value="SOAC"/>
+      <xs:enumeration value="DISP"/>
+      <xs:enumeration value="BOLD"/>
+      <xs:enumeration value="VCHR"/>
+      <xs:enumeration value="AROI"/>
+      <xs:enumeration value="TSUT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CreditDebitCode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CRDT"/>
+      <xs:enumeration value="DBIT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DocumentType3Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RADM"/>
+      <xs:enumeration value="RPIN"/>
+      <xs:enumeration value="FXDR"/>
+      <xs:enumeration value="DISP"/>
+      <xs:enumeration value="PUOR"/>
+      <xs:enumeration value="SCOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
+    <xs:schema targetNamespace="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.05" version="1.0" xmlns:tns="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.05" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS"/>
+
+  <xs:element name="Document" type="tns:Document"/>
+
+  <xs:element name="DocumentRespuesta" type="tns:DocumentRespuesta"/>
+
+  <xs:complexType name="DocumentRespuesta">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="FIToFIPmtStsRpt" type="tns:FIToFIPaymentStatusReportV05"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FIToFIPaymentStatusReportV05">
+    <xs:sequence>
+      <xs:element form="qualified" name="GrpHdr" type="tns:GroupHeader53"/>
+      <xs:element form="qualified" name="OrgnlGrpInfAndSts" type="tns:OriginalGroupHeader1"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="TxInfAndSts" type="tns:PaymentTransaction43"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="SplmtryData" type="tns:SupplementaryData1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GroupHeader53">
+    <xs:sequence>
+      <xs:element form="qualified" name="MsgId" type="xs:string"/>
+      <xs:element form="qualified" name="CreDtTm" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="InstgAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="InstdAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BranchAndFinancialInstitutionIdentification5">
+    <xs:sequence>
+      <xs:element form="qualified" name="FinInstnId" type="tns:FinancialInstitutionIdentification8"/>
+      <xs:element form="qualified" minOccurs="0" name="BrnchId" type="tns:BranchData2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FinancialInstitutionIdentification8">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="BICFI" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="ClrSysMmbId" type="tns:ClearingSystemMemberIdentification2"/>
+      <xs:element form="qualified" minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="PstlAdr" type="tns:PostalAddress6"/>
+      <xs:element form="qualified" minOccurs="0" name="Othr" type="tns:GenericFinancialIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClearingSystemMemberIdentification2">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="ClrSysId" type="tns:ClearingSystemIdentification2Choice"/>
+      <xs:element form="qualified" name="MmbId" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClearingSystemIdentification2Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PostalAddress6">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Dept" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="SubDept" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="StrtNm" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="BldgNb" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="PstCd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="TwnNm" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="CtrySubDvsn" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Ctry" type="xs:string"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="AdrLine" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericFinancialIdentification1">
+    <xs:sequence>
+      <xs:element form="qualified" name="Id" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="SchmeNm" type="tns:FinancialIdentificationSchemeName1Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="FinancialIdentificationSchemeName1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="BranchData2">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Id" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="PstlAdr" type="tns:PostalAddress6"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OriginalGroupHeader1">
+    <xs:sequence>
+      <xs:element form="qualified" name="OrgnlMsgId" type="xs:string"/>
+      <xs:element form="qualified" name="OrgnlMsgNmId" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlCreDtTm" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlNbOfTxs" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlCtrlSum" type="xs:decimal"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="StsRsnInf" type="tns:StatusReasonInformation9"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="NbOfTxsPerSts" type="tns:NumberOfTransactionsPerStatus3"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StatusReasonInformation9">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Orgtr" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="Rsn" type="tns:StatusReason6Choice"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="AddtlInf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PartyIdentification43">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="PstlAdr" type="tns:PostalAddress6"/>
+      <xs:element form="qualified" minOccurs="0" name="Id" type="tns:Party11Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="CtryOfRes" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="CtctDtls" type="tns:ContactDetails2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Party11Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="OrgId" type="tns:OrganisationIdentification8"/>
+      <xs:element form="qualified" minOccurs="0" name="PrvtId" type="tns:PersonIdentification5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OrganisationIdentification8">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="AnyBIC" type="xs:string"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="Othr" type="tns:GenericOrganisationIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericOrganisationIdentification1">
+    <xs:sequence>
+      <xs:element form="qualified" name="Id" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="SchmeNm" type="tns:OrganisationIdentificationSchemeName1Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="OrganisationIdentificationSchemeName1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PersonIdentification5">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="DtAndPlcOfBirth" type="tns:DateAndPlaceOfBirth"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="Othr" type="tns:GenericPersonIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DateAndPlaceOfBirth">
+    <xs:sequence>
+      <xs:element form="qualified" name="BirthDt" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="PrvcOfBirth" type="xs:string"/>
+      <xs:element form="qualified" name="CityOfBirth" type="xs:string"/>
+      <xs:element form="qualified" name="CtryOfBirth" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericPersonIdentification1">
+    <xs:sequence>
+      <xs:element form="qualified" name="Id" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="SchmeNm" type="tns:PersonIdentificationSchemeName1Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PersonIdentificationSchemeName1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ContactDetails2">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Nm" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="PhneNb" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="MobNb" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="FaxNb" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="EmailAdr" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Othr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StatusReason6Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="NumberOfTransactionsPerStatus3">
+    <xs:sequence>
+      <xs:element form="qualified" name="DtldNbOfTxs" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="DtldCtrlSum" type="xs:decimal"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaymentTransaction43">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="StsId" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlInstrId" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlEndToEndId" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlTxId" type="xs:string"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="ChrgsInf" type="tns:Charges2"/>
+      <xs:element form="qualified" minOccurs="0" name="AccptncDtTm" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="AcctSvcrRef" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="ClrSysRef" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="InstgAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="InstdAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlTxRef" type="tns:OriginalTransactionReference16"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="SplmtryData" type="tns:SupplementaryData1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Charges2">
+    <xs:sequence>
+      <xs:element form="qualified" name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" name="Agt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ActiveOrHistoricCurrencyAndAmount">
+    <xs:simpleContent>
+      <xs:extension base="xs:decimal">
+        <xs:attribute name="Ccy" type="xs:string" use="required"/>
+      </xs:extension>
+    </xs:simpleContent>
+  </xs:complexType>
+
+  <xs:complexType name="OriginalTransactionReference16">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="IntrBkSttlmAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" minOccurs="0" name="Amt" type="tns:AmountType3Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="IntrBkSttlmDt" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="ReqdColltnDt" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="ReqdExctnDt" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="CdtrSchmeId" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="SttlmInf" type="tns:SettlementInstruction4"/>
+      <xs:element form="qualified" minOccurs="0" name="PmtTpInf" type="tns:PaymentTypeInformation25"/>
+      <xs:element form="qualified" minOccurs="0" name="MndtRltdInf" type="tns:MandateRelatedInformation8"/>
+      <xs:element form="qualified" minOccurs="0" name="RmtInf" type="tns:RemittanceInformation7"/>
+      <xs:element form="qualified" minOccurs="0" name="UltmtDbtr" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="Dbtr" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="DbtrAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="DbtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="DbtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="CdtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="CdtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="Cdtr" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="CdtrAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="UltmtCdtr" type="tns:PartyIdentification43"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AmountType3Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="InstdAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" minOccurs="0" name="EqvtAmt" type="tns:EquivalentAmount2"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="EquivalentAmount2">
+    <xs:sequence>
+      <xs:element form="qualified" name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" name="CcyOfTrf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SettlementInstruction4">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="SttlmAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="ClrSys" type="tns:ClearingSystemIdentification3Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="InstgRmbrsmntAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="InstgRmbrsmntAgtAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="InstdRmbrsmntAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="InstdRmbrsmntAgtAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="ThrdRmbrsmntAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="ThrdRmbrsmntAgtAcct" type="tns:CashAccount24"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CashAccount24">
+    <xs:sequence>
+      <xs:element form="qualified" name="Id" type="tns:AccountIdentification4Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Tp" type="tns:CashAccountType2Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Ccy" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Nm" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AccountIdentification4Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="IBAN" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Othr" type="tns:GenericAccountIdentification1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="GenericAccountIdentification1">
+    <xs:sequence>
+      <xs:element form="qualified" name="Id" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="SchmeNm" type="tns:AccountSchemeName1Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AccountSchemeName1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CashAccountType2Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ClearingSystemIdentification3Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="PaymentTypeInformation25">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="SvcLvl" type="tns:ServiceLevel8Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="LclInstrm" type="tns:LocalInstrument2Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="CtgyPurp" type="tns:CategoryPurpose1Choice"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ServiceLevel8Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="LocalInstrument2Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CategoryPurpose1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="MandateRelatedInformation8">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="MndtId" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="DtOfSgntr" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="AmdmntInd" type="xs:boolean"/>
+      <xs:element form="qualified" minOccurs="0" name="AmdmntInfDtls" type="tns:AmendmentInformationDetails8"/>
+      <xs:element form="qualified" minOccurs="0" name="ElctrncSgntr" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="FrstColltnDt" type="xs:anySimpleType"/>
+      <xs:element form="qualified" minOccurs="0" name="FnlColltnDt" type="xs:anySimpleType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="AmendmentInformationDetails8">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlMndtId" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlCdtrSchmeId" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlCdtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlCdtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlDbtr" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlDbtrAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlDbtrAgt" type="tns:BranchAndFinancialInstitutionIdentification5"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlDbtrAgtAcct" type="tns:CashAccount24"/>
+      <xs:element form="qualified" minOccurs="0" name="OrgnlFnlColltnDt" type="xs:anySimpleType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RemittanceInformation7">
+    <xs:sequence>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="Ustrd" type="xs:string"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="Strd" type="tns:StructuredRemittanceInformation9"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="StructuredRemittanceInformation9">
+    <xs:sequence>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="RfrdDocInf" type="tns:ReferredDocumentInformation3"/>
+      <xs:element form="qualified" minOccurs="0" name="RfrdDocAmt" type="tns:RemittanceAmount2"/>
+      <xs:element form="qualified" minOccurs="0" name="CdtrRefInf" type="tns:CreditorReferenceInformation2"/>
+      <xs:element form="qualified" minOccurs="0" name="Invcr" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" minOccurs="0" name="Invcee" type="tns:PartyIdentification43"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="AddtlRmtInf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReferredDocumentInformation3">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Tp" type="tns:ReferredDocumentType2"/>
+      <xs:element form="qualified" minOccurs="0" name="Nb" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="RltdDt" type="xs:anySimpleType"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReferredDocumentType2">
+    <xs:sequence>
+      <xs:element form="qualified" name="CdOrPrtry" type="tns:ReferredDocumentType1Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="ReferredDocumentType1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="RemittanceAmount2">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="DuePyblAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="DscntApldAmt" type="tns:DiscountAmountAndType1"/>
+      <xs:element form="qualified" minOccurs="0" name="CdtNoteAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="TaxAmt" type="tns:TaxAmountAndType1"/>
+      <xs:element form="qualified" maxOccurs="unbounded" minOccurs="0" name="AdjstmntAmtAndRsn" type="tns:DocumentAdjustment1"/>
+      <xs:element form="qualified" minOccurs="0" name="RmtdAmt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DiscountAmountAndType1">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Tp" type="tns:DiscountAmountType1Choice"/>
+      <xs:element form="qualified" name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DiscountAmountType1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxAmountAndType1">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Tp" type="tns:TaxAmountType1Choice"/>
+      <xs:element form="qualified" name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="TaxAmountType1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Cd" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="DocumentAdjustment1">
+    <xs:sequence>
+      <xs:element form="qualified" name="Amt" type="tns:ActiveOrHistoricCurrencyAndAmount"/>
+      <xs:element form="qualified" minOccurs="0" name="Rsn" type="xs:string"/>
+      <xs:element form="qualified" minOccurs="0" name="AddtlInf" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditorReferenceInformation2">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Tp" type="tns:CreditorReferenceType2"/>
+      <xs:element form="qualified" minOccurs="0" name="Ref" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditorReferenceType2">
+    <xs:sequence>
+      <xs:element form="qualified" name="CdOrPrtry" type="tns:CreditorReferenceType1Choice"/>
+      <xs:element form="qualified" minOccurs="0" name="Issr" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="CreditorReferenceType1Choice">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="Prtry" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SupplementaryData1">
+    <xs:sequence>
+      <xs:element form="qualified" minOccurs="0" name="PlcAndNm" type="xs:string"/>
+      <xs:element form="qualified" name="Envlp" type="tns:SupplementaryDataEnvelope1"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="SupplementaryDataEnvelope1">
+    <xs:sequence>
+      <xs:any namespace="##other" processContents="lax"/>
+    </xs:sequence>
+  </xs:complexType>
+
+  <xs:complexType name="Document">
+    <xs:sequence>
+      <xs:element form="qualified" name="FIToFIPmtStsRpt" type="tns:FIToFIPaymentStatusReportV05"/>
+    </xs:sequence>
+  </xs:complexType>
+
+</xs:schema>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS" xmlns:ns1="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.04" xmlns:ns2="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.05" xmlns:tns="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.003.001.04"/>
+  <xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.05"/>
+  <xs:element name="recibirSolicitudOCI" type="tns:recibirSolicitudOCI"/>
+  <xs:element name="recibirSolicitudOCIResponse" type="tns:recibirSolicitudOCIResponse"/>
+  <xs:complexType name="recibirSolicitudOCI">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="documentoSolicitud" type="ns1:documentCobroSCI"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="recibirSolicitudOCIResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="documentoRespuestaSolicitud" type="ns2:DocumentRespuesta"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="Error">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Description" type="xs:string"/>
+        <xs:element name="Code" type="xs:string"/>
+        <xs:element name="Code" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+    <xs:schema elementFormDefault="qualified" targetNamespace="http://www.bce.fin.ec/snp/sci/SolicitudCobroInterbancarioSNPWS" version="1.0" xmlns:m="http://www.bce.fin.ec/snp/spi/SolicitudPagoInterbancarioSNPWS" xmlns:ns0="http://www.bce.fin.ec/wsdl/srr/VentanillaCompartidaSRRWS" xmlns:urn="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.05" xmlns:urn1="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.04" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="urn:iso:std:iso:20022:tech:xsd:pacs.002.001.05"/>
+
+  <xs:element name="documentRespuesta" type="urn:DocumentRespuesta"/>
+
+
+  <xs:simpleType name="AddressType2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ADDR"/>
+      <xs:enumeration value="PBOX"/>
+      <xs:enumeration value="HOME"/>
+      <xs:enumeration value="BIZZ"/>
+      <xs:enumeration value="MLTO"/>
+      <xs:enumeration value="DLVY"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TransactionGroupStatus3Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ACTC"/>
+      <xs:enumeration value="RCVD"/>
+      <xs:enumeration value="PART"/>
+      <xs:enumeration value="RJCT"/>
+      <xs:enumeration value="PDNG"/>
+      <xs:enumeration value="ACCP"/>
+      <xs:enumeration value="ACSP"/>
+      <xs:enumeration value="ACSC"/>
+      <xs:enumeration value="ACWC"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="NamePrefix1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DOCT"/>
+      <xs:enumeration value="MIST"/>
+      <xs:enumeration value="MISS"/>
+      <xs:enumeration value="MADM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="TransactionIndividualStatus3Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ACTC"/>
+      <xs:enumeration value="RJCT"/>
+      <xs:enumeration value="PDNG"/>
+      <xs:enumeration value="ACCP"/>
+      <xs:enumeration value="ACSP"/>
+      <xs:enumeration value="ACSC"/>
+      <xs:enumeration value="ACWC"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SettlementMethod1Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="INDA"/>
+      <xs:enumeration value="INGA"/>
+      <xs:enumeration value="COVE"/>
+      <xs:enumeration value="CLRG"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Priority2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="HIGH"/>
+      <xs:enumeration value="NORM"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="ClearingChannel2Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RTGS"/>
+      <xs:enumeration value="RTNS"/>
+      <xs:enumeration value="MPNS"/>
+      <xs:enumeration value="BOOK"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="SequenceType3Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="FRST"/>
+      <xs:enumeration value="RCUR"/>
+      <xs:enumeration value="FNAL"/>
+      <xs:enumeration value="OOFF"/>
+      <xs:enumeration value="RPRE"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="PaymentMethod4Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CHK"/>
+      <xs:enumeration value="TRF"/>
+      <xs:enumeration value="DD"/>
+      <xs:enumeration value="TRA"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="Frequency6Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="YEAR"/>
+      <xs:enumeration value="MNTH"/>
+      <xs:enumeration value="QURT"/>
+      <xs:enumeration value="MIAN"/>
+      <xs:enumeration value="WEEK"/>
+      <xs:enumeration value="DAIL"/>
+      <xs:enumeration value="ADHO"/>
+      <xs:enumeration value="INDA"/>
+      <xs:enumeration value="FRTN"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DocumentType5Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="MSIN"/>
+      <xs:enumeration value="CNFA"/>
+      <xs:enumeration value="DNFA"/>
+      <xs:enumeration value="CINV"/>
+      <xs:enumeration value="CREN"/>
+      <xs:enumeration value="DEBN"/>
+      <xs:enumeration value="HIRI"/>
+      <xs:enumeration value="SBIN"/>
+      <xs:enumeration value="CMCN"/>
+      <xs:enumeration value="SOAC"/>
+      <xs:enumeration value="DISP"/>
+      <xs:enumeration value="BOLD"/>
+      <xs:enumeration value="VCHR"/>
+      <xs:enumeration value="AROI"/>
+      <xs:enumeration value="TSUT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="CreditDebitCode">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="CRDT"/>
+      <xs:enumeration value="DBIT"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+  <xs:simpleType name="DocumentType3Code">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="RADM"/>
+      <xs:enumeration value="RPIN"/>
+      <xs:enumeration value="FXDR"/>
+      <xs:enumeration value="DISP"/>
+      <xs:enumeration value="PUOR"/>
+      <xs:enumeration value="SCOR"/>
+    </xs:restriction>
+  </xs:simpleType>
+
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="recibirSolicitudOCI">
+    <wsdl:part name="parameters" element="tns:recibirSolicitudOCI">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="Error">
+    <wsdl:part name="Error" element="tns:Error">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="recibirSolicitudOCIResponse">
+    <wsdl:part name="parameters" element="tns:recibirSolicitudOCIResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="SolicitudCobroInterbancarioSNPWS">
+    <wsdl:operation name="recibirSolicitudOCI">
+      <wsdl:input name="recibirSolicitudOCI" message="tns:recibirSolicitudOCI">
+    </wsdl:input>
+      <wsdl:output name="recibirSolicitudOCIResponse" message="tns:recibirSolicitudOCIResponse">
+    </wsdl:output>
+      <wsdl:fault name="Error" message="tns:Error">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="SolicitudCobroInterbancarioSNPWSServiceSoapBinding" type="tns:SolicitudCobroInterbancarioSNPWS">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="recibirSolicitudOCI">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="recibirSolicitudOCI">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="recibirSolicitudOCIResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="Error">
+        <soap:fault name="Error" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="SolicitudCobroInterbancarioSNPWSService">
+    <wsdl:port name="SolicitudCobroInterbancarioSNPWSPort" binding="tns:SolicitudCobroInterbancarioSNPWSServiceSoapBinding">
+      <soap:address location="http://localhost:8181/BelejanorProject/services"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

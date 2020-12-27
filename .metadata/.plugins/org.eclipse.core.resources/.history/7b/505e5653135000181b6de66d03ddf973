@@ -1,0 +1,5 @@
+package com.fitbank.middleware.bimo.processor;
+
+public class Ssl {
+
+}

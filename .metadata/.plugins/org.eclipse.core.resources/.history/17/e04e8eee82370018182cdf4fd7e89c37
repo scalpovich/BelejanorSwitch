@@ -1,0 +1,79 @@
+package com.fitbank.middleware.memcached;
+
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.sqlservices.DataSetMemoryLoader;
+
+public class MoneyIso4127 extends Thread {
+
+	private String cod_money;
+	private String abrev_money;
+	private String desc_money;
+	
+	public MoneyIso4127(){
+		
+	}
+
+	public String getCod_money() {
+		return cod_money;
+	}
+
+	public void setCod_money(String cod_money) {
+		this.cod_money = cod_money;
+	}
+
+	public String getAbrev_money() {
+		return abrev_money;
+	}
+
+	public void setAbrev_money(String abrev_money) {
+		this.abrev_money = abrev_money;
+	}
+
+	public String getDesc_money() {
+		return desc_money;
+	}
+
+	public void setDesc_money(String desc_money) {
+		this.desc_money = desc_money;
+	}
+	
+	public MoneyIso4127 getCodMoneyFromIsoList(String moneyAbrev){
+		Logger log = null;
+		MoneyIso4127 money = null;
+		try {
+			
+			money =   MemoryGlobal.ListMoneyIsoMem.stream().
+					 filter(p -> p.abrev_money.equals(moneyAbrev))
+				     .findFirst().get();			  			
+		} catch (Exception e) {
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo MoneyIso4127::getCodMoneyFromIsoList ", TypeMonitor.error, e);
+		}
+		return money;
+	}
+	public static String getCodMoneyFromFitCodeMoney(String moneyAbrev){
+		String money = null;
+		Logger log = null;
+		try {
+			
+			money =   MemoryGlobal.ListMoneyIsoMem.stream().
+					filter(p -> p.abrev_money.equals(moneyAbrev))
+					.findFirst().orElseGet(()-> null).getCod_money();
+			
+		} catch (Exception e) {
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo MoneyIso4127::MoneyIso4127 ", TypeMonitor.error, e);
+		}
+		return money;
+	}
+	
+	@Override
+	public void run() {						
+		String query = "SELECT * FROM MONEY_ISO4127";		
+		DataSetMemoryLoader<MoneyIso4127> loader = 
+	    new DataSetMemoryLoader<MoneyIso4127>
+		(MemoryGlobal.conn, MoneyIso4127.class, query);
+		MemoryGlobal.ListMoneyIsoMem = loader.LoadDataClass();	
+	}	
+}

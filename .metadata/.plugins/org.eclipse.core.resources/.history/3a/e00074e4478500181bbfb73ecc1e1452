@@ -1,0 +1,202 @@
+package com.fitbank.middleware.acquirers;
+
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.concurrent.TimeUnit;
+
+import com.fitbank.middleware.cscoreswitch.Iso8583;
+import com.fitbank.middleware.cscoreswitch.csProcess;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.parser.BceSPIParser;
+import com.fitbank.middleware.snp.spi.SnpSPIOrdenante;
+import com.fitbank.middleware.sqlservices.IsoRetrievalTransaction;
+import com.fitbank.middleware.utils.SerializationObject;
+import com.fitbank.middleware.utils.StringUtils;
+
+import urn.iso.std.iso20022.tech.xsd.pacs_002_001_05.DocumentRespuesta;
+
+public class SPIBceIsAcq {
+	
+	private Logger log;
+	
+	public SPIBceIsAcq(){
+		
+		log = new Logger();
+	}
+
+	public wIso8583 ReturnDateForConfirmationAsync(wIso8583 iso){
+		
+		
+		try {
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+			iso.setISO_013_LocalDate(new Date());
+			iso.setWsIso_LogStatus(2);
+			if(iso.getISO_090_OriginalData().equals("RJCT")) {
+				
+				iso.setISO_039_ResponseCode("100");
+				iso.setISO_039p_ResponseDetail("SE RECIBE " + iso.getISO_023_CardSeq() +" TRANSACCION(ES) POR PARTE DEL BCE, CON ERROR. REVISAR LOGS. SE PROCESA LAS TRXS. ");
+			}else {
+			
+				iso.setISO_039_ResponseCode("000");
+				iso.setISO_039p_ResponseDetail("SE RECIBE " + iso.getISO_023_CardSeq() + " TRANSACCION(ES) EXITOSA(S) DEL BCE");
+			}
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			Thread t = new Thread(new Runnable() {
+				
+				@Override
+				public void run() {
+					
+					processResponsesFromBCE(iso);
+					
+				}
+			});
+			t.start();
+			
+		} catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::ReturnDateForConfirmationAsync ", TypeMonitor.error, e);
+			
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		
+		return iso;
+	}
+	
+	private void processResponsesFromBCE(wIso8583 iso){
+		
+		DocumentRespuesta doc = null;
+		BceSPIParser parser = null;
+		List<SnpSPIOrdenante> listSpi = new ArrayList<>(); 
+		IsoRetrievalTransaction sql = null;	
+		final ContainerSPIOrd container = new ContainerSPIOrd();
+		
+		try {
+			parser = new BceSPIParser();
+			
+			doc = new DocumentRespuesta();
+			String trama = iso.getISO_115_ExtendedData();
+			doc = (DocumentRespuesta) SerializationObject.StringToObject(trama, DocumentRespuesta.class);
+			listSpi = parser.parseRespuestasSNP_SPI_BCE_Async(doc);
+			
+			for (SnpSPIOrdenante snpLst : listSpi) {
+				
+				sql = new IsoRetrievalTransaction();
+				SnpSPIOrdenante snpQuery = (SnpSPIOrdenante) snpLst.clone();
+				snpQuery = sql.RetrieveTrxSPI_Ord(snpQuery);
+				log.WriteLogMonitor("**** CONFIRMACIONES ERROR: " + snpQuery.getError_code_prop(), TypeMonitor.monitor, null);
+				if(snpQuery.getError_code_prop().equals("000")) {
+					
+					final String isoMessage = snpQuery.getIso_message();
+					container.setMessageIso(isoMessage);
+					container.setSnpClase(snpQuery);
+					log.WriteLogMonitor("**** Mensaje Confirmacion " + snpLst.getStatus_bce(), TypeMonitor.monitor, null);
+					switch (snpLst.getStatus_bce()) {
+					case "RJCT":
+						log.WriteLogMonitor("**** Entro Reverso por RJCT " + snpLst.getStatus_bce(), TypeMonitor.monitor, null);
+						/*Reverso de Transaccion*/
+						Thread t = new Thread(new Runnable() {
+							
+							@Override
+							public void run() {
+								
+								ReverseTransactionForResponseBCE(container, snpLst);
+							}
+						});
+						
+						t.start();
+						break;
+					case "ACTC":
+						log.WriteLogMonitor("**** Entro por ACTC " + snpLst.getStatus_bce(), TypeMonitor.monitor, null);
+						
+						
+						break;
+	
+					default:
+						break;
+					}
+				}
+			}
+			
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::processResponsesFromBCE ", TypeMonitor.error, e);
+		}
+	}
+	
+	private void ReverseTransactionForResponseBCE(ContainerSPIOrd container, SnpSPIOrdenante snpres) {
+		
+		csProcess processor = null;
+		Iso8583 iso8583 = null;
+		Date fechaActual = new Date();
+		try {
+			log.WriteLogMonitor("**** ^^^^ YA EN METODO REVERSO ^^^^ ", TypeMonitor.monitor, null);
+			iso8583 = (Iso8583) SerializationObject.StringToObject(container.getMessageIso(),
+					Iso8583.class);
+			/*Cambio a Reverso y fechas*/
+			iso8583.setISO_000_Message_Type("1400");
+			@SuppressWarnings("deprecation")
+			int now = fechaActual.getDay();
+			@SuppressWarnings("deprecation")
+			int a = iso8583.getISO_007_TransDatetime().getDay();
+			@SuppressWarnings("deprecation")
+			int b = iso8583.getISO_012_LocalDatetime().getDay();
+			
+			if(a < now) 	
+				iso8583.setISO_007_TransDatetime(new Date());
+			if(b < now)
+				iso8583.setISO_012_LocalDatetime(new Date());
+			
+			processor = new csProcess();
+			iso8583 = processor.ProcessTransactionMain(iso8583, "127.0.0.1");
+			
+		} catch (Exception e) {
+			log.WriteLogMonitor("Error modulo SPIBceIsAcq::ReverseTransactionForResponseBCE ", TypeMonitor.error, e);
+		}
+	}
+	
+	@SuppressWarnings("unused")
+	private void UpdateTrxSpiOrdenante(SnpSPIOrdenante snp) {
+		
+		
+	}
+	
+}
+class ContainerSPIOrd{
+	
+	private String messageIso;
+	private SnpSPIOrdenante snpClase;
+	
+	public ContainerSPIOrd() {
+	
+		this.messageIso = StringUtils.Empty();
+		snpClase = new SnpSPIOrdenante();
+	}
+
+	public String getMessageIso() {
+		return messageIso;
+	}
+
+	public void setMessageIso(String messageIso) {
+		this.messageIso = messageIso;
+	}
+
+	public SnpSPIOrdenante getSnpClase() {
+		return snpClase;
+	}
+
+	public void setSnpClase(SnpSPIOrdenante snpClase) {
+		this.snpClase = snpClase;
+	}
+	
+}

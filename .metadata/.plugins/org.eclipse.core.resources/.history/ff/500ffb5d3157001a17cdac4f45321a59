@@ -1,0 +1,16 @@
+package com.belejanor.switcher.scheduler;
+
+public enum TypeBatch {
+
+	D("DIARIO"),
+    S ("SEMANAL"),
+    M("MENSUAL"),
+	A("ANUAL");
+
+    @SuppressWarnings("unused")
+	private final String name;
+
+    TypeBatch(String s) {
+        name = s;
+    }
+}

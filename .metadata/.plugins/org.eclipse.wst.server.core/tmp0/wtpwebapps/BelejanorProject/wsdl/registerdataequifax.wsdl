@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="RegisterDataEquifaxService" targetNamespace="http://equifax.implementations.belejanor.switcher.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://equifax.implementations.belejanor.switcher.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <xs:schema targetNamespace="http://lorente.fin.ec/RegisterEquifax" version="1.0" xmlns:ns1="http://equifax.implementations.belejanor.switcher.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="http://equifax.implementations.belejanor.switcher.com/"/>
+
+  <xs:element name="RegistrarDatosEvaluacion" type="ns1:registerData"/>
+
+  <xs:element name="RegistrarDatosEvaluacionResponse" type="ns1:responseRegisterDataEquifax"/>
+
+
+
+</xs:schema>
+    <xs:schema targetNamespace="http://lorente.fin.ec/ConsultasEquifax/fault" version="1.0" xmlns:ns1="http://equifax.implementations.belejanor.switcher.com/" xmlns:tns="http://lorente.fin.ec/ConsultasEquifax/fault" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+
+  <xs:import namespace="http://equifax.implementations.belejanor.switcher.com/"/>
+
+  <xs:element name="Error" type="tns:Error"/>
+
+  <xs:complexType name="Error">
+    <xs:complexContent>
+      <xs:extension base="ns1:throwable">
+        <xs:sequence>
+          <xs:element name="Code" type="xs:string"/>
+          <xs:element name="Description" type="xs:string"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+
+</xs:schema>
+    <xs:schema attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://equifax.implementations.belejanor.switcher.com/" xmlns:ns1="http://lorente.fin.ec/RegisterEquifax" xmlns:tns="http://equifax.implementations.belejanor.switcher.com/" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:import namespace="http://lorente.fin.ec/RegisterEquifax"/>
+  <xs:element name="insertarEvaluacion" type="tns:insertarEvaluacion"/>
+  <xs:element name="insertarEvaluacionResponse" type="tns:insertarEvaluacionResponse"/>
+  <xs:complexType name="insertarEvaluacion">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DataIn" type="tns:registerData"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="registerData">
+    <xs:sequence>
+      <xs:element name="IdConsultaEquifax" type="xs:long"/>
+      <xs:element minOccurs="0" name="UsuarioConsulta" type="xs:string"/>
+      <xs:element minOccurs="0" name="NumeroDocumento" type="xs:string"/>
+      <xs:element minOccurs="0" name="TipoConsuta" type="xs:string"/>
+      <xs:element minOccurs="0" name="TipoCreditoSolicitado" type="xs:string"/>
+      <xs:element name="MontoSolicitado" type="xs:double"/>
+      <xs:element name="PlazoSolicitado" type="xs:int"/>
+      <xs:element name="GastosFinancieros" type="xs:double"/>
+      <xs:element minOccurs="0" name="TipoCliente" type="xs:string"/>
+      <xs:element name="CapacidadPago" type="xs:double"/>
+      <xs:element name="ScoreTitular" type="xs:int"/>
+      <xs:element name="ScoreTitularSobreendeudamiento" type="xs:int"/>
+      <xs:element minOccurs="0" name="NumeroDocumentoConyuge" type="xs:string"/>
+      <xs:element name="ScoreConyuge" type="xs:int"/>
+      <xs:element minOccurs="0" name="Desicion" type="xs:string"/>
+      <xs:element minOccurs="0" name="Segmento" type="xs:string"/>
+      <xs:element minOccurs="0" name="Modelo" type="xs:string"/>
+      <xs:element name="MontoSugerido" type="xs:double"/>
+      <xs:element name="PlazoSugerido" type="xs:int"/>
+      <xs:element minOccurs="0" name="FechaConsulta" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="insertarEvaluacionResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="DataResponse" type="tns:responseRegisterDataEquifax"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="responseRegisterDataEquifax">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="codError" type="xs:string"/>
+      <xs:element minOccurs="0" name="desError" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="throwable">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="stackTrace" nillable="true" type="tns:stackTraceElement"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType final="extension restriction" name="stackTraceElement">
+    <xs:sequence/>
+  </xs:complexType>
+  <xs:element name="ErrorRegister">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="Description" type="xs:string"/>
+        <xs:element name="Code" type="xs:string"/>
+        <xs:element name="Code" type="xs:string"/>
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="insertarEvaluacion">
+    <wsdl:part name="parameters" element="tns:insertarEvaluacion">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="insertarEvaluacionResponse">
+    <wsdl:part name="parameters" element="tns:insertarEvaluacionResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="ErrorRegister">
+    <wsdl:part name="ErrorRegister" element="tns:ErrorRegister">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="RegisterDataEquifax">
+    <wsdl:operation name="insertarEvaluacion">
+      <wsdl:input name="insertarEvaluacion" message="tns:insertarEvaluacion">
+    </wsdl:input>
+      <wsdl:output name="insertarEvaluacionResponse" message="tns:insertarEvaluacionResponse">
+    </wsdl:output>
+      <wsdl:fault name="ErrorRegister" message="tns:ErrorRegister">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="RegisterDataEquifaxServiceSoapBinding" type="tns:RegisterDataEquifax">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="insertarEvaluacion">
+      <soap:operation soapAction="" style="document"/>
+      <wsdl:input name="insertarEvaluacion">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="insertarEvaluacionResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="ErrorRegister">
+        <soap:fault name="ErrorRegister" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="RegisterDataEquifaxService">
+    <wsdl:port name="RegisterDataEquifaxPort" binding="tns:RegisterDataEquifaxServiceSoapBinding">
+      <soap:address location="http://localhost:8080/FitSwitchProject/services"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

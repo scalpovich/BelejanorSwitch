@@ -1,0 +1,76 @@
+package com.fitbank.middleware.acquirers;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import com.fitbank.middleware.authorizations.FitIsAut;
+import com.fitbank.middleware.cscoreswitch.EngineCallableProcessor;
+import com.fitbank.middleware.cscoreswitch.TransactionConfiguration;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class IVRIsAcq {
+
+	private Logger log;
+	
+	public IVRIsAcq() {
+		this.log = new Logger();
+	}
+	
+	public wIso8583 getValoresPrestamo(wIso8583 iso) {
+		
+		try {
+			List<wIso8583> isoList = new ArrayList<>();
+			
+			String[] cuentas = iso.getISO_121_ExtendedData().split("\\|");
+			for (int i = 0; i < cuentas.length; i++) {
+				
+				wIso8583 isoClone = (wIso8583) iso.clone();
+				isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+				isoClone.getWsTransactionConfig().setProccodeTransactionFit(Arrays.asList(isoClone.getWsTransactionConfig()
+						.getProccodeTransactionFit().split("\\|")).get(1));
+				isoClone.setISO_102_AccountID_1(cuentas[i]);
+				isoList.add(isoClone);
+				
+				EngineCallableProcessor<wIso8583> engine = new EngineCallableProcessor<>(5);
+				for (wIso8583 wIso : isoList) {
+					FitIsAut aut = new FitIsAut();
+					engine.add(aut.callGetInfoValoresCtasPrestamo(wIso));
+				}
+				List<wIso8583> listIsoResponses = engine.goProcess();
+				
+				wIso8583 isoRes = new wIso8583();
+				isoRes = listIsoResponses.stream()
+						 .filter(p -> p.getISO_039_ResponseCode() != "000")
+			             .findFirst().orElseGet(() -> null);
+	
+				if(isoRes == null){
+					
+					iso.setISO_039_ResponseCode("000");
+					iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+					
+					for (wIso8583 wIsor : listIsoResponses) {
+						
+						iso.setISO_114_ExtendedData(wIsor.getISO_114_ExtendedData() + "^");
+					}
+					
+					iso.setISO_114_ExtendedData(StringUtils.trimEnd(iso.getISO_114_ExtendedData(),"^"));
+					
+				}else{
+					
+					iso.setISO_039_ResponseCode(isoRes.getISO_039_ResponseCode());
+					iso.setISO_039p_ResponseDetail(isoRes.getISO_039p_ResponseDetail());
+				}
+				
+			}
+			
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo IVRIsAcq::getValoresPrestamo ", 
+					TypeMonitor.error, e);
+		}
+		return iso;
+	}
+}

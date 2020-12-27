@@ -1,0 +1,37 @@
+package com.fitbank.middleware.struct.servipagos;
+
+import java.io.Serializable;
+
+import javax.xml.bind.annotation.XmlType;
+
+@SuppressWarnings("serial")
+@XmlType(propOrder={"consulta", "detalleConsulta"})
+public class TrxRequerimientoConsulta implements Serializable{
+
+	private TransaccionConsulta consulta;
+	private DetalleTransaccion detalleConsulta;
+	
+	public TrxRequerimientoConsulta(){
+		
+		this.consulta = null;
+		this.detalleConsulta = null;
+	}
+
+	public TransaccionConsulta getConsulta() {
+		return consulta;
+	}
+
+	public void setConsulta(TransaccionConsulta consulta) {
+		this.consulta = consulta;
+	}
+
+	public DetalleTransaccion getDetalleConsulta() {
+		return detalleConsulta;
+	}
+
+	public void setDetalleConsulta(DetalleTransaccion detalleConsulta) {
+		this.detalleConsulta = detalleConsulta;
+	}
+	
+	
+}

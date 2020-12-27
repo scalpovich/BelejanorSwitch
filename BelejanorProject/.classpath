@@ -1,0 +1,424 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8">
+		<attributes>
+			<attribute name="owner.project.facets" value="java"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="src" output="target/classes" path="src">
+		<attributes>
+			<attribute name="optional" value="true"/>
+			<attribute name="maven.pomderived" value="true"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry exported="true" kind="con" path="org.eclipse.jst.ws.cxf.core.CXF_CLASSPATH_CONTAINER">
+		<attributes>
+			<attribute name="org.eclipse.jdt.launching.CLASSPATH_ATTR_LIBRARY_PATH_ENTRY" value="C:/Users/USUARIO/Downloads/apache-cxf-3.4.1/apache-cxf-3.4.1"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/axiom-impl-1.2.20.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/common-2.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-collections-3.2.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-configuration-1.4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-dbutils-1.6.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-lang-2.6.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-lang3-3.5.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/dto-2.5.14-SNAPSHOT.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/enums-1.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/hbcommon-2.10.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/images-2.6.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/jna-platform.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/joda-time-2.4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/joda-time-2.4-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/log4j-1.2.17.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/maintenance-2.6.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/ojdbc6.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/orai18n.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/processor-2.6.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/query-2.6.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/reports-2.6.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/resultsetmapper.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/security-2.6.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/security-utils-2.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/serializacion-1.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/servlet-api.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/slf4j-api-1.7.22.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/uciclient-2.2.6.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/ucp.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/xalan-2.7.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xstream-1.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/serializer-2.7.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/xercesImpl-2.9.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/xml-apis-1.4.01.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/xml-apis-ext-1.3.04.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/xmlParserAPIs-2.0.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xml/xmlParserAPIs-2.6.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/xpp3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/cxf-core-3.1.10.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-beanutils-1.9.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/activemq-all-5.14.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/classloader-leak-prevention-1.15.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/AuthCredencialWeb.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/joda-time-2.4-javadoc.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/netty-all-4.1.8.Final.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/BCEIsAutServices.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/BCEServiceAcqWsV2.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/ServiceFacilitoIII.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Fit1/jnp.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/json-20140107.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/wsdl4j-1.6.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/jersey-client-1.19.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/jersey-core-1.19.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/util-java-6.0.2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/ClientRestProsupply.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/BCE_VC_Client.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/jconn4.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/tomcat-jdbc-8.5.32.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/tomcat-juli-8.5.32.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-dbcp2-2.6.0-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-dbcp2-2.6.0-javadoc.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-dbcp2-2.6.0.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-pool2-2.6.1-javadoc.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-pool2-2.6.1-sources.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/commons-pool2-2.6.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/quartz-2.2.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/quartz-jobs-2.2.3.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/mina-core-2.0.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/mina-core-3.0.0-m2.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/mina-transport-apr-2.0.16.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-aop-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-beans-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-context-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-core-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-expression-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-web-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-jdbc-4.1.9.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/Spring/spring-security-config-4.1.5.RELEASE.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/cxf-rt-bindings-soap-3.4.1.jar">
+		<attributes>
+			<attribute name="org.eclipse.jst.component.dependency" value="/WEB-INF/lib"/>
+		</attributes>
+	</classpathentry>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-rt-frontend-jaxrs-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-rt-transports-http-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-rt-wsdl-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-rt-ws-policy-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-rt-frontend-simple-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-rt-frontend-jaxws-3.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/stax2-api-4.2.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/woodstox-core-asl-4.4.1.jar"/>
+	<classpathentry kind="lib" path="C:/BelejanorSwitch/BelejanorProject_V2/Librarys/CFX/cxf-bundle-2.7.18.jar"/>
+	<classpathentry kind="output" path="target/classes"/>
+</classpath>

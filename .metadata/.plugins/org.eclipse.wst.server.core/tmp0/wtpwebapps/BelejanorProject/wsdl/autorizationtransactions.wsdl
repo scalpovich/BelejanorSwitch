@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions name="AutorizationTransactionsService" targetNamespace="http://implementations.belejanor.switcher.com/" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://implementations.belejanor.switcher.com/" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://implementations.belejanor.switcher.com/" schemaLocation="autorizationtransactions_schema1.xsd"/>
+</schema>
+  </wsdl:types>
+  <wsdl:message name="debitAccountResponse">
+    <wsdl:part name="parameters" element="tns:debitAccountResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="debitAccount">
+    <wsdl:part name="parameters" element="tns:debitAccount">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="movementsAccount">
+    <wsdl:part name="parameters" element="tns:movementsAccount">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="revertDebitAccountResponse">
+    <wsdl:part name="parameters" element="tns:revertDebitAccountResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="movementsAccountResponse">
+    <wsdl:part name="parameters" element="tns:movementsAccountResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="revertDebitAccount">
+    <wsdl:part name="parameters" element="tns:revertDebitAccount">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="balanceAccount">
+    <wsdl:part name="parameters" element="tns:balanceAccount">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="balanceAccountResponse">
+    <wsdl:part name="parameters" element="tns:balanceAccountResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="AutorizationTransactions">
+    <wsdl:operation name="debitAccount">
+      <wsdl:input name="debitAccount" message="tns:debitAccount">
+    </wsdl:input>
+      <wsdl:output name="debitAccountResponse" message="tns:debitAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="movementsAccount">
+      <wsdl:input name="movementsAccount" message="tns:movementsAccount">
+    </wsdl:input>
+      <wsdl:output name="movementsAccountResponse" message="tns:movementsAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="revertDebitAccount">
+      <wsdl:input name="revertDebitAccount" message="tns:revertDebitAccount">
+    </wsdl:input>
+      <wsdl:output name="revertDebitAccountResponse" message="tns:revertDebitAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="balanceAccount">
+      <wsdl:input name="balanceAccount" message="tns:balanceAccount">
+    </wsdl:input>
+      <wsdl:output name="balanceAccountResponse" message="tns:balanceAccountResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="AutorizationTransactionsServiceSoapBinding" type="tns:AutorizationTransactions">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="debitAccount">
+      <soap:operation soapAction="urn:DebitAccount" style="document"/>
+      <wsdl:input name="debitAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="debitAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="movementsAccount">
+      <soap:operation soapAction="urn:MovementsAccount" style="document"/>
+      <wsdl:input name="movementsAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="movementsAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="revertDebitAccount">
+      <soap:operation soapAction="urn:RevertDebitAccount" style="document"/>
+      <wsdl:input name="revertDebitAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="revertDebitAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+    <wsdl:operation name="balanceAccount">
+      <soap:operation soapAction="urn:BalanceAccount" style="document"/>
+      <wsdl:input name="balanceAccount">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="balanceAccountResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="AutorizationTransactionsService">
+    <wsdl:port name="AutorizationTransactionsPort" binding="tns:AutorizationTransactionsServiceSoapBinding">
+      <soap:address location="http://localhost:8181/BelejanorProject/services"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

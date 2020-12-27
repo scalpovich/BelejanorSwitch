@@ -1,0 +1,57 @@
+package com.fitbank.middleware.asextreme.implementations;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import javax.ws.rs.Consumes;
+import javax.ws.rs.POST;
+import javax.ws.rs.Path;
+import javax.ws.rs.Produces;
+import javax.ws.rs.core.MediaType;
+import javax.xml.ws.WebServiceContext;
+import org.apache.cxf.phase.PhaseInterceptorChain;
+import org.apache.cxf.transport.http.AbstractHTTPDestination;
+import com.fitbank.middleware.asextreme.ExtremeRequest;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.utils.GeneralUtils;
+
+@Path("/AuthorizationsFinancoop")
+@Consumes(MediaType.APPLICATION_XML)
+@Produces(MediaType.APPLICATION_XML)
+public class ServiceFitBankFinancoop {
+	
+	@POST
+	@Consumes(MediaType.APPLICATION_XML)
+	@Produces(MediaType.APPLICATION_XML)
+	public Object TransactionRequest(ExtremeRequest request) {
+		
+		Logger log = new Logger();
+		try {
+			
+			String a = "";
+			a = request.getHeader().getValueTag("TrnCode");
+			System.out.println(a);
+			
+		} catch (Exception e) {
+		
+			GenericError genError = new GenericError(GeneralUtils.ExceptionToString("ERROR EN PROCESOS.", e, false));
+			return genError;
+		}
+		
+		return null;
+	}
+	
+	@Resource  
+	WebServiceContext wsContext; 
+	private String ObtainIpClient() {
+		try {
+			
+			org.apache.cxf.message.Message message = PhaseInterceptorChain.getCurrentMessage();
+			HttpServletRequest request = (HttpServletRequest)message.get(AbstractHTTPDestination.HTTP_REQUEST);
+			return request.getRemoteAddr();
+			
+		} catch (Exception e) {
+			return "undefined-error";
+		}
+		
+	}
+}

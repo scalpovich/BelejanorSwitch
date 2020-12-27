@@ -1,0 +1,1823 @@
+package com.fitbank.middleware.authorizations;
+
+import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+import org.apache.commons.lang3.time.StopWatch;
+import com.fitbank.dto.management.Detail;
+import com.fitbank.dto.management.Record;
+import com.fitbank.dto.management.Table;
+import com.fitbank.middleware.cscoreswitch.TransactionConfiguration;
+import com.fitbank.middleware.cscoreswitch.wIso8583;
+import com.fitbank.middleware.fit1struct.DetailFit1;
+import com.fitbank.middleware.logger.Logger;
+import com.fitbank.middleware.logger.LoggerConfig.TypeMonitor;
+import com.fitbank.middleware.memcached.AdditionalIsoValues;
+import com.fitbank.middleware.memcached.TransactionConfig;
+import com.fitbank.middleware.sqlservices.IsoRetrievalTransaction;
+import com.fitbank.middleware.utils.FormatUtils;
+import com.fitbank.middleware.utils.GeneralUtils;
+import com.fitbank.middleware.utils.Iterables;
+import com.fitbank.middleware.utils.NumbersUtils;
+import com.fitbank.middleware.utils.Ref;
+import com.fitbank.middleware.utils.SerializationObject;
+import com.fitbank.middleware.utils.StringUtils;
+
+public class FitIsAut implements Callable<wIso8583>{
+	
+	private wIso8583 iso;
+	private Logger log;
+	
+	public FitIsAut(){
+		
+	}
+	public FitIsAut(wIso8583 iso){
+		this.iso = iso;
+		this.log = new Logger();
+	}
+	
+	public wIso8583 getIso() {
+		return iso;
+	}
+	public void setIso(wIso8583 iso) {
+		this.iso = iso;
+	}
+	public wIso8583 ExecuteDebitTransaction(wIso8583 iso){
+		
+		iso.setISO_104_TranDescription("Debito ATM ");
+		iso.setISO_120_ExtendedData("Esto es una prueba campo 120");
+		FitCoreProcessor processor = new FitCoreProcessor(iso);
+		@SuppressWarnings("unused")
+		Detail response = processor.ProcessingTransactionFitCore();
+		return iso;
+	}
+	
+	public wIso8583 ExecuteValidateCtaTrx(wIso8583 iso){
+		
+		try {
+			
+			FitCoreProcessor processor = new FitCoreProcessor(iso);
+			Detail response = processor.ProcessingTransactionFitCore();
+			
+			if(response != null){
+				
+			if(response.getResponse() != null){	
+				if(response.getResponse().getCode().equals("0")){
+					Table t = GeneralUtils.asStream(response.getTables().iterator(), true)
+							  .filter(p -> p.getName().equalsIgnoreCase("TCUENTA"))
+							  .findFirst().orElseGet(()-> null);
+					
+					if(t != null){
+						
+						Record r = GeneralUtils.asStream(t.getRecords().iterator(), true)
+								   .filter(p -> p.getNumber() == 0)
+								   .findFirst().orElseGet(()-> null);
+						
+						boolean valor = true;
+						if(r != null){
+							
+							valor = GeneralUtils.asStream(r.getFields().iterator(), true)
+									  .filter(g -> g.getValue() != null)
+									  .noneMatch(g -> g.getValue().equals(iso.getISO_102_AccountID_1()));
+							
+								if(!valor ){
+									iso.setISO_039_ResponseCode("000");
+									iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+									return iso;
+								}
+						}
+					}
+					iso.setISO_039_ResponseCode("214");
+					iso.setISO_039p_ResponseDetail("CUENTA " + iso.getISO_102_AccountID_1() + " NO EXISTE");
+				}
+			  }
+			}
+				
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));	
+		}
+		return iso;
+	}
+	
+	public wIso8583 ExecuteValidateCtaTrxFit1_PDE(wIso8583 iso){
+		
+		try {
+			
+			IsoRetrievalTransaction sql = new IsoRetrievalTransaction();
+			wIso8583 isoQry = (wIso8583) iso.clone();
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+			isoQry = sql.getValidateAccountFit1_PDE(isoQry);
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			if(isoQry.getISO_039_ResponseCode().equals("000")){
+				
+				String prefijo = iso.getISO_124_ExtendedData().equalsIgnoreCase("CA")?"AHORROS":"CORRIENTE";
+				
+				if(isoQry.getISO_120_ExtendedData().equalsIgnoreCase(prefijo)){
+					
+					if(isoQry.getISO_121_ExtendedData().equals("002")){
+						
+						iso.setISO_039_ResponseCode("000");
+						iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+						
+					}else{
+						
+						iso.setISO_039_ResponseCode("214");
+						iso.setISO_039p_ResponseDetail("LA CUENTA SE ENCUENTRA EN ESTADO: " + isoQry.getISO_122_ExtendedData());
+					}
+					
+				}else{
+					
+					iso.setISO_039_ResponseCode("214");
+					iso.setISO_039p_ResponseDetail("TIPO DE CUENTA INCORRECTO");
+				}
+				
+			}else{
+				
+				iso.setISO_039_ResponseCode(isoQry.getISO_039_ResponseCode());
+				iso.setISO_039p_ResponseDetail(isoQry.getISO_039p_ResponseDetail());
+			}
+			iso.setWsIso_LogStatus(2);
+			
+		} catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));	
+			
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		return iso;
+	}
+	
+	public wIso8583 ExecuteQValidateCtaTrx(wIso8583 iso){
+		
+		try {
+			
+			iso.getTickAut().reset();
+			iso.getTickAut().start();
+			IsoRetrievalTransaction sql = new IsoRetrievalTransaction();
+			iso = sql.executeQueryValidAccount(new Ref<wIso8583>(iso));
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			iso.setWsIso_LogStatus(2);
+			
+		} catch (Exception e) {
+			
+			if(iso.getTickAut().isStarted())
+				iso.getTickAut().stop();
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));	
+			
+		}finally {
+			
+			iso.setWsTempAut((iso.getTickAut().getTime(TimeUnit.MILLISECONDS)/1000.0));
+		}
+		return iso;
+	}
+	
+	public wIso8583 ExecuteStandarTrx(wIso8583 iso){
+		
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		FitCoreProcessor processor = new FitCoreProcessor(iso);
+		Detail response = processor.ProcessingTransactionFitCore();
+		
+		/*String proc = iso.getISO_003_ProcessingCode(); //201000
+		if(iso.getISO_003_ProcessingCode().equals("201000") && iso.getISO_000_Message_Type().equals("1200")){ //ojo borrar bimo
+			
+			log = new Logger();
+			log.WriteLogMonitor("SI ENTRO DEBITO " +  proc, TypeMonitor.monitor, null);
+			
+			try {
+				Thread.sleep(30000);
+			} catch (InterruptedException e) {
+			
+				e.printStackTrace();
+			}
+		}else{
+			
+			log = new Logger();
+			log.WriteLogMonitor("NO ENTRO DEBITO " + proc, TypeMonitor.monitor, null);
+		}*/
+		iso.setFitBankDetail(response);
+		return iso;
+	}
+	
+	public wIso8583 ExecuteStandarTransaction(wIso8583 iso){
+		
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		FitCoreProcessor processor = new FitCoreProcessor(iso);
+		Detail response = processor.ProcessingTransactionFitCore();
+		iso.setFitBankDetail(response);
+		return iso;
+	}
+	
+	public wIso8583 DepositoReciclador(wIso8583 iso){
+		
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		Fit1CoreProcessor processor = new Fit1CoreProcessor(iso);
+		@SuppressWarnings("unused")
+		DetailFit1 response = processor.ProcessingTransactionFit1Core("DepositoReciclador");
+		return iso;
+	}
+	
+    public wIso8583 TransferenciaSPI_ORD_FIT1(wIso8583 iso){
+		
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		Fit1CoreProcessor processor = new Fit1CoreProcessor(iso);
+		@SuppressWarnings("unused")
+		DetailFit1 response = processor.ProcessingTransactionFit1Core("TransferenciaSPI_ORD");
+		return iso;
+	}
+	
+    
+	public wIso8583 RetiroAtmCoonecta(wIso8583 iso){
+		
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		Fit1CoreProcessor processor = new Fit1CoreProcessor(iso);
+		@SuppressWarnings("unused")
+		DetailFit1 response = processor.ProcessingTransactionFit1Core("MantenimientoCanalesFit1");
+		return iso;
+	}
+	
+	public wIso8583 ExecuteTransferTrxAlex(wIso8583 iso){
+		
+		wIso8583 clonadowIso = null;
+		try {
+			
+			clonadowIso = (wIso8583) iso.clone();
+			
+			clonadowIso.setISO_122_ExtendedData("047100MAN001");
+			clonadowIso.setISO_123_ExtendedData("TRANSFERENCIA ENTRE CUENTAS INTERNAS");
+			clonadowIso.setISO_124_ExtendedData("CA");
+			
+		} catch (CloneNotSupportedException e) {
+			
+			iso.setISO_039_ResponseCode("000");
+			iso.setISO_039p_ResponseDetail("ERROR AL CLONAR OBJETO wISO: " + GeneralUtils.ExceptionToString("", e, true));
+			return iso;
+		}
+		clonadowIso.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+		
+		FitCoreProcessor processor = new FitCoreProcessor(clonadowIso);
+		@SuppressWarnings("unused")
+		Detail response = processor.ProcessingTransactionFitCore();
+		iso.setISO_039_ResponseCode(clonadowIso.getISO_039_ResponseCode());
+		iso.setISO_039p_ResponseDetail(clonadowIso.getISO_039p_ResponseDetail());
+		iso.setISO_044_AddRespData(clonadowIso.getISO_044_AddRespData());
+		iso.setWsIso_LogStatus(clonadowIso.getWsIso_LogStatus());
+		iso.setWsTempAut(clonadowIso.getWsTempAut());
+		return iso;
+	}
+	
+	public wIso8583 ExecuteTransferTrxAlexCommerce(wIso8583 iso){
+		
+		try {
+		
+			IsoRetrievalTransaction sql = new IsoRetrievalTransaction();
+			wIso8583 isoClon = iso.cloneWiso(iso);
+			isoClon = sql.RetrieveCommerceSQL(isoClon);
+			if(isoClon.getISO_039_ResponseCode().equals("000"))
+				iso = ExecuteTransferTrxAlex(iso);
+			else{
+				
+				iso.setISO_039_ResponseCode(isoClon.getISO_039_ResponseCode());
+				iso.setISO_039p_ResponseDetail(isoClon.getISO_039p_ResponseDetail());
+				iso.setWsIso_LogStatus(isoClon.getWsIso_LogStatus());
+			}
+				
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS: " + GeneralUtils.ExceptionToString("", e, true));
+			return iso;
+		}
+		
+		return iso;
+	}
+	
+	public wIso8583 ExecuteTransferTrxSPIAlex(wIso8583 iso){
+		
+		try {
+			
+			if(iso.getISO_055_EMV().startsWith("000")){
+				
+				iso.setISO_055_EMV(String.valueOf(Integer.parseInt(iso.getISO_055_EMV())));
+				if(!iso.getISO_055_EMV().equals("-1")){
+					
+					FitCoreProcessor processor = new FitCoreProcessor(iso);
+					Detail response = processor.ProcessingTransactionFitCore();
+					iso.setFitBankDetail(response);
+					
+				}else{
+					
+					iso.setISO_039_ResponseCode("908");
+					iso.setISO_039p_ResponseDetail("INSTITUCION FINANCIERA RECEPTORA NO SOPORTADA EN FITBANK");
+				}
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS: " + GeneralUtils.ExceptionToString("", e, false));
+			
+		}
+		return iso;
+	}
+	
+	public wIso8583 QuerySimpleDocument(wIso8583 iso){
+		
+		try {
+		
+			FitCoreProcessor processor = new FitCoreProcessor(iso);
+			Detail response = processor.ProcessingTransactionFitCore();
+			StringBuilder build = new StringBuilder();
+			
+			if(response != null){
+			
+			 if(response.getResponse() != null){	
+				if(response.getResponse().getCode().equals("0")){
+					
+					ExecutorService executor = Executors.newFixedThreadPool(iso.getISO_115_ExtendedData()
+											   .split("\\,").length);
+					try {
+						
+						List<Future<Object>> list = new ArrayList<Future<Object>>();
+						for (int i = 0; i < iso.getISO_115_ExtendedData()
+												   .split("\\,").length; i++) {
+							Callable<Object> obj = new FitQueryables(Arrays.asList(iso.getISO_115_ExtendedData()
+					   				.split("\\,")).get(i), response); 
+							 Future<Object> future = executor.submit(obj);
+							 list.add(future);
+							
+						}
+						for(Future<Object> fut : list){
+				            try {
+				                
+				            	build.append( String.valueOf(fut.get()).equalsIgnoreCase("null")?"|"
+				            			    :String.valueOf(fut.get()) + "|");
+				                
+				            } catch (Exception e) {
+				            	
+				            	log.WriteLogMonitor("Error modulo FitIsAut::QueryClientDocument ", TypeMonitor.error, e);
+				            }
+				        }
+						iso.setISO_114_ExtendedData(StringUtils.trimEnd(build.toString(),"|"));
+						
+					} finally {
+						
+						executor.shutdown();
+					}
+			    } 
+			 }
+				
+		  }
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+		}
+		
+		return iso;
+	}
+	
+	public wIso8583 QueryLast5Movements(wIso8583 iso){
+		
+		try {
+			
+			FitCoreProcessor processor = new FitCoreProcessor(iso);
+			Detail response = processor.ProcessingTransactionFitCore();
+			FitQueryables qry = null;
+			if(response != null){
+				
+			 if(response.getResponse() != null){	
+				 
+					if(response.getResponse().getCode().equals("0")){
+						qry = new FitQueryables();
+						List<Iterables> it = qry.QueryDetailFitBankIterator("TMOVIMIENTOS", 5, 
+							       new String[]{ "NUMEROMENSAJE","DEBITOCREDITO","VALORMONEDACUENTA",
+							    		         "CMONEDA_MOVIMIENTO", "FREAL","CTERMINAL"}, response);
+					
+					if(it != null){
+						
+						if(it.size() > 0){
+							
+							iso.setISO_114_ExtendedData(
+									SerializationObject.ObjectToXML((Serializable) it));						
+						}else {
+							
+							iso.setISO_039_ResponseCode("116");
+							iso.setISO_039p_ResponseDetail("LA CUENTA " + iso.getISO_102_AccountID_1() 
+							 + " NO TIENE MOVIMIENTOS REGISTRADOS");
+						}
+					
+					}else {
+						
+						iso.setISO_039_ResponseCode("909");
+						iso.setISO_039p_ResponseDetail(qry.getError());
+					}
+				 }
+			 }
+		  }
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+		}
+		return iso;
+	}
+	
+	public wIso8583 QueryBalance(wIso8583 iso){
+		
+		try {
+			
+			iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+			FitCoreProcessor processor = new FitCoreProcessor(iso);
+			Detail response = processor.ProcessingTransactionFitCore();
+			
+			if(response != null){
+				
+				if(iso.getISO_039_ResponseCode().equals("000")){
+					if(response.getResponse().getCode().equals("0")){
+						
+					   FitQueryables fitSaldoDisponible = new FitQueryables("SALDOS", 0, "SDISPONIBLE", response);
+					   FitQueryables fitSaldoContable = new FitQueryables("SALDOS", 0, "SCONTABLE", response);
+					   FitQueryables fitMoneda = new FitQueryables("TCUENTA", 0, "CMONEDA", response);
+					   fitSaldoDisponible.join();
+					   fitSaldoContable.join();
+					   fitMoneda.join();
+					   double sDisponible = Double.parseDouble((String) fitSaldoDisponible.getReturnValue());
+					   double sContable =  Double.parseDouble(String.valueOf(fitSaldoContable.getReturnValue()));
+					   String codMoneda = (String) fitMoneda.getReturnValue();
+					   
+					    iso.setISO_054_AditionalAmounts((iso.getISO_003_ProcessingCode().substring(2,4)
+					    	.equals("10")?"10":"20") 
+					    	+ "01" + (StringUtils.IsNullOrEmpty(codMoneda) ? "840" : (getCodMoneda(codMoneda))) 
+					    	+ (sContable >= 0 ?"C":"D") + String.format("%013.2f", sContable).replace(",", "").replace(".", "")
+					    	+ (iso.getISO_003_ProcessingCode().substring(2,4).equals("10")?"10":"20") + "02" 
+					    	+ (StringUtils.IsNullOrEmpty(codMoneda) ? "840":
+					    	  ((getCodMoneda(codMoneda))) + (sDisponible >= 0 ?"C":"D") 
+					    	+ String.format("%013.2f", sDisponible).replace(",", "").replace(".", "")));
+					}
+				}
+			}
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));	
+		}
+		return iso;
+	}
+	
+	private String getCodMoneda(String moneda){
+		String ret = StringUtils.Empty();
+		try {
+			
+			switch (moneda) {
+			case "USD":
+				ret = "840";
+				break;
+			case "EUR":
+				ret = "978";
+				break;
+			default:
+				ret = "000";
+				break;
+			}
+			
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		
+		return ret;
+	}
+	
+	public wIso8583 DebitWithBalance(wIso8583 iso){
+		
+		try {
+			
+			if(iso.getISO_000_Message_Type().startsWith("12")){
+				wIso8583 isoConsul  = new wIso8583();
+				//isoConsul = (wIso8583) iso.clone();
+				isoConsul = iso.cloneWiso(iso);
+				isoConsul.setISO_003_ProcessingCode("311000");
+				isoConsul.setISO_011_SysAuditNumber(GeneralUtils.GetSecuencial(8));
+				isoConsul.setWsTransactionConfig(new TransactionConfiguration
+												(new TransactionConfig("311000", 
+											    Integer.parseInt(iso.getISO_024_NetworkId()), 
+											    iso.getISO_018_MerchantType(), -1)));
+				isoConsul = QueryBalance(isoConsul);
+				if(isoConsul.getISO_039_ResponseCode().equals("000")){
+					
+					String rubro = StringUtils.Empty();
+					if(iso.getISO_022_PosEntryMode().equalsIgnoreCase("MASTER_ATM")) {
+						
+						rubro = Arrays.asList(iso.getWsTransactionConfig().getProccodeParams().split("-")).get(0);
+						iso.getWsTransactionConfig().setProccodeParams(rubro);
+						
+					}else {
+						
+						rubro = Arrays.asList(iso.getWsTransactionConfig().getProccodeParams().split("-")).get(1);
+						iso.getWsTransactionConfig().setProccodeParams(rubro);
+					}
+					
+					iso = ExecuteStandarTransaction(iso);
+					
+					if(iso.getISO_039_ResponseCode().equals("000")){
+						iso.setISO_054_AditionalAmounts(isoConsul.getISO_054_AditionalAmounts());
+						iso.setISO_038_AutorizationNumber(GeneralUtils.GetSecuencial(16).toUpperCase());
+					}
+					
+				}else{
+					
+					iso.setISO_039_ResponseCode(isoConsul.getISO_039_ResponseCode());
+					iso.setISO_039p_ResponseDetail(isoConsul.getISO_039p_ResponseDetail());
+				}
+				
+				iso.setWsTempAut(iso.getWsTempAut() + isoConsul.getWsTempAut());
+					
+			}else {
+				
+				iso = ExecuteStandarTransaction(iso);
+			}
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+		}
+		return iso;
+	}
+	
+	public wIso8583 ExecuteQueryTransaction(wIso8583 iso){
+		try {
+			Thread.sleep(2500);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		iso.setISO_039_ResponseCode("000");
+		iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+		iso.setISO_054_AditionalAmounts("84002999900000000000000000000000000000000000");		
+		iso.setWsIso_LogStatus(2);
+		return iso;
+	}
+	
+	@Override
+	public wIso8583 call() throws Exception {
+		return ExecuteStandarTransaction(this.iso);
+	}
+	
+	public wIso8583 ExecuteDebitCreditFit1(wIso8583 iso){
+		
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		Fit1CoreProcessor processor = new Fit1CoreProcessor(iso);
+		@SuppressWarnings("unused")
+		DetailFit1 response = processor.ProcessingTransactionFit1Core("NotaCreditoDebito");
+		
+		return iso;
+
+	}
+	
+	public wIso8583 QueryIterableGeneric(wIso8583 iso){
+		
+		try {
+			
+			FitCoreProcessor processor = new FitCoreProcessor(iso);
+			Detail response = processor.ProcessingTransactionFitCore();
+			FitQueryables qry = null;
+			if(response != null){
+				
+				 if(response.getResponse() != null){
+					if(response.getResponse().getCode().equals("0")){
+						qry = new FitQueryables();
+						List<Iterables> it = qry.QueryDetailFitBankIterator("TCUENTASPERSONA", -1, 
+							       (String[])iso.getISO_115_ExtendedData().split("\\,") , response);
+					
+					if(it != null){
+						
+						if(it.size() > 0){
+							
+							iso.setISO_114_ExtendedData(
+									SerializationObject.ObjectToXML((Serializable) it));						
+						}else {
+							
+							iso.setISO_039_ResponseCode("116");
+							iso.setISO_039p_ResponseDetail("EL SOCIO/CLIENTE: " + iso.getISO_002_PAN()
+							 + " NO POSEE PRODUCTOS REGISTRADOS EN LA INSTITUCION FINANCIERA");
+						}
+					
+					}else {
+						
+						iso.setISO_039_ResponseCode("909");
+						iso.setISO_039p_ResponseDetail(qry.getError());
+					}
+				 }
+			  }
+		  }
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+		}
+		return iso;
+	}
+
+	
+    public wIso8583 QueryIterableGenericWithTable(wIso8583 iso){
+		
+		try {
+			
+			FitCoreProcessor processor = new FitCoreProcessor(iso);
+			Detail response = processor.ProcessingTransactionFitCore();
+			FitQueryables qry = null;
+			if(response != null){
+				 if(response.getResponse() != null){
+					 
+					if(response.getResponse().getCode().equals("0")){
+						qry = new FitQueryables();
+						List<Iterables> it = qry.QueryDetailFitBankIterator(iso.getISO_035_Track2(), -1, 
+							       (String[])iso.getISO_115_ExtendedData().split("\\,") , response);
+					
+					if(it != null){
+						
+						if(it.size() > 0){
+							
+							iso.setISO_114_ExtendedData(
+									SerializationObject.ObjectToXML((Serializable) it));	
+							FitQueryables fiter = new FitQueryables();
+							iso.setISO_123_ExtendedData(StringUtils.IsNullOrEmpty((String) 
+									fiter.QueryDetailFitCTL("TOTAL_REGISTROS", response))?"S/D"
+									 :(String) fiter.QueryDetailFitCTL("TOTAL_REGISTROS", response));
+							
+						}else {
+							
+							iso.setISO_039_ResponseCode("116");
+							iso.setISO_039p_ResponseDetail("EL SOCIO/CLIENTE: " + iso.getISO_002_PAN()
+							 + " NO POSEE "+ iso.getISO_035_Track2() +" REGISTRADOS EN LA INSTITUCION FINANCIERA");
+						}
+					
+					}else {
+						
+						iso.setISO_039_ResponseCode("909");
+						iso.setISO_039p_ResponseDetail(qry.getError());
+					}
+				 }
+			  }
+				
+		  }
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+		}
+
+		return iso;
+	}
+    
+    public wIso8583 DebitCreditWithValidationClient(wIso8583 iso){
+    	
+
+    	try {
+			
+    		if(iso.getISO_000_Message_Type().startsWith("12")){
+    			
+    			wIso8583 isoConsul  = new wIso8583();
+
+				isoConsul = iso.cloneWiso(iso);
+				isoConsul.setISO_003_ProcessingCode("600002");
+				isoConsul.setISO_011_SysAuditNumber(GeneralUtils.GetSecuencial(8));
+				isoConsul.setISO_124_ExtendedData(isoConsul.getISO_115_ExtendedData());
+				isoConsul.setISO_035_Track2("TCUENTA");
+				isoConsul.setISO_115_ExtendedData("IDENTIFICACION,CTIPOIDENTIFICACION"
+						+ ",NOMBRELEGAL,NUMEROTELEFONO");
+				isoConsul.setISO_033_FWDInsID("XXXXXXXXXXX");
+				isoConsul.setISO_114_ExtendedData(StringUtils.Empty());
+				isoConsul.setWsTransactionConfig(new TransactionConfiguration
+												(new TransactionConfig("600002", 
+											    Integer.parseInt(iso.getISO_024_NetworkId()), 
+											    iso.getISO_018_MerchantType(), -1)));
+				isoConsul = getDataClientforBCE_VC(isoConsul);
+				if(isoConsul.getISO_039_ResponseCode().equals("000")){
+					
+					iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+					boolean flag = Boolean.parseBoolean(iso.getISO_124_ExtendedData());
+					isoConsul = validatePersonBCE_VCE(iso.getISO_115_ExtendedData(), isoConsul, flag);
+					if(isoConsul.getISO_039_ResponseCode().equals("000")){
+
+					
+						iso = ExecuteStandarTransaction(iso);
+						iso.setWsTempAut(iso.getWsTempAut() + isoConsul.getWsTempAut());
+						
+					}else{
+						
+						iso.setISO_039_ResponseCode(isoConsul.getISO_039_ResponseCode());
+						iso.setISO_039p_ResponseDetail("[VALIDACION] " + isoConsul.getISO_039p_ResponseDetail());
+						iso.setWsTempAut(isoConsul.getWsTempAut());
+						iso.setWsIso_LogStatus(isoConsul.getWsIso_LogStatus());
+
+
+					}
+					
+				}else{
+					
+					iso.setISO_039_ResponseCode(isoConsul.getISO_039_ResponseCode());
+					iso.setISO_039p_ResponseDetail("[CONSULTA VALIDACION] " + isoConsul.getISO_039p_ResponseDetail());
+					iso.setISO_044_AddRespData(isoConsul.getISO_044_AddRespData());
+					iso.setISO_104_TranDescription(isoConsul.getISO_104_TranDescription());
+					iso.setWsTempAut(isoConsul.getWsTempAut());
+					iso.setWsIso_LogStatus(isoConsul.getWsIso_LogStatus());
+				}
+    			
+    		}else{
+    			
+    			iso = ExecuteStandarTransaction(iso);
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS " + GeneralUtils.ExceptionToString(null, e, false));
+		}
+    	return iso;
+    }
+    
+    class ISO{
+    	private wIso8583 iso;
+
+		public wIso8583 getIso() {
+			return iso;
+		}
+
+		public void setIso(wIso8583 iso) {
+			this.iso = iso;
+		}
+    	
+    }
+    
+    public wIso8583 TransferWithValidationClient(wIso8583 iso){
+    	
+    	try {
+			
+    		ISO iso8583 = new ISO();
+    		iso8583.setIso(iso);
+    		StopWatch timmer = new StopWatch();
+    		double timmerDouble = 0;
+    		
+    		if(iso.getISO_000_Message_Type().startsWith("12")){
+    			
+    			wIso8583[] isoConsul  = new wIso8583[2];
+    			
+    			Thread t1 = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						
+						isoConsul[0] = iso8583.getIso().cloneWiso(iso8583.getIso());
+						isoConsul[0].setISO_003_ProcessingCode("600002");
+						isoConsul[0].setISO_011_SysAuditNumber(GeneralUtils.GetSecuencial(8));
+						isoConsul[0].setISO_124_ExtendedData(isoConsul[0].getISO_115_ExtendedData());
+						isoConsul[0].setISO_035_Track2("TCUENTA");
+						isoConsul[0].setISO_115_ExtendedData("IDENTIFICACION,CTIPOIDENTIFICACION"
+								+ ",NOMBRELEGAL,NUMEROTELEFONO");
+						isoConsul[0].setISO_033_FWDInsID("XXXXXXXXXXX");
+						isoConsul[0].setISO_114_ExtendedData(StringUtils.Empty());
+						isoConsul[0].setWsTransactionConfig(new TransactionConfiguration
+														(new TransactionConfig("600002", 
+													    Integer.parseInt(iso8583.getIso().getISO_024_NetworkId()), 
+													    iso8583.getIso().getISO_018_MerchantType(), -1)));
+						isoConsul[0] = getDataClientforBCE_VC(isoConsul[0]);
+					}
+				});
+    			
+    			Thread t2 = new Thread(new Runnable() {
+					@Override
+					public void run() {
+						
+						isoConsul[1] = iso8583.getIso().cloneWiso(iso8583.getIso());
+						isoConsul[1].setISO_003_ProcessingCode("600002");
+						isoConsul[1].setISO_011_SysAuditNumber(GeneralUtils.GetSecuencial(8));
+						isoConsul[1].setISO_124_ExtendedData(isoConsul[1].getISO_115_ExtendedData());
+						isoConsul[1].setISO_035_Track2("TCUENTA");
+						isoConsul[1].setISO_102_AccountID_1(iso8583.getIso().getISO_103_AccountID_2());
+						isoConsul[1].setISO_115_ExtendedData("IDENTIFICACION,CTIPOIDENTIFICACION"
+								+ ",NOMBRELEGAL,NUMEROTELEFONO");
+						isoConsul[1].setISO_033_FWDInsID("XXXXXXXXXXX");
+						isoConsul[1].setISO_114_ExtendedData(StringUtils.Empty());
+						isoConsul[1].setWsTransactionConfig(new TransactionConfiguration
+														(new TransactionConfig("600002", 
+													    Integer.parseInt(iso8583.getIso().getISO_024_NetworkId()), 
+													    iso8583.getIso().getISO_018_MerchantType(), -1)));
+						isoConsul[1] = getDataClientforBCE_VC(isoConsul[1]);
+					}
+				});
+    			timmer.reset();
+    			timmer.start();
+				t1.start(); t2.start(); t1.join(); t2.join();
+				if(timmer.isStarted())
+					timmer.stop();
+				timmerDouble =  (timmer.getTime(TimeUnit.MILLISECONDS)/1000.0);
+				
+				if(isoConsul[0].getISO_039_ResponseCode().equals("000") && 
+						isoConsul[1].getISO_039_ResponseCode().equals("000")){
+					
+					iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+					boolean flag = Boolean.parseBoolean(iso.getISO_124_ExtendedData());
+					isoConsul[0] = validatePersonBCE_VCE(iso.getISO_034_PANExt() + "|" + iso.getISO_002_PAN() + "|" 
+					               + iso.getISO_055_EMV(), isoConsul[0], flag);
+					isoConsul[1] = validatePersonBCE_VCE(iso.getISO_115_ExtendedData(), isoConsul[1], flag);
+					if(isoConsul[0].getISO_039_ResponseCode().equals("000") &&
+							isoConsul[1].getISO_039_ResponseCode().equals("000")){
+					
+						iso = ExecuteStandarTransaction(iso);
+						iso.setWsTempAut(iso.getWsTempAut() + timmerDouble);
+						
+					}else{
+						
+						if(!isoConsul[0].getISO_039_ResponseCode().equals("000")){
+							
+							iso.setISO_039_ResponseCode(isoConsul[0].getISO_039_ResponseCode());
+							iso.setISO_039p_ResponseDetail( isoConsul[0].getISO_039p_ResponseDetail() 
+									                       + " (ORDENANTE)");
+							iso.setISO_044_AddRespData(isoConsul[0].getISO_044_AddRespData());
+							iso.setISO_104_TranDescription(isoConsul[0].getISO_104_TranDescription());
+							iso.setWsIso_LogStatus(isoConsul[0].getWsIso_LogStatus());
+							System.out.println("Tiempo " + isoConsul[0].getWsTempAut());
+							
+						}else if (!isoConsul[1].getISO_039_ResponseCode().equals("000")) {
+							
+							iso.setISO_039_ResponseCode(isoConsul[1].getISO_039_ResponseCode());
+							iso.setISO_039p_ResponseDetail(isoConsul[1].getISO_039p_ResponseDetail()
+															+ " (RECEPTOR)");
+							iso.setISO_044_AddRespData(isoConsul[1].getISO_044_AddRespData());
+							iso.setISO_104_TranDescription(isoConsul[1].getISO_104_TranDescription());
+							iso.setWsIso_LogStatus(isoConsul[1].getWsIso_LogStatus());
+						}
+						iso.setWsTempAut(timmerDouble);
+						
+					}
+					
+				}else{
+					
+					if(!isoConsul[0].getISO_039_ResponseCode().equals("000")){
+						
+						iso.setISO_039_ResponseCode(isoConsul[0].getISO_039_ResponseCode());
+						iso.setISO_039p_ResponseDetail("[CONSULTA VALIDACION] " + 
+						               isoConsul[0].getISO_039p_ResponseDetail());
+						iso.setWsIso_LogStatus(isoConsul[0].getWsIso_LogStatus());
+						
+					}else if (!isoConsul[1].getISO_039_ResponseCode().equals("000")) {
+						
+						iso.setISO_039_ResponseCode(isoConsul[1].getISO_039_ResponseCode());
+						iso.setISO_039p_ResponseDetail("[CONSULTA VALIDACION] " + 
+						                isoConsul[1].getISO_039p_ResponseDetail());
+						iso.setWsIso_LogStatus(isoConsul[1].getWsIso_LogStatus());
+					}
+					iso.setWsTempAut(timmerDouble);
+				}
+
+				
+    			
+    		}else{
+    			
+    			iso = ExecuteStandarTransaction(iso);
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS " + GeneralUtils.ExceptionToString(null, e, false));
+		}
+    	return iso;
+    }
+    
+    @SuppressWarnings("unchecked")
+	public wIso8583 getDataClientforBCE_VC(wIso8583 iso){
+    	
+    	try {
+
+    		iso = QueryIterableGenericWithTable(iso);
+    		if(iso.getISO_039_ResponseCode().equals("000")){
+    			
+    			List<Iterables> it = (List<Iterables>) SerializationObject
+    					.XMLToObject(iso.getISO_114_ExtendedData());
+    			iso.setISO_114_ExtendedData(StringUtils.Empty());
+    			String a = StringUtils.Empty();
+    			for (Iterables iterables : it) {
+    				
+    				for (int i = 0; i < iso.getISO_115_ExtendedData().split("\\,").length; i++) {
+    					
+    					iso.setISO_114_ExtendedData(iso.getISO_114_ExtendedData() + "|" + iterables.getIterarors().
+							get(Arrays.asList(iso.getISO_115_ExtendedData().split("\\,")).get(i)));
+    				}
+    			}
+    			System.out.println(a);
+    			iso.setISO_114_ExtendedData(StringUtils.TrimStart(iso.getISO_114_ExtendedData(),"|"));
+    			if(Arrays.asList(iso.getISO_114_ExtendedData().split("\\|")).size() != 4){
+    				
+    				iso.setISO_114_ExtendedData(iso.getISO_114_ExtendedData() + "|+593-0900000000");
+    			}
+    			
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS ", e, false));
+		}
+    	return iso;
+    }
+    
+    private wIso8583 validatePersonBCE_VCE(String data, wIso8583 iso, boolean validateMovil){
+    	
+    	String nombres, TipoId, documentId, celu = null;
+    	nombres = Arrays.asList(data.split("\\|")).get(0);
+    	TipoId = Arrays.asList(data.split("\\|")).get(2);
+    	documentId = Arrays.asList(data.split("\\|")).get(1);
+    	if(validateMovil)
+    		celu = Arrays.asList(data.split("\\|")).get(3);
+    	try {
+    		String firstName = StringUtils.Empty();
+			String lastName = StringUtils.Empty();
+    		if(nombres.toUpperCase().contains("LN=") || nombres.toUpperCase().contains("FN=")){
+    			String noms[] = nombres.split("\\=");
+    			if(noms[0].equalsIgnoreCase("FN")){
+ 
+    				firstName = noms[1].replace(" LN", StringUtils.Empty())
+    						.replace(" FN", StringUtils.Empty());
+    				lastName = noms[2].trim();   				
+    			}else{
+    				
+    				lastName = noms[1].replace(" LN", StringUtils.Empty())
+    						.replace(" FN", StringUtils.Empty());
+    				firstName = noms[2].trim();   
+    			}
+    		}else{
+    			
+    			String nomsII[] = nombres.split("\\s+");
+    			if(nomsII.length > 1){
+    				
+    				firstName = nomsII[0];
+    				lastName = nomsII[1];
+    			}
+    		}
+    		int coincidencias = 0;
+    		String nombresBDD = Arrays.asList(iso.getISO_114_ExtendedData().split("\\|")).get(2);
+    		String nombresBDDArray[] = nombresBDD.split("\\s+");
+    		for (int i = 0; i < nombresBDDArray.length; i++) {
+				
+    			if(nombresBDDArray[i].equalsIgnoreCase(firstName.toUpperCase()))
+    				coincidencias++;
+    			if(nombresBDDArray[i].equalsIgnoreCase(lastName.toUpperCase()))
+    				coincidencias++;
+			}
+    		if(coincidencias < 2){
+
+    			iso.setISO_039_ResponseCode("115");
+    			iso.setISO_039p_ResponseDetail("NOMBRES DEL CUENTAHIENTE NO COINCIDEN "
+    					+ "CON LOS REGISTRADOS EN EL SISTEMA");
+    			return iso;
+    		}
+    		
+    		switch (TipoId.toUpperCase()) {
+			case "NIDN":
+				TipoId = "CED";
+				break;
+			case "TXID":
+				TipoId = "RUC";
+				break;
+			case "CCPT":
+				TipoId = "PAS";
+				break;
+			case "ARNU":
+				TipoId = "F";
+				break;	
+				
+			default:
+				break;
+			}
+			if(!Arrays.asList(iso.getISO_114_ExtendedData().split("\\|")).get(1).equals(TipoId)){
+				
+				iso.setISO_039_ResponseCode("115");
+    			iso.setISO_039p_ResponseDetail("TIPO DE IDENTIFICACION DEL CUENTAHABIENTE NO COINCIDE "
+    					+ "CON EL REGISTRADO EN EL SISTEMA");
+    			return iso;
+			}
+    		
+			if(!Arrays.asList(iso.getISO_114_ExtendedData().split("\\|")).get(0).equals(documentId)){
+				
+				iso.setISO_039_ResponseCode("115");
+    			iso.setISO_039p_ResponseDetail("NRO. DE IDENTIFICACION DEL CUENTAHABIENTE NO COINCIDE "
+    					+ "CON EL REGISTRADO EN EL SISTEMA");
+    			return iso;
+			}
+			if(validateMovil){
+				if(celu.startsWith("+593")){
+					
+					if(celu.contains("-")){
+						
+						if(!Arrays.asList(iso.getISO_114_ExtendedData().split("\\|")).get(3).
+								equals(Arrays.asList(celu.split("\\-")).get(1).trim())){
+							iso.setISO_039_ResponseCode("115");
+			    			iso.setISO_039p_ResponseDetail("NRO. CELULAR DEL CUENTAHABIENTE NO COINCIDE "
+			    					+ "CON EL REGISTRADO EN EL SISTEMA");
+			    			return iso;
+						}
+					}
+				}else{
+					iso.setISO_039_ResponseCode("115");
+	    			iso.setISO_039p_ResponseDetail("FORMATO NUMERO CELULAR DEL CUENTAHABIENTE "
+	    					+ "NO ES EL ADECUADO EL CORRECTO ES (+593-09XXXXXXXX)");
+	    			return iso;
+				}
+			}
+			iso.setISO_039_ResponseCode("000");
+
+    		
+		} catch (Exception e) {
+		
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR AL VALIDAR DATOS DEL CUENTAHABIENTE");
+			log.WriteLogMonitor("Error modulo FitIsAut::validatePersonBCE_VCE ", TypeMonitor.error, e);
+
+
+		}
+    	
+    	return iso;
+
+    }
+    
+    public wIso8583 addIsoAdditionalRows(Ref<wIso8583> isoReference){
+    	
+    	try {
+			
+    		wIso8583 iso = isoReference.get();
+    		AdditionalIsoValues addIsoObject = new AdditionalIsoValues();
+    		List<AdditionalIsoValues> list = addIsoObject.getAdditionalIsoValuesListObject(iso.getISO_003_ProcessingCode()
+    								  , Integer.parseInt(iso.getISO_024_NetworkId()), iso.getISO_018_MerchantType()
+    								  , -1);
+    		for (AdditionalIsoValues additionalIsoValues : list) {
+    			
+    			Class<?> isoClass = iso.getClass();
+    			java.lang.reflect.Field isoField = isoClass.getSuperclass().getDeclaredField(additionalIsoValues.getIso_row());
+    			isoField.setAccessible(true);
+    			isoField.set(iso, additionalIsoValues.getIso_value());
+			}
+    		
+    		isoReference.set(iso);
+    		
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo FitIsAut::addIsoAdditionalRows ", TypeMonitor.error, e);
+		}
+    	return isoReference.get();
+    }
+    
+    public wIso8583 addIsoAdditionalRows(wIso8583 isoReference){
+    	
+    	wIso8583 iso = null;
+    	try {
+			
+    		iso = isoReference;
+    		AdditionalIsoValues addIsoObject = new AdditionalIsoValues();
+    		List<AdditionalIsoValues> list = addIsoObject.getAdditionalIsoValuesListObject(iso.getISO_003_ProcessingCode()
+    								  , Integer.parseInt(iso.getISO_024_NetworkId()), iso.getISO_018_MerchantType()
+    								  , -1);
+    		for (AdditionalIsoValues additionalIsoValues : list) {
+    			
+    			Class<?> isoClass = iso.getClass();
+    			java.lang.reflect.Field isoField = isoClass.getSuperclass().getDeclaredField(additionalIsoValues.getIso_row());
+    			isoField.setAccessible(true);
+    			isoField.set(iso, additionalIsoValues.getIso_value());
+			}
+    		
+    		
+		} catch (Exception e) {
+			
+			log.WriteLogMonitor("Error modulo FitIsAut::addIsoAdditionalRows ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+    
+	public wIso8583 CreateFastPersonFit1(wIso8583 iso){
+			
+		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+		try {
+			
+			if(FormatUtils.getEdad("yyyy-MM-dd", iso.getISO_114_ExtendedData())[0] < 18) {
+				
+				iso.setISO_039_ResponseCode("522");
+				iso.setISO_039p_ResponseDetail("NO SE PUEDE ENROLAR A UN MENOR DE EDAD");
+				return iso;
+			}
+			
+			Fit1CoreProcessor processor = new Fit1CoreProcessor(iso);
+			DetailFit1 response = processor.ProcessingTransactionFit1Core("CreaPersonaRapida");
+			String cPersonaSignada = StringUtils.Empty();
+			if(response != null && processor.getIso().getISO_039_ResponseCode().equals("000")) {
+				
+				cPersonaSignada = response.getRespuesta().getCampoNumero()
+						          .stream()
+						          .filter(p -> p.contains("ASIGNADO"))
+						          .findFirst().orElseGet(() -> null);
+				
+				if(!StringUtils.IsNullOrEmpty(cPersonaSignada)) {
+					
+					iso.setISO_124_ExtendedData(String.valueOf(Arrays.asList(cPersonaSignada.trim()
+							                    .split(" ")).get(3).trim()));//Asignacion cpersona
+					iso.setISO_039_ResponseCode("000");
+					iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+					
+				}else {
+					
+					iso.setISO_039_ResponseCode("909");
+					iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS, NO SE PUDO RECUPERAR EL CAMPO CPERSONA");
+				}
+			}
+			
+    		iso.setWsIso_LogStatus(processor.getIso().getWsIso_LogStatus());
+			iso.setWsTempAut(processor.getIso().getWsTempAut());
+			
+		} catch (Exception e) {
+			
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::CreateFastPersonFit1 ", TypeMonitor.error, e);
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS " + GeneralUtils.ExceptionToString(null, e, false));
+		}
+		
+		return iso;
+	}
+    
+    public wIso8583 CreateAccountFit1(wIso8583 iso){
+    	if(iso.getISO_102_AccountID_1().indexOf("|") != -1){
+	    	try {
+				
+	    		iso = addIsoAdditionalRows(new Ref<wIso8583>(iso));
+	    		Fit1CoreProcessor processor = new Fit1CoreProcessor(iso);
+				DetailFit1 response = processor.ProcessingTransactionFit1Core("CreaCuentaBasica");
+				String cCuenta = StringUtils.Empty();
+				if(response != null && processor.getIso().getISO_039_ResponseCode().equals("000")) {
+					
+					cCuenta = response.getRespuesta().getCampoNumero()
+					          .stream()
+					          .filter(p -> NumbersUtils.isNumeric(p))
+					          .findFirst().orElseGet(() -> null);
+					if(!StringUtils.isNullOrEmpty(cCuenta)) {
+						
+						String acum = StringUtils.Empty();
+	    				String[] arrayCta = iso.getISO_102_AccountID_1().split("\\|");
+	    				arrayCta[1] = "10";
+	    				arrayCta[3] = cCuenta;
+	    				for (String string : arrayCta) {
+							
+	    					acum+=string + "|";
+						}
+	    				iso.setISO_124_ExtendedData(StringUtils.trimEnd(acum, "|"));
+	    				//Vuelvo a acomodar 102 Account para grabar en tabla de enrolamientos internos
+	    				iso.setISO_102_AccountID_1(Arrays.asList(iso.getISO_124_ExtendedData().split("\\|")).get(3));
+						
+					}else {
+						
+						iso.setISO_039_ResponseCode("100");
+	        			iso.setISO_039p_ResponseDetail("NO SE HA PODIDO RECUPERAR EL NUMERO DE CUENTA XML FITBANK");
+					}
+				}
+				
+				iso.setWsIso_LogStatus(processor.getIso().getWsIso_LogStatus());
+				iso.setWsTempAut(processor.getIso().getWsTempAut());
+				
+			} catch (Exception e) {
+				iso.setISO_039_ResponseCode("070");
+				iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+				log = new Logger();
+				log.WriteLogMonitor("Error modulo FitIsAut::CreateAccountFit1 ", TypeMonitor.error, e);
+			}
+    	}else {
+    		
+    		log = new Logger();
+			log.WriteLogMonitor("===> Cliente ya posee Cuenta Basica, Se procede a recuperar ccuenta... ", TypeMonitor.monitor, null);
+    		
+    		iso.setISO_039_ResponseCode("000");
+    		iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+    	}
+    	
+    	return iso;
+    }
+    
+    public wIso8583 CreateFastPersonFit3(wIso8583 iso){
+    	
+    	wIso8583 clonadowIso = null;
+    	try {
+			
+    		if(FormatUtils.getEdad("yyyy-MM-dd", iso.getISO_114_ExtendedData())[0] < 18){
+    		
+    			iso.setISO_039_ResponseCode("522");
+				iso.setISO_039p_ResponseDetail("NO SE PUEDE ENROLAR A UN MENOR DE EDAD");
+				return iso;
+    		}
+    		
+    		clonadowIso = (wIso8583) iso.clone();
+    		clonadowIso.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+    		
+    		clonadowIso.getWsTransactionConfig().setProccodeTransactionFit(Arrays.asList(clonadowIso.getWsTransactionConfig()
+    				.getProccodeTransactionFit().split("\\|")).get(0));
+    		
+    		FitCoreProcessor processor = new FitCoreProcessor(clonadowIso);
+    		Detail response = processor.ProcessingTransactionFitCore();
+    		
+    		if(clonadowIso.getISO_039_ResponseCode().equals("000")){
+    			
+    			FitQueryables cpersona = new FitQueryables("TPERSONA", 0, "CPERSONA", response);
+    			cpersona.join();
+    			
+    			if(cpersona.getReturnValue() != null){
+    				
+    				/*iso.setISO_120_ExtendedData(iso.getISO_120_ExtendedData() + "|" 
+    				                + cpersona.getReturnValue());*/
+    				iso.setISO_124_ExtendedData(String.valueOf(cpersona.getReturnValue()));//Aasignacion cpersona
+    				iso.setISO_039_ResponseCode("000");
+    				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+    				
+    			}else{
+    				
+    				iso.setISO_039_ResponseCode("909");
+    				iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS, NO SE PUDO RECUPERAR EL CAMPO CPERSONA");
+    			}
+    			
+    		}else{
+    			
+    			iso.setISO_039_ResponseCode(clonadowIso.getISO_039_ResponseCode());
+    			iso.setISO_039p_ResponseDetail(clonadowIso.getISO_039p_ResponseDetail());
+    		}
+    		iso.setFitBankDetail(response);
+    		iso.setWsIso_LogStatus(clonadowIso.getWsIso_LogStatus());
+			iso.setWsTempAut(clonadowIso.getWsTempAut());
+    		
+		} catch (Exception e) {
+			
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::CreateFastPersonFit3 ", TypeMonitor.error, e);
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS " + GeneralUtils.ExceptionToString(null, e, false));
+			
+		}
+    	return iso;
+    }
+    
+    public wIso8583 CreateAccountFit3(wIso8583 iso){
+    	
+    	if(iso.getISO_102_AccountID_1().indexOf("|") != -1){
+	    	wIso8583 clonadowIso = null;
+	    	try {
+				
+	    		clonadowIso = (wIso8583) iso.clone();
+	    		clonadowIso.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+	    		
+	    		clonadowIso.getWsTransactionConfig().setProccodeTransactionFit(Arrays.asList(clonadowIso.getWsTransactionConfig()
+	    				.getProccodeTransactionFit().split("\\|")).get(1));
+	    		
+	    		FitCoreProcessor processor = new FitCoreProcessor(clonadowIso);
+	    		
+				Detail response = processor.ProcessingTransactionFitCore();
+	    		
+	    		if(clonadowIso.getISO_039_ResponseCode().equals("000")){
+	    			
+	    			FitQueryables ccuenta = new FitQueryables("TSOLICITUD", 0, "CCUENTA", response);
+	    			ccuenta.join();
+	    			
+	    			if(ccuenta.getReturnValue() != null){
+	    				
+	    				String acum = StringUtils.Empty();
+	    				String[] arrayCta = iso.getISO_102_AccountID_1().split("\\|");
+	    				arrayCta[1] = "10";
+	    				arrayCta[3] = String.valueOf(ccuenta.getReturnValue());
+	    				for (String string : arrayCta) {
+							
+	    					acum+=string + "|";
+						}
+	    				iso.setISO_124_ExtendedData(StringUtils.trimEnd(acum, "|"));
+	    				//Vuelvo a acomodar 102 Account para grabar en tabla de enrolamientos internos
+	    				iso.setISO_102_AccountID_1(Arrays.asList(iso.getISO_124_ExtendedData().split("\\|")).get(3));
+	    				
+	    			}else{
+	    				
+	    				iso.setISO_039_ResponseCode("100");
+	        			iso.setISO_039p_ResponseDetail("NO SE HA PODIDO RECUPERAR EL NUMERO DE CUENTA DETAIL FITBANK");
+	    			}
+	    			
+	    		}else{
+	    			
+	    			iso.setISO_039_ResponseCode(clonadowIso.getISO_039_ResponseCode());
+	    			iso.setISO_039p_ResponseDetail(clonadowIso.getISO_039p_ResponseDetail());
+	    		}
+	    		iso.setWsIso_LogStatus(clonadowIso.getWsIso_LogStatus());
+				iso.setWsTempAut(clonadowIso.getWsTempAut());
+	    		
+			} catch (Exception e) {
+				
+				iso.setISO_039_ResponseCode("070");
+				iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+				log = new Logger();
+				log.WriteLogMonitor("Error modulo FitIsAut::CreateAccountFit1 ", TypeMonitor.error, e);
+			}
+    	}else{
+    		
+    		log = new Logger();
+			log.WriteLogMonitor("===> Cliente ya posee Cuenta Basica, Se procede a recuperar ccuenta... ", TypeMonitor.monitor, null);
+    		
+    		iso.setISO_039_ResponseCode("000");
+    		iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+    	}
+    	return iso;
+    }
+    
+    public wIso8583 CreateFastPersonFit3Exe(wIso8583 iso){
+    	
+    	final List<wIso8583> isoAux = new ArrayList<>();
+		List<wIso8583> isoResAux = new ArrayList<>();
+		ExecutorService executor = null;
+    	try {
+			
+    		iso = CreateFastPersonFit3(iso);
+    		if(!iso.getISO_039_ResponseCode().equals("000")){
+    		
+    			Detail det = iso.getFitBankDetail();
+    			if(det != null){
+    			
+    				if(det.getResponse() != null){
+	    				/*Cuando ya existe una persona*/
+	    				if(det.getResponse().getCode().equalsIgnoreCase("BDD-00001")){
+	    					
+	    					wIso8583 isoClone = iso.cloneWiso(iso);
+	    					isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+	    					
+	    					log = new Logger();
+	    					log.WriteLogMonitor("===> Cliente ya existe, Se procede a recuperar Cpersona... ", TypeMonitor.monitor, null);
+	    					//Aqui el cambio ojo paralelo el cpersona y obtencion de la cuenta basica si la tiene
+	    					
+	    					wIso8583 isoCloneCtas = iso.cloneWiso(iso);
+	    					isoCloneCtas.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+	    					
+	    					isoAux.add(isoClone);
+	    					isoAux.add(isoCloneCtas);
+	    					
+	    					executor = Executors.newWorkStealingPool();
+	    					
+	    					List<Callable<wIso8583>> callables = Arrays.asList(
+	    					        () -> validateBasicAccount(isoAux.get(0)),
+	    					        () -> getCpersona(isoAux.get(1))
+	    					);
+	    					
+	    					isoResAux = (List<wIso8583>) executor.invokeAll(callables)
+	    						    .stream()
+	    						    .map(future -> {
+	    						        try {
+	    						            return future.get();
+	    						        }
+	    						        catch (Exception e) {
+	    						            throw new IllegalStateException(e);
+	    						        }
+	    						    })
+	    						    .peek(Objects::requireNonNull)
+	    						    .collect(Collectors.toList());
+	    					
+	    					if(isoResAux != null){
+	    						
+	    						wIso8583 res  = isoResAux.stream()
+	    						          .filter(a -> !a.getISO_039_ResponseCode().equals("000"))
+	    						          .findFirst().orElseGet(()-> null);
+	    						
+	    						if(res != null){
+	    							
+	    							iso.setISO_039_ResponseCode(res.getISO_039_ResponseCode());
+		    						iso.setISO_039p_ResponseDetail(res.getISO_039p_ResponseDetail() + " (1)");
+		    						return iso;
+	    						}
+	    						
+	    						String ccuenta = isoResAux.get(0).getISO_102_AccountID_1();
+	    						String cpersona = isoResAux.get(1).getISO_124_ExtendedData();
+	    						
+	    						if(ccuenta.indexOf('|') == -1){
+		    						String acum = StringUtils.Empty();
+		    	    				String[] arrayCta = iso.getISO_102_AccountID_1().split("\\|");
+		    	    				arrayCta[1] = "10";
+		    	    				arrayCta[3] = String.valueOf(ccuenta);
+		    	    				for (String string : arrayCta) {
+		    							
+		    	    					acum+=string + "|";
+		    						}
+		    	    				iso.setISO_124_ExtendedData(StringUtils.trimEnd(acum, "|"));
+		    	    				//Vuelvo a acomodar 102 Account para grabar en tabla de enrolamientos internos
+		    	    				iso.setISO_102_AccountID_1(Arrays.asList(iso.getISO_124_ExtendedData().split("\\|")).get(3));
+	    						}else{
+	    							
+	    							iso.setISO_124_ExtendedData(cpersona);
+	    						}
+	    						
+	    						iso.setISO_039_ResponseCode("000");
+	    						iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+ 	    						
+	    					}else{
+	    						
+	    						iso.setISO_039_ResponseCode("909");
+	    						iso.setISO_039p_ResponseDetail("ERROR AL VALIDAR PROCESO CLIENTE - CUENTA BASICA - 2");
+	    						return iso;
+	    					}
+	    					
+	    					
+	    					/*if(isoClone.getISO_039_ResponseCode().equals("000")){
+	    						
+	    						iso.setISO_039_ResponseCode("000");
+	    						iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+	    						iso.setISO_124_ExtendedData(isoClone.getISO_124_ExtendedData());
+	    						
+	    					}else {
+								
+	    						iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+	    						iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+							}*/
+	    				}
+    				}
+    			}
+    		}
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::CreateFastPersonFit3Exe ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+    
+    public wIso8583 CreateFastPersonFit1Exe(wIso8583 iso){
+    	
+    	final List<wIso8583> isoAux = new ArrayList<>();
+		List<wIso8583> isoResAux = new ArrayList<>();
+		ExecutorService executor = null;
+    	try {
+			
+    		iso = CreateFastPersonFit1(iso);
+    		if(!iso.getISO_039_ResponseCode().equals("000")){
+    		
+				/*Cuando ya existe una persona*/
+				if(iso.getISO_039p_ResponseDetail().contains("504052")){
+					
+					wIso8583 isoClone = iso.cloneWiso(iso);
+					isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+					
+					log = new Logger();
+					log.WriteLogMonitor("===> Cliente ya existe, Se procede a recuperar Cpersona... ", TypeMonitor.monitor, null);
+					//Aqui el cambio ojo paralelo el cpersona y obtencion de la cuenta basica si la tiene
+					wIso8583 isoCloneCtas = iso.cloneWiso(iso);
+					isoCloneCtas.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+					
+					isoAux.add(isoClone);
+					isoAux.add(isoCloneCtas);
+					
+					executor = Executors.newWorkStealingPool();
+					
+					List<Callable<wIso8583>> callables = Arrays.asList(
+					        () -> validateBasicAccountFit1(isoAux.get(0)),
+					        () -> getCpersonaFit1(isoAux.get(1))
+					);
+					
+					isoResAux = (List<wIso8583>) executor.invokeAll(callables)
+						    .stream()
+						    .map(future -> {
+						        try {
+						            return future.get();
+						        }
+						        catch (Exception e) {
+						            throw new IllegalStateException(e);
+						        }
+						    })
+						    .peek(Objects::requireNonNull)
+						    .collect(Collectors.toList());
+					
+					if(isoResAux != null){
+						
+						wIso8583 res  = isoResAux.stream()
+						          .filter(a -> !a.getISO_039_ResponseCode().equals("000"))
+						          .findFirst().orElseGet(()-> null);
+						
+						if(res != null){
+							
+							iso.setISO_039_ResponseCode(res.getISO_039_ResponseCode());
+    						iso.setISO_039p_ResponseDetail(res.getISO_039p_ResponseDetail() + " (1)");
+    						return iso;
+						}
+						
+						String ccuenta = isoResAux.get(0).getISO_102_AccountID_1();
+						String cpersona = isoResAux.get(1).getISO_124_ExtendedData();
+						
+						if(ccuenta.indexOf('|') == -1){
+    						String acum = StringUtils.Empty();
+    	    				String[] arrayCta = iso.getISO_102_AccountID_1().split("\\|");
+    	    				arrayCta[1] = "10";
+    	    				arrayCta[3] = String.valueOf(ccuenta);
+    	    				for (String string : arrayCta) {
+    							
+    	    					acum+=string + "|";
+    						}
+    	    				iso.setISO_124_ExtendedData(StringUtils.trimEnd(acum, "|"));
+    	    				//Vuelvo a acomodar 102 Account para grabar en tabla de enrolamientos internos
+    	    				iso.setISO_102_AccountID_1(Arrays.asList(iso.getISO_124_ExtendedData().split("\\|")).get(3));
+						}else{
+							
+							iso.setISO_124_ExtendedData(cpersona);
+						}
+						
+						iso.setISO_039_ResponseCode("000");
+						iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+						
+					}else{
+						
+						iso.setISO_039_ResponseCode("909");
+						iso.setISO_039p_ResponseDetail("ERROR AL VALIDAR PROCESO CLIENTE - CUENTA BASICA - 2");
+						return iso;
+					}
+				}
+    		}
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::CreateFastPersonFit1Exe ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+    
+    public wIso8583 QueryBalanceExe(wIso8583 iso){
+    	
+    	try {
+		
+    		wIso8583 isoClone = iso.cloneWiso(iso);
+    		isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+    		isoClone = QueryBalance(isoClone);
+    		if(isoClone.getISO_039_ResponseCode().equals("000")){ /*Puse recien valida que no exista timeout*/
+	    		if(isoClone.getISO_039_ResponseCode().equals("000")){
+	    			
+	    			double saldo = Double.parseDouble(isoClone.getISO_054_AditionalAmounts().substring(8,20))/100;
+	    			iso.setISO_054_AditionalAmounts(String.valueOf(saldo));
+	    			iso.setISO_104_TranDescription(isoClone.getISO_054_AditionalAmounts().substring(7,8));
+	    		}else{
+	    			
+	    			iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+	    			iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+	    		}
+	    		iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+				iso.setWsTempAut(isoClone.getWsTempAut());
+				
+    		}else{
+    			
+    			iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+    			iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+    			iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::QueryBalanceExe ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+    
+    public wIso8583 QueryBalanceFit1Exe(wIso8583 iso){
+    	
+    	IsoRetrievalTransaction sql = null;
+    	try {
+		
+    		sql = new IsoRetrievalTransaction();
+    		wIso8583 isoClone = iso.cloneWiso(iso);
+    		isoClone = sql.RetrieveSavingsAccountFit1(isoClone);
+    		if(isoClone.getISO_039_ResponseCode().equals("000")){ /*Puse recien valida que no exista timeout*/
+	    		if(isoClone.getISO_039_ResponseCode().equals("000")){
+	    			
+	    			double saldo = Double.parseDouble(isoClone.getISO_121_ExtendedData());
+	    			iso.setISO_054_AditionalAmounts(String.valueOf(saldo));
+	    			iso.setISO_104_TranDescription(saldo > 0 ? "D":"C");
+	    		}else{
+	    			
+	    			iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+	    			iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+	    		}
+	    		iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+				iso.setWsTempAut(isoClone.getWsTempAut());
+				
+    		}else{
+    			
+    			iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+    			iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+    			iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::QueryBalanceFit1Exe ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+     
+    private wIso8583 getCpersona(wIso8583 iso){
+    	
+    	try {
+			
+    		
+    		iso.getWsTransactionConfig().setProccodeTransactionFit("01-0003-01-CON_BIMO");
+    		iso.setISO_011_SysAuditNumber(GeneralUtils.GetSecuencial(iso.getISO_011_SysAuditNumber().length()));
+    		FitCoreProcessor processor = new FitCoreProcessor(iso);
+    		Detail response = processor.ProcessingTransactionFitCore();
+    		if(iso.getISO_039_ResponseCode().equals("000")){
+    			
+    			FitQueryables cpersona = new FitQueryables("TPERSONA", 0, "CPERSONA", response);
+    			cpersona.join();
+    			if(cpersona.getReturnValue() != null){
+    				
+    				iso.setISO_124_ExtendedData(String.valueOf(cpersona.getReturnValue()));//Aasignacion cpersona
+    				iso.setISO_039_ResponseCode("000");
+    				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+    				
+    			}else{
+    				
+    				iso.setISO_039_ResponseCode("909");
+    				iso.setISO_039p_ResponseDetail("ERROR EN PROCESOS, NO SE PUDO RECUPERAR EL CAMPO CPERSONA");
+    			}
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::getCpersona ", TypeMonitor.error, e);
+		}
+    	
+    	return iso;
+    }
+    
+    private wIso8583 getCpersonaFit1(wIso8583 iso){
+    	
+    	IsoRetrievalTransaction sql = null;
+    	try {
+			
+    		sql =  new IsoRetrievalTransaction();
+    		iso = sql.getCpersonaFit1(iso);
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::getCpersonaFit1 ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+    
+    private wIso8583 validateBasicAccount(wIso8583 iso){
+    	
+    	try {
+			
+    		iso = getCtasTipoFit(iso);
+    		if(iso.getISO_039_ResponseCode().equals("000") || iso.getISO_039_ResponseCode().equals("100")){
+    			iso.setISO_039_ResponseCode("000");
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS DE ENROLAMIENTO NO BANCARIZADO", e, false));
+		}
+    	return iso;
+    }
+    
+    private wIso8583 validateBasicAccountFit1(wIso8583 iso) {
+    	
+    	try {
+				
+	    		iso = getCtasTipoFit1(iso);
+	    		if(iso.getISO_039_ResponseCode().equals("000") || iso.getISO_039_ResponseCode().equals("100")){
+	    			iso.setISO_039_ResponseCode("000");
+	    		}
+	    		
+			} catch (Exception e) {
+				
+				iso.setISO_039_ResponseCode("070");
+				iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS DE ENROLAMIENTO NO BANCARIZADO", e, false));
+			}
+	    	return iso;
+	}
+    
+	private wIso8583 getCtasTipoFit1(wIso8583 iso) {
+		
+		IsoRetrievalTransaction sql = null;
+		wIso8583 isoClone = null;
+		try {
+			
+			sql = new IsoRetrievalTransaction();
+			
+			isoClone = (wIso8583)iso.clone();
+			isoClone.setWsTransactionConfig((TransactionConfiguration)iso.getWsTransactionConfig().CloneObject());
+			
+			isoClone = sql.getAccountsBasicBimoFit1(isoClone);
+			if(isoClone.getISO_039_ResponseCode().equals("000")) {
+				
+				iso.setISO_102_AccountID_1(isoClone.getISO_102_AccountID_1());
+				iso.setISO_039_ResponseCode("000");
+				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+				
+			}else {
+			
+				iso.setISO_039_ResponseCode(isoClone.getISO_039_ResponseCode());
+				iso.setISO_039p_ResponseDetail(isoClone.getISO_039p_ResponseDetail());
+			}
+			
+			iso.setWsIso_LogStatus(isoClone.getWsIso_LogStatus());
+			iso.setWsISO_TranDatetimeResponse(isoClone.getWsISO_TranDatetimeResponse());
+			
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::getCtasTipoFit1 ", TypeMonitor.error, e);
+		}
+		return iso;
+	}
+    
+    private wIso8583 getCtasTipoFit(wIso8583 iso){
+    	
+    	try {
+			
+    		
+    		iso.getWsTransactionConfig().setProccodeTransactionFit("01-0003-01-CON_GETCTA");
+    		iso.setISO_011_SysAuditNumber(GeneralUtils.GetSecuencial(iso.getISO_011_SysAuditNumber().length()));
+    		FitCoreProcessor processor = new FitCoreProcessor(iso);
+    		Detail response = processor.ProcessingTransactionFitCore();
+    		if(iso.getISO_039_ResponseCode().equals("000")){
+    			
+    			if(response != null){
+	    			FitQueryables ccuenta = new FitQueryables("TCUENTASPERSONA", 0, "CCUENTA", response);
+	    			ccuenta.join();
+	    			if(ccuenta.getReturnValue() != null){
+	    				
+	    				iso.setISO_102_AccountID_1(String.valueOf(ccuenta.getReturnValue()));//Aasignacion ccuenta
+	    				iso.setISO_039_ResponseCode("000");
+	    				iso.setISO_039p_ResponseDetail("TRANSACCION EXITOSA");
+	    				
+	    			}else{
+	    				
+	    				iso.setISO_039_ResponseCode("100");
+	    				iso.setISO_039p_ResponseDetail("SOCIO CLIENTE NO POSEE CUENTA DEL TIPO CONSULTADO");
+	    			}
+    			}else{
+    				
+    				iso.setISO_039_ResponseCode("909");
+    				iso.setISO_039p_ResponseDetail("ERROR AL OBTENER CUENTAS DEL CLIENTE");
+    			}
+    		}
+    		
+		} catch (Exception e) {
+			
+			iso.setISO_039_ResponseCode("070");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::getCtasTipoFit ", TypeMonitor.error, e);
+		}
+    	
+    	return iso;
+    }
+    
+    public wIso8583 getCtasPrestamosPersona(wIso8583 iso) {
+    	
+    	try {
+			
+		} catch (Exception e) {
+			iso.setISO_039_ResponseCode("909");
+			iso.setISO_039p_ResponseDetail(GeneralUtils.ExceptionToString("ERROR EN PROCESOS", e, false));
+			log = new Logger();
+			log.WriteLogMonitor("Error modulo FitIsAut::getCtasPrestamosPersona ", TypeMonitor.error, e);
+		}
+    	return iso;
+    }
+}

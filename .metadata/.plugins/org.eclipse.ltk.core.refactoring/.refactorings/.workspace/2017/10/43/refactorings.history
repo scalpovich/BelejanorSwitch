@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<session version="1.0">
+<refactoring comment="Rename resource &apos;SaiBankMiddleware&apos; to &apos;FitSwitchProject&apos;" description="Rename resource &apos;SaiBankMiddleware&apos;" flags="7" id="org.eclipse.ltk.core.refactoring.rename.resource" input="/SaiBankMiddleware" name="FitSwitchProject" stamp="1508556151567" updateReferences="true"/>
+</session>

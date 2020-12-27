@@ -1,0 +1,42 @@
+#Archivo de configuracion de parametros Middleware
+commonSucursal=01
+commonCodOficina=01
+commonRol=1
+commonIdioma=ES
+commonArea=1
+commonTPP=1
+commonCompania=1
+commonSesion=1
+commonTrxReverso=1
+commonFechaContable=1
+#BDD Oracle
+InitialPoolSize=10
+MinPoolSize=15
+MaxPoolSize=20
+bddconnectionurl=jdbc:oracle:thin:@11.20.1.15:1521:FITBANKI 
+bdduser=fitswitch
+bddpassword=fitswitch
+#ipUci=172.17.1.9
+#portUci=20050
+ipUci=192.168.19.186
+portUci=21000
+timeOutUci=39
+uciReverseTrx=03-6032-01-MAN
+ownNetwork=555551
+ownChannel=0003
+proccodeMsgControl=000000
+sendMsgControlFlag=false
+sendMsgControlInterval=60
+abaIfi=526017,520961
+#Dinero Electronico
+urlServiceBce=https://181.211.102.40:8444/mts_bce/services/MTSServiceEFI.MTSServiceEFIHttpsSoap12Endpoint/
+userNameBce=UsrSANJOSE01
+pwdBce=d258d755c5
+idiomBce=ES
+serviceFacilito=http://190.216.208.198:2691/Implement_Service_SBD.svc
+TCPServerPort=8007
+TCPServerNroThreads=20
+queueStoreForward=qSForward
+queueNameIni=qIni
+queueCoonecta=qCoonectaResponse
+flagUSeQueueInit=true
